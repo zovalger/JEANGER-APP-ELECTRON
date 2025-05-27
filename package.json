@@ -1,0 +1,49 @@
+{
+  "name": "jeanger-app-electron",
+  "productName": "JEANGER-APP",
+  "version": "0.0.1",
+  "description": "Rebuilding the Jeanger app desktop application in Electron.js, using vite, react and tailwindcss.",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
+  },
+  "keywords": [],
+  "author": {
+    "name": "zovalger",
+    "email": "zovalger@gmail.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.1",
+    "@electron-forge/maker-deb": "^7.8.1",
+    "@electron-forge/maker-rpm": "^7.8.1",
+    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-zip": "^7.8.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
+    "@electron-forge/plugin-fuses": "^7.8.1",
+    "@electron-forge/plugin-vite": "^7.8.1",
+    "@electron/fuses": "^1.8.0",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "electron": "36.3.1",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.31.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~4.5.4",
+    "vite": "^5.4.19"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.7",
+    "electron-squirrel-startup": "^1.0.1",
+    "postcss": "^8.5.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.7"
+  }
+}
