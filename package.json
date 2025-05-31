@@ -1,7 +1,7 @@
 {
   "name": "jeanger-app-electron",
   "productName": "JEANGER-APP",
-  "version": "0.0.1",
+  "version": "2.0.1",
   "description": "Rebuilding the Jeanger app desktop application in Electron.js, using vite, react and tailwindcss.",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -27,6 +27,8 @@
     "@electron-forge/plugin-fuses": "^7.8.1",
     "@electron-forge/plugin-vite": "^7.8.1",
     "@electron/fuses": "^1.8.0",
+    "@tailwindcss/postcss": "^4.1.8",
+    "@types/electron-squirrel-startup": "^1.0.2",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -39,11 +41,14 @@
     "vite": "^5.4.19"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.7",
+    "dexie": "^4.0.11",
+    "dexie-react-hooks": "^1.1.7",
     "electron-squirrel-startup": "^1.0.1",
     "postcss": "^8.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "uuid": "^11.1.0",
+    "zustand": "^5.0.5"
   }
 }
