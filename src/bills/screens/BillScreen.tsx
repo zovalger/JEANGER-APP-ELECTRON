@@ -16,6 +16,8 @@ import { initialValuesBill } from "../../common/config/initialValues";
 import Input from "../../common/components/Input";
 import { CurrencyType } from "../../common/enums";
 import Button from "../../common/components/Button";
+import Text from "../../common/components/Text";
+import Modal from "../../common/components/Modal";
 
 const regExpAdder = /^(\+|-)\d{1,}/i;
 
@@ -285,10 +287,7 @@ const BillScreen = () => {
 						<BillItem key={uuid()} data={item} />
 					))}
 
-				<div>
-					<div>
-						<div>
-							<Button
+				{/* <Button
 								onClick={() => {
 									onDelete();
 								}}
@@ -296,52 +295,39 @@ const BillScreen = () => {
 								Eliminar
 							</Button>
 
-							<Button onClick={() => opendiv()}>añadir</Button>
-						</div>
+							<Button onClick={() => opendiv()}>añadir</Button> */}
+
+				<div className="mx-12	">
+					<div className="flex justify-between items-center">
+						<Text>SubTotal</Text>
+						<Text>
+							{(totals.BSF * (1 / 1.16)).toFixed(2)} {CurrencyType.BSF}
+						</Text>
 					</div>
-					<div>
-						<div>
-							<div>
-								<div>SubTotal</div>
-							</div>
 
-							<div>
-								<div>
-									{(totals.BSF * (1 / 1.16)).toFixed(2)} {CurrencyType.BSF}
-								</div>
-							</div>
-						</div>
+					<div className="flex justify-between items-center">
+						<Text>iva 16%</Text>
 
-						<div>
-							<div>
-								<div>iva 16%</div>
-							</div>
-
-							<div>
-								<div>
-									{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}{" "}
-									{CurrencyType.BSF}
-								</div>
-							</div>
-						</div>
-
-						<div>
-							<div>
-								<div>Total</div>
-							</div>
-
-							<div>
-								<div>
-									{totals.USD.toFixed(2)} {CurrencyType.USD}
-								</div>
-								<div>
-									{totals.BSF.toFixed(2)} {CurrencyType.BSF}
-								</div>
-							</div>
+						<Text className="text-right">
+							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}
+							{CurrencyType.BSF}
+						</Text>
+					</div>
+					<div className="flex justify-between items-center">
+						<Text>Total</Text>
+						<div className="flex flex-col">
+							<Text className="text-right">
+								{totals.USD.toFixed(2)} {CurrencyType.USD}
+							</Text>
+							<Text className="text-right">
+								{totals.BSF.toFixed(2)} {CurrencyType.BSF}
+							</Text>
 						</div>
 					</div>
 				</div>
 			</div>
+
+			
 		</div>
 	);
 };

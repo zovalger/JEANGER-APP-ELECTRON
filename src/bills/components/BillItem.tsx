@@ -9,7 +9,7 @@ import { CurrencyType } from "../../common/enums";
 import Modal from "../../common/components/Modal";
 import Text from "../../common/components/Text";
 import Input from "../../common/components/Input";
-import Button from "../../common/components/Button";
+import IconButton from "../../common/components/IconButton";
 
 interface props {
 	data: IBillItem;
@@ -24,14 +24,11 @@ function BillItem({ data, onDeleteItem }: props) {
 	const { quantity, productId } = data;
 	const { name, cost, currencyType } = getProduct(data.productId);
 
-	const [opendiv, setOpendiv] = useState(false);
+	const [openModal, setOpenModal] = useState(false);
 
-	const handdleOpendiv = () => {
-		setOpendiv(true);
-	};
-	const handdleClosediv = () => {
-		setOpendiv(false);
-	};
+	const handdleOpendiv = () => setOpenModal(true);
+
+	const handdleCloseModal = () => setOpenModal(false);
 
 	const handdleDelete = async () => {
 		if (onDeleteItem) onDeleteItem(productId);
@@ -56,7 +53,7 @@ function BillItem({ data, onDeleteItem }: props) {
 			foreignExchange
 		);
 		setCurrentBill(newBill);
-		handdleClosediv();
+		handdleCloseModal();
 	};
 
 	// *******************************************************************
@@ -65,46 +62,30 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	return (
 		<>
-			<div
-				onClick={() => {
-					handdleOpendiv();
-				}}
-			>
-				<div className="flex-row align-middle ">
-					<div className="flex-row flex-1">
-						<div className="min-w-8  mx-2 text-center ">{quantity}</div>
-						<div>{name}</div>
-					</div>
+			<div className="flex items-center m-4 space-x-4" onClick={handdleOpendiv}>
+				<Text className="w-4 text-center">{quantity}</Text>
 
-					<div className="flex-row justify-between flex-1">
-						<div>
-							<div>
-								{BSF.toFixed(2)} {CurrencyType.BSF}
-							</div>
-						</div>
-						<div>
-							<div>
-								{(BSF * quantity).toFixed(2)} {CurrencyType.BSF}
-							</div>
-						</div>
-					</div>
+				<Text className="flex-1">{name}</Text>
 
-					<div>
-						<div
-							onClick={() => {
-								handdleDelete();
-							}}
-						>
-							<div> x</div>
-						</div>
-					</div>
-				</div>
+				<Text>
+					{BSF.toFixed(2)} {CurrencyType.BSF}
+				</Text>
+
+				<Text>
+					{(BSF * quantity).toFixed(2)} {CurrencyType.BSF}
+				</Text>
+
+				<IconButton variant="danger" onClick={handdleDelete} icon="Trash" />
 			</div>
 
 			{/* modal */}
 
-			<Modal onClose={handdleClosediv} visible={opendiv}>
-				<Text>Cantidad</Text>
+			<Modal onClose={handdleCloseModal} visible={openModal}>
+				<div className="flex items-center justify-between mb-4">
+					<Text>Cantidad</Text>
+					<IconButton icon="Close" onClick={handdleCloseModal} />
+				</div>
+
 				<Input
 					autoFocus
 					placeholder="Cantidad"
@@ -115,7 +96,7 @@ function BillItem({ data, onDeleteItem }: props) {
 					onChange={({ target: { value } }) => setQu(parseFloat(value))}
 				/>
 
-				<Button onClick={() => onSubmit()}>{">"}</Button>
+				<IconButton onClick={onSubmit} icon="Plus" />
 			</Modal>
 		</>
 	);
