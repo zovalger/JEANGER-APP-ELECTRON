@@ -1,9 +1,13 @@
 import { ParamHTMLAttributes } from "react";
 
-const Text = (props: ParamHTMLAttributes<HTMLDivElement>) => {
+interface TextProps extends ParamHTMLAttributes<HTMLDivElement> {
+	textType?: string;
+}
+
+const Text = (props: TextProps) => {
 	const { className, ...otherPros } = props;
 
-	return <p {...otherPros} className={`h-fit ${className}`}></p>;
+	return <div {...otherPros} className={`h-fit text-xs  ${className}`}></div>;
 };
 
 export default Text;

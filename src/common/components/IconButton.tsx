@@ -8,14 +8,21 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const IconButton = (props: IconButtonProps) => {
-	const { className, icon, variant, ...otherPros } = props;
+	const { className, onClick, icon, variant, ...otherPros } = props;
 
 	const IconToShow = IconMap[icon]
 		? IconMap[icon]
 		: () => <span className="text-red-500">Icon not found</span>;
 
 	return (
-		<button {...otherPros} className={` ${className}`}>
+		<button
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick(e);
+			}}
+			{...otherPros}
+			className={` ${className}`}
+		>
 			<IconToShow />
 		</button>
 	);

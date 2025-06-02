@@ -62,20 +62,25 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	return (
 		<>
-			<div className="flex items-center m-4 space-x-4" onClick={handdleOpendiv}>
+			<div className="flex items-center p-4 " onClick={handdleOpendiv}>
 				<Text className="w-4 text-center">{quantity}</Text>
 
-				<Text className="flex-1">{name}</Text>
+				<Text className="flex-1 ml-4">{name}</Text>
 
-				<Text>
+				<Text className="min-w-20 text-right">
 					{BSF.toFixed(2)} {CurrencyType.BSF}
 				</Text>
 
-				<Text>
+				<Text className="min-w-20 text-right">
 					{(BSF * quantity).toFixed(2)} {CurrencyType.BSF}
 				</Text>
 
-				<IconButton variant="danger" onClick={handdleDelete} icon="Trash" />
+				<IconButton
+					className="ml-4"
+					variant="danger"
+					onClick={handdleDelete}
+					icon="Minus"
+				/>
 			</div>
 
 			{/* modal */}
@@ -86,17 +91,19 @@ function BillItem({ data, onDeleteItem }: props) {
 					<IconButton icon="Close" onClick={handdleCloseModal} />
 				</div>
 
-				<Input
-					autoFocus
-					placeholder="Cantidad"
-					onKeyDown={({ nativeEvent: { key } }) => {
-						if (key === "Enter") onSubmit();
-					}}
-					value={qu.toString()}
-					onChange={({ target: { value } }) => setQu(parseFloat(value))}
-				/>
+				<div className="flex items-center gap-2">
+					<Input
+						autoFocus
+						placeholder="Cantidad"
+						onKeyDown={({ nativeEvent: { key } }) => {
+							if (key === "Enter") onSubmit();
+						}}
+						value={qu.toString()}
+						onChange={({ target: { value } }) => setQu(parseFloat(value))}
+					/>
 
-				<IconButton onClick={onSubmit} icon="Plus" />
+					<IconButton onClick={onSubmit} icon="Plus" />
+				</div>
 			</Modal>
 		</>
 	);

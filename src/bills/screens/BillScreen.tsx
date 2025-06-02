@@ -12,7 +12,10 @@ import {
 	searchProductsByWord,
 	sortProductByPriority,
 } from "../../products/helpers/Product.helpers";
-import { initialValuesBill } from "../../common/config/initialValues";
+import {
+	initialValuesBill,
+	initialValuesForeignExchange,
+} from "../../common/config/initialValues";
 import Input from "../../common/components/Input";
 import { CurrencyType } from "../../common/enums";
 import Button from "../../common/components/Button";
@@ -29,7 +32,6 @@ const BillScreen = () => {
 	const [inputValue, setInputValue] = useState("");
 	const [adderValue, setAdderValue] = useState<null | number>(null);
 	const [productList, setProductList] = useState<string[]>([]);
-
 	const [selected, setSelected] = useState<number>(-1);
 
 	// *******************************************************************
@@ -142,30 +144,40 @@ const BillScreen = () => {
 			// 		onEnter(index);
 			// 	}}
 
-			return (
-				<div key={_id} onClick={() => onEnter(index)}>
-					<div>
-						<div>
-							<div>{getProduct(_id).name}</div>
-						</div>
+			const { name, cost, currencyType } = getProduct(_id);
 
-						{/* <div>
-							<div>
-								<div>
-									<div>{Math.round(BSF)}</div>
-									<div>{CurrencyType.BSF}</div>
-								</div>
-								<div>
-									<div>{divisaCost.toFixed(2)}</div>
-									<div>
-										{currencyType == CurrencyType.EUR
-											? CurrencyType.EUR
-											: CurrencyType.USD}
-									</div>
-								</div>
-							</div>
-						</div> */}
-					</div>
+			const d = foreignExchange || initialValuesForeignExchange;
+
+			const divisaRef =
+				currencyType == CurrencyType.BSF || currencyType == CurrencyType.USD
+					? d.dolar
+					: d.euro;
+
+			// costo bolivares
+			const BSF = currencyType == CurrencyType.BSF ? cost : cost * divisaRef;
+
+			// costo en divisa
+			const divisaCost =
+				currencyType == CurrencyType.BSF ? cost / divisaRef : cost;
+
+			return (
+				<div
+					className="flex items-center px-4 py-2"
+					key={_id}
+					onClick={() => onEnter(index)}
+				>
+					<Text className="flex-1">{name}</Text>
+
+					<Text className="min-w-20 text-right">
+						{Math.round(BSF)} {CurrencyType.BSF}
+					</Text>
+
+					<Text className="min-w-20 text-right">
+						{divisaCost.toFixed(2)}{" "}
+						{currencyType == CurrencyType.EUR
+							? CurrencyType.EUR
+							: CurrencyType.USD}
+					</Text>
 				</div>
 			);
 		});
@@ -251,7 +263,7 @@ const BillScreen = () => {
 	// *******************************************************************
 
 	return (
-		<div>
+		<>
 			<div>
 				<Input
 					placeholder="Buscar"
@@ -268,11 +280,11 @@ const BillScreen = () => {
 
 			{/* ******************************* Selector del buscador ************************************ */}
 
-			<div>
-				{productList.length > 0 && (
-					<div>{showLimitedProducts(productList)}</div>
-				)}
-			</div>
+			{productList.length > 0 && (
+				<div className="absolute z-10 left-0 right-0 bg-white rounded-lg shadow-lg p-2">
+					{showLimitedProducts(productList)}
+				</div>
+			)}
 
 			{/* ******************************* visor ************************************ */}
 
@@ -309,7 +321,7 @@ const BillScreen = () => {
 						<Text>iva 16%</Text>
 
 						<Text className="text-right">
-							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}
+							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}{" "}
 							{CurrencyType.BSF}
 						</Text>
 					</div>
@@ -326,9 +338,7 @@ const BillScreen = () => {
 					</div>
 				</div>
 			</div>
-
-			
-		</div>
+		</>
 	);
 };
 
