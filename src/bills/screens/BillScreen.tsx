@@ -18,21 +18,26 @@ import {
 } from "../../common/config/initialValues";
 import Input from "../../common/components/Input";
 import { CurrencyType } from "../../common/enums";
-import Button from "../../common/components/Button";
 import Text from "../../common/components/Text";
-import Modal from "../../common/components/Modal";
+import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
+import Button from "../../common/components/Button";
+import IconButton from "../../common/components/IconButton";
 
 const regExpAdder = /^(\+|-)\d{1,}/i;
 
 const BillScreen = () => {
 	const { foreignExchange } = useForeignExchange();
-	const { products, getProduct } = useProduct();
+	const { products, getProduct, getAllProductsWithServer } = useProduct();
 	const { currentBill, setCurrentBill } = useBill();
 
 	const [inputValue, setInputValue] = useState("");
 	const [adderValue, setAdderValue] = useState<null | number>(null);
 	const [productList, setProductList] = useState<string[]>([]);
 	const [selected, setSelected] = useState<number>(-1);
+
+	useEffect(() => {
+		getAllProductsWithServer();
+	}, []);
 
 	// *******************************************************************
 	// 													Fuctions
@@ -162,7 +167,9 @@ const BillScreen = () => {
 
 			return (
 				<div
-					className="flex items-center px-4 py-2"
+					className={`flex items-center px-4 py-2 hover:bg-gray-200 ${
+						selected === index && "bg-gray-200"
+					}`}
 					key={_id}
 					onClick={() => onEnter(index)}
 				>
@@ -263,28 +270,33 @@ const BillScreen = () => {
 	// *******************************************************************
 
 	return (
-		<>
-			<div>
-				<Input
-					placeholder="Buscar"
-					value={inputValue}
-					onChange={({ target: { value } }) => onChange(value)}
-					onKeyDown={({ nativeEvent: { key } }) => {
-						if (key === "Escape") onClear();
-						if (key === "ArrowUp") moveSelected(-1);
-						if (key === "ArrowDown") moveSelected(1);
-						if (key === "Enter") onEnter();
-					}}
-				/>
-			</div>
-
-			{/* ******************************* Selector del buscador ************************************ */}
-
-			{productList.length > 0 && (
-				<div className="absolute z-10 left-0 right-0 bg-white rounded-lg shadow-lg p-2">
-					{showLimitedProducts(productList)}
+		<PageTemplateLayout
+			rightButtons={<IconButton icon="Refresh" onClick={onDelete} />}
+		>
+			<div className="sticky top-14 my-2">
+				<div className="px-4 ">
+					<Input
+						className="bg-gray-100 rounded-xl "
+						placeholder="Buscar"
+						value={inputValue}
+						onChange={({ target: { value } }) => onChange(value)}
+						onKeyDown={({ nativeEvent: { key } }) => {
+							if (key === "Escape") onClear();
+							if (key === "ArrowUp") moveSelected(-1);
+							if (key === "ArrowDown") moveSelected(1);
+							if (key === "Enter") onEnter();
+						}}
+					/>
 				</div>
-			)}
+
+				{/* ******************************* Selector del buscador ************************************ */}
+
+				{productList.length > 0 && (
+					<div className="absolute z-10 left-0 right-0 bg-white rounded-lg shadow-lg p-2">
+						{showLimitedProducts(productList)}
+					</div>
+				)}
+			</div>
 
 			{/* ******************************* visor ************************************ */}
 
@@ -338,7 +350,7 @@ const BillScreen = () => {
 					</div>
 				</div>
 			</div>
-		</>
+		</PageTemplateLayout>
 	);
 };
 

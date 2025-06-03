@@ -62,7 +62,7 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	return (
 		<>
-			<div className="flex items-center p-4 " onClick={handdleOpendiv}>
+			<div className="flex items-center p-4 hover:bg-gray-200 " onClick={handdleOpendiv}>
 				<Text className="w-4 text-center">{quantity}</Text>
 
 				<Text className="flex-1 ml-4">{name}</Text>

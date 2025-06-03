@@ -3,7 +3,7 @@ import BillScreen from "../screens/BillScreen";
 
 const BillRoutes = () => {
 	return (
-		<Route path="bill">
+		<Route path="bills">
 			<Route index element={<BillScreen />} />
 		</Route>
 	);

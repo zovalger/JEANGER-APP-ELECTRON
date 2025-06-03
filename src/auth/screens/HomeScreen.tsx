@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router";
+import RouterLinks from "../../common/config/RouterLinks";
 
 
 const HomeScreen = () => {
@@ -10,7 +11,7 @@ const HomeScreen = () => {
 			home screen
 
 			<NavLink
-        to="/dashboard"
+       to={RouterLinks.Dashboard}
         className={({ isActive }) =>
           isActive ? "active" : ""
         }
@@ -19,7 +20,7 @@ const HomeScreen = () => {
       </NavLink>
       <br />
 
-      <Link to="/dashboard/bill">bill</Link>
+      <Link to={RouterLinks.Bills}>bill</Link>
 		</div>
 	);
 };

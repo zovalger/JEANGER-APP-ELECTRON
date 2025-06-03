@@ -18,7 +18,7 @@ const IconButton = (props: IconButtonProps) => {
 		<button
 			onClick={(e) => {
 				e.stopPropagation();
-				onClick(e);
+				if (onClick) onClick(e);
 			}}
 			{...otherPros}
 			className={` ${className}`}
