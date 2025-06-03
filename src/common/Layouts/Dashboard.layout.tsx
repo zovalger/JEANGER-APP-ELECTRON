@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, Outlet } from "react-router";
 
 interface DashboardLayoutProps {
 	// Define any props if needed
@@ -7,14 +7,14 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
-	const { children } = DashboardLayoutProps;
+	// const { children } = DashboardLayoutProps;
 
 	return (
 		<div>
 			<div>layout</div>
 			<Link to="/">home</Link>
 
-			{children}
+			<Outlet />
 		</div>
 	);
 };

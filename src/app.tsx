@@ -13,8 +13,8 @@ root.render(
 		<Routes>
 			<Route path="/" index element={<HomeScreen />} />
 
-			<Route path="/dashboard">
-				<Route element={<DashboardLayout />}>{BillRoutes()}</Route>
+			<Route path="/dashboard" element={<DashboardLayout />}>
+				{BillRoutes()}
 			</Route>
 		</Routes>
 	</BrowserRouter>
