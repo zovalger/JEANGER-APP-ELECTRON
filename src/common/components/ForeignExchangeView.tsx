@@ -2,6 +2,7 @@ import { useState } from "react";
 import IconButton from "./IconButton";
 import Text from "./Text";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
+import Skeleton from "./Skeleton";
 
 export default function ForeignExchangeView() {
 	const { foreignExchange, forceScrapForeignExchange } = useForeignExchange();
@@ -10,9 +11,7 @@ export default function ForeignExchangeView() {
 	const [copy, setCopy] = useState(false);
 	const [copy2, setCopy2] = useState(false);
 
-	const toggleEditMode = () => {
-		setEditMode(!editMode);
-	};
+	const toggleEditMode = () => setEditMode(!editMode);
 
 	// const formik = useFormik({
 	// 	initialValues: { euro: 0, dolar: 0, date: new Date() },
@@ -31,11 +30,63 @@ export default function ForeignExchangeView() {
 	// 	},
 	// });
 
+	const copyToClipboard = async (text: string) => {
+		await navigator.clipboard.writeText(text);
+	};
+
+	const Content = () => (
+		<>
+			<div className="flex items-center gap-2">
+				<Text className="w-12" variant="bold">
+					Dolar:{" "}
+				</Text>
+				<Text className="">{foreignExchange.dolar?.toFixed(2)} bs</Text>
+
+				<IconButton
+					icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
+					onClick={async () => {
+						setCopy(true);
+						setTimeout(() => setCopy(false), 800);
+						await copyToClipboard(
+							foreignExchange.dolar?.toString().replace(".", ",")
+						);
+					}}
+				/>
+			</div>
+
+			<div className="flex items-center gap-2">
+				<Text className="w-12" variant="bold">
+					Euro:{" "}
+				</Text>
+				<Text className="">{foreignExchange.euro?.toFixed(2)} bs</Text>
+
+				<IconButton
+					icon={copy2 ? "ClipboardCheck" : "ClipboardCopy"}
+					onClick={async () => {
+						setCopy2(true);
+						setTimeout(() => setCopy2(false), 800);
+						await copyToClipboard(
+							foreignExchange.euro?.toString().replace(".", ",")
+						);
+					}}
+				/>
+			</div>
+
+			<div className="flex items-center gap-2">
+				<Text className="w-12" variant="bold">
+					Fecha:
+				</Text>
+				<Text>{foreignExchange.bankBusinessDate}</Text>
+			</div>
+		</>
+	);
+
 	return (
-		<div>
-			<div>
-				<Text>Divisas</Text>
+		<div className="p-4">
+			<div className="flex justify-between items-center">
+				<Text className="mr-auto">Divisas</Text>
 				<IconButton onClick={toggleEditMode} icon="Edit" />
+				<IconButton onClick={forceScrapForeignExchange} icon="Refresh" />
 			</div>
 
 			{editMode ? (
@@ -58,65 +109,32 @@ export default function ForeignExchangeView() {
 				</>
 			) : (
 				<>
-					<div>
-						<div>
-							<div>
-								<Text>
-									<strong>Dolar: </strong>
-									{foreignExchange && foreignExchange.dolar?.toFixed(2)}
+					{foreignExchange ? (
+						<Content />
+					) : (
+						<div className="">
+							<div className="flex items-center gap-2">
+								<Text variant="bold" className="w-12">
+									Dolar:
 								</Text>
-
-								{foreignExchange && (
-									// <CopyToClipboard
-									// 	text={foreignExchange.dolar?.toString().replace(".", ",")}
-									// 	onCopy={() => {
-									// 		setCopy(true);
-
-									// 		setTimeout(() => setCopy(false), 1000);
-									// 	}}
-									// >
-									<IconButton
-										icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
-									/>
-									// </CopyToClipboard>
-								)}
+								<Skeleton size="quarter" />
 							</div>
 
-							<div>
-								<Text>
-									<strong>Euro: </strong>
-									{foreignExchange && foreignExchange.euro?.toFixed(2)}
+							<div className="flex items-center gap-2">
+								<Text variant="bold" className="w-12">
+									Euro:{" "}
 								</Text>
+								<Skeleton size="quarter" />
+							</div>
 
-								{foreignExchange && (
-									// <CopyToClipboard
-									// 	text={foreignExchange.euro?.toString().replace(".", ",")}
-									// 	onCopy={() => {
-									// 		setCopy2(true);
-
-									// 		setTimeout(() => setCopy2(false), 1000);
-									// 	}}
-									// >
-									<IconButton
-										icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
-									/>
-									// </CopyToClipboard>
-								)}
+							<div className="flex items-center gap-2">
+								<Text variant="bold" className="w-12">
+									Fecha:
+								</Text>
+								<Skeleton size="quarter" />
 							</div>
 						</div>
-
-						<IconButton onClick={forceScrapForeignExchange} icon="Refresh" />
-					</div>
-
-					<div>
-						<Text>
-							<b>Fecha:</b>
-							{foreignExchange &&
-								` ${new Date(
-									foreignExchange.bankBusinessDate
-								).toLocaleDateString()}`}
-						</Text>
-					</div>
+					)}
 				</>
 			)}
 		</div>

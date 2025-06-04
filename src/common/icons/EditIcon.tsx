@@ -3,7 +3,7 @@ const EditIcon = () => {
 		<svg
 			className="h-4 w-4"
 			viewBox="0 0 24 24"
-			stroke-width="2"
+			strokeWidth="2"
 			stroke="currentColor"
 			fill="none"
 			strokeLinecap="round"
