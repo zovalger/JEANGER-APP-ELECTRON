@@ -290,13 +290,12 @@ const BillScreen = () => {
 					/>
 				</div>
 
+					{productList.length > 0 && (
+						<div className="absolute z-10 left-0 right-0 bg-white rounded-lg shadow-lg p-2">
+							{showLimitedProducts(productList)}
+						</div>
+					)}
 				{/* ******************************* Selector del buscador ************************************ */}
-
-				{productList.length > 0 && (
-					<div className="absolute z-10 left-0 right-0 bg-white rounded-lg shadow-lg p-2">
-						{showLimitedProducts(productList)}
-					</div>
-				)}
 			</div>
 
 			{/* ******************************* visor ************************************ */}

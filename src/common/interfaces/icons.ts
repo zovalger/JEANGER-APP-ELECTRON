@@ -9,4 +9,7 @@ export type Icons =
 	| "Menu"
 	| "DotsVertical"
 	| "ChevronDown"
-	| "Refresh";
+	| "ChevronLeft"
+	| "Refresh"
+	| "ClipboardCopy"
+	| "ClipboardCheck"|"Tools";

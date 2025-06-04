@@ -4,6 +4,7 @@ import RouterLinks from "../config/RouterLinks";
 import IconButton from "../components/IconButton";
 import Text from "../components/Text";
 import useUI from "../hooks/useUI";
+import ForeignExchangeView from "../components/ForeignExchangeView";
 
 interface DashboardLayoutProps {
 	// Define any props if needed
@@ -12,28 +13,39 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	const { children } = DashboardLayoutProps;
-	const { leftPanelOpen, closeLeftPanel, rightPanelOpen, closeRightPanel } =
-		useUI();
+	const {
+		leftPanelOpen,
+		closeLeftPanel,
+		rightPanelOpen,
+		closeRightPanel,
+		toogleRightPanel,
+	} = useUI();
 
 	const LeftPanel = () => (
 		<div
-			className={`fixed top-0 w-screen h-full flex flex-col bg-white sm:w-48 sm:translate-x-0 ${
-				leftPanelOpen || "translate-x-full"
-			}`}
+			onClick={() => closeLeftPanel()}
+			className={`fixed top-0 				${
+				leftPanelOpen ? "translate-x-0" : "-translate-x-full"
+			}
+				bg-[#0005] w-screen h-full flex flex-col sm:w-48`}
 		>
-			<div className="flex items-center justify-between p-4 mb-4">
-				<Text>Panel izquierdo</Text>
-				<IconButton
-					className="sm:hidden"
-					icon="Close"
-					onClick={() => closeLeftPanel()}
-				/>
-			</div>
+			<div
+				className="bg-white h-full w-[80%] sm:w-full"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="flex items-center py-4 mb-4">
+					<IconButton
+						className="mr-4 sm:hidden"
+						icon="Close"
+						onClick={() => closeLeftPanel()}
+					/>
+					<Text>Panel izquierdo</Text>
+				</div>
 
-			<Link to={RouterLinks.Bills}>Facturas</Link>
-			{/* <Link to={RouterLinks.Bills}>Facturas</Link> */}
-			{/* <Link to={RouterLinks.Products}>products</Link> */}
-			{/* <Link to="/foreign-exchange">foreign exchange</Link> */}
+				<Link to={RouterLinks.Bills} onClick={closeLeftPanel}>
+					Facturas
+				</Link>
+			</div>
 		</div>
 	);
 
@@ -47,7 +59,9 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				<Text>Panel derecho</Text>
 				<IconButton icon="Close" onClick={() => closeRightPanel()} />
 			</div>
-			<div>panel derecho</div>
+			<div>
+				<ForeignExchangeView />
+			</div>
 		</div>
 	);
 
@@ -62,6 +76,10 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 			</div>
 
 			<LeftPanel />
+
+			<div className="fixed bottom-4 right-4">
+				<IconButton icon="Tools" onClick={toogleRightPanel} />
+			</div>
 
 			<RightPanel />
 		</>

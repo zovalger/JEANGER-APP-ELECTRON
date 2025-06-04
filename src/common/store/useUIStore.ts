@@ -11,6 +11,8 @@ interface IUIActions {
 	closeLeftPanel: () => void;
 	openRightPanel: () => void;
 	closeRightPanel: () => void;
+	toogleLeftPanel?: () => void;
+	toogleRightPanel?: () => void;
 }
 
 interface IUIStore extends IUI, IUIActions {}
@@ -19,7 +21,7 @@ const useUIStore = create<IUIStore>()(
 	persist<IUIStore>(
 		(set) => ({
 			leftPanelOpen: false,
-			rightPanelOpen: true,
+			rightPanelOpen: false,
 
 			openLeftPanel: () => {
 				set((state) => ({ ...state, leftPanelOpen: true }));
@@ -32,6 +34,19 @@ const useUIStore = create<IUIStore>()(
 			},
 			closeRightPanel: () => {
 				set((state) => ({ ...state, rightPanelOpen: false }));
+			},
+
+			toogleLeftPanel: () => {
+				set((state) => ({
+					...state,
+					leftPanelOpen: !state.leftPanelOpen,
+				}));
+			},
+			toogleRightPanel: () => {
+				set((state) => ({
+					...state,
+					rightPanelOpen: !state.rightPanelOpen,
+				}));
 			},
 		}),
 		{ name: "ui-store" }

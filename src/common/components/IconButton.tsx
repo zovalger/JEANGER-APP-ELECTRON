@@ -1,15 +1,26 @@
 import { ButtonHTMLAttributes } from "react";
 import { Icons } from "../interfaces/icons";
 import IconMap from "../icons";
+import { ButtonVariants } from "../interfaces/ButtonVariants";
+import { ButtonSizes } from "../interfaces/ButtonSizes";
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	icon: Icons;
-	variant?: "primary" | "secondary" | "tertiary" | "danger" | "success";
+	variant?: ButtonVariants;
+	size?: ButtonSizes;
 	href?: string;
 }
 
 const IconButton = (props: IconButtonProps) => {
-	const { className, onClick, icon, variant, href, ...otherPros } = props;
+	const {
+		className,
+		onClick,
+		icon,
+		variant,
+		size = "normal",
+		href,
+		...otherPros
+	} = props;
 
 	const IconToShow = IconMap[icon]
 		? IconMap[icon]

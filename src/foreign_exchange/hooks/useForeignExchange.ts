@@ -5,7 +5,11 @@ const useForeignExchange = () => {
 		(state) => state.foreignExchange
 	);
 
-	return { foreignExchange };
+	const forceScrapForeignExchange = async () => {
+		return foreignExchange;
+	};
+
+	return { foreignExchange, forceScrapForeignExchange };
 };
 
 export default useForeignExchange;

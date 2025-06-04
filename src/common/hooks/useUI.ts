@@ -7,6 +7,8 @@ const useUI = () => {
 	const closeLeftPanel = useUIStore((state) => state.closeLeftPanel);
 	const openRightPanel = useUIStore((state) => state.openRightPanel);
 	const closeRightPanel = useUIStore((state) => state.closeRightPanel);
+	const toogleLeftPanel = useUIStore((state) => state.toogleLeftPanel);
+	const toogleRightPanel = useUIStore((state) => state.toogleRightPanel);
 
 	return {
 		leftPanelOpen,
@@ -15,6 +17,8 @@ const useUI = () => {
 		closeLeftPanel,
 		openRightPanel,
 		closeRightPanel,
+		toogleLeftPanel,
+		toogleRightPanel,
 	};
 };
 

@@ -10,12 +10,17 @@ import MenuIcon from "./MenuIcon";
 import MinusIcon from "./MinusIcon";
 import RefreshIcon from "./RefreshIcon";
 import SquareIcon from "./SquareIcon";
+import ChevronLeftIcon from "./ChevronLeftIcon";
+import ClipboardCheckIcon from "./ClipboardCheckIcon";
+import ClipboardCopyIcon from "./ClipboardCopyIcon";
+import ToolsIcon from "./ToolsIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	Trash: TrashIcon,
 	Close: CloseIcon,
 	Plus: PlusIcon,
 	ChevronDown: ChevronDownIcon,
+	ChevronLeft: ChevronLeftIcon,
 	DotsVertical: DotsVerticalIcon,
 	Edit: EditIcon,
 	Menu: MenuIcon,
@@ -23,6 +28,9 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	Refresh: RefreshIcon,
 	Square: SquareIcon,
 	SquareCheck: SquareIcon,
+	ClipboardCheck: ClipboardCheckIcon,
+	ClipboardCopy: ClipboardCopyIcon,
+	Tools: ToolsIcon,
 };
 
 export default IconMap;
