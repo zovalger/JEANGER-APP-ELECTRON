@@ -23,7 +23,7 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 
 	return (
 		<>
-			<div className="sticky top-0 flex h-12 items-center bg-gray-200">
+			<div className="sticky top-0 flex h-12 items-center bg-gray-100">
 				{backButtonURL ? (
 					<IconButton
 						href={backButtonURL}

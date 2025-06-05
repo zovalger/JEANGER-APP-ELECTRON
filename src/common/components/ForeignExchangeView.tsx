@@ -37,11 +37,13 @@ export default function ForeignExchangeView() {
 
 	const Content = () => (
 		<>
-			<div className="flex items-center gap-2">
-				<Text className="w-12" variant="bold">
-					Dolar:{" "}
-				</Text>
-				<Text className="">{foreignExchange.dolar?.toFixed(2)} bs</Text>
+			<div className="flex gap-2">
+				<div className="flex flex-1 items-center justify-between">
+					<Text className="w-12" variant="bold">
+						Dolar:
+					</Text>
+					<Text className="">{foreignExchange.dolar?.toFixed(2)} bs</Text>
+				</div>
 
 				<IconButton
 					icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
@@ -56,11 +58,13 @@ export default function ForeignExchangeView() {
 				/>
 			</div>
 
-			<div className="flex items-center gap-2">
-				<Text className="w-12" variant="bold">
-					Euro:{" "}
-				</Text>
-				<Text className="">{foreignExchange.euro?.toFixed(2)} bs</Text>
+			<div className="flex gap-2">
+				<div className="flex flex-1 items-center justify-between">
+					<Text className="w-12" variant="bold">
+						Euro:
+					</Text>
+					<Text>{foreignExchange.euro?.toFixed(2)} bs</Text>
+				</div>
 
 				<IconButton
 					icon={copy2 ? "ClipboardCheck" : "ClipboardCopy"}
@@ -75,20 +79,22 @@ export default function ForeignExchangeView() {
 				/>
 			</div>
 
-			<div className="flex items-center gap-2">
+			<div className="flex  items-center justify-between pr-10">
 				<Text className="w-12" variant="bold">
 					Fecha:
 				</Text>
-				<Text>{foreignExchange.bankBusinessDate}</Text>
+				<Text>
+					{new Date(foreignExchange.bankBusinessDate).toLocaleDateString()}
+				</Text>
 			</div>
 		</>
 	);
 
 	return (
-		<div className="p-4">
+		<div className=" p-4">
 			<div className="flex justify-between items-center">
 				<Text className="mr-auto">Divisas</Text>
-				<IconButton size="small" onClick={toggleEditMode} icon="Edit" />
+				{/* <IconButton size="small" onClick={toggleEditMode} icon="Edit" /> */}
 				<IconButton
 					size="small"
 					onClick={forceScrapForeignExchange}

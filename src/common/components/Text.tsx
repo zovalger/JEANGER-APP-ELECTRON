@@ -5,6 +5,7 @@ import { TextVariants } from "../interfaces/TextVariants";
 interface TextProps extends ParamHTMLAttributes<HTMLDivElement> {
 	variant?: TextVariants;
 	size?: TextSizes;
+	selectable?: boolean;
 }
 
 const Text = (props: TextProps) => {
@@ -12,10 +13,16 @@ const Text = (props: TextProps) => {
 		variant = "normal",
 		size = "normal",
 		className,
+		selectable = false,
 		...otherPros
 	} = props;
 
-	return <div {...otherPros} className={`h-fit text-xs  ${className}`}></div>;
+	return (
+		<div
+			{...otherPros}
+			className={`h-fit text-xs ${selectable || "select-none"}  ${className}`}
+		></div>
+	);
 };
 
 export default Text;

@@ -22,6 +22,15 @@ const IconButton = (props: IconButtonProps) => {
 		...otherPros
 	} = props;
 
+	const sizeClass =
+		size === "small"
+			? "p-2"
+			: size === "big"
+			? "p-6"
+			: size === "tiny"
+			? "p-1"
+			: "p-4";
+
 	const IconToShow = IconMap[icon]
 		? IconMap[icon]
 		: () => <span className="text-red-500">Icon not found</span>;
@@ -40,7 +49,7 @@ const IconButton = (props: IconButtonProps) => {
 				if (onClick) onClick(e);
 			}}
 			{...otherPros}
-			className={`p-4 hover:bg-gray-100 ${className}`}
+			className={`hover:bg-gray-200 ${sizeClass} ${className}`}
 		>
 			<IconToShow />
 		</button>
