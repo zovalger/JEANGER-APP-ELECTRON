@@ -5,6 +5,7 @@ import IconButton from "../components/IconButton";
 import Text from "../components/Text";
 import useUI from "../hooks/useUI";
 import ForeignExchangeView from "../components/ForeignExchangeView";
+import Calculator from "../components/Calculator";
 
 interface DashboardLayoutProps {
 	// Define any props if needed
@@ -55,12 +56,13 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				rightPanelOpen ? "right-0" : "translate-x-full sm:-right-60"
 			}`}
 		>
-			<div className="flex items-center justify-between p-4 mb-4">
+			<div className="flex items-center justify-between pl-4 ">
 				<Text>Panel derecho</Text>
 				<IconButton icon="Close" onClick={() => closeRightPanel()} />
 			</div>
 			<div>
 				<ForeignExchangeView />
+				<Calculator />
 			</div>
 		</div>
 	);
