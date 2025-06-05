@@ -1,5 +1,71 @@
-import { CalculatorState } from "../components/Calculator";
-import { CurrencyType, MathOperation } from "../enums";
+import { CurrencyType } from "../enums";
+
+export interface CalculatorState {
+	createAt: Date | string;
+	textInput: string;
+	a: number;
+	b: number | null;
+	mathOperation: MathOperation;
+	result: number | null;
+	currencyType: CurrencyType;
+}
+
+export enum MathOperation {
+	sum = "+",
+	subtract = "-",
+	division = "/",
+	multiply = "*",
+}
+
+export enum MathSpecialKey {
+	Enter = "Enter",
+	Escape = "Escape",
+	$ = "$",
+}
+
+export interface HandleChangeCalculator {
+	calculatorState: CalculatorState;
+	key: string;
+	altKey: boolean;
+	ctrlKey: boolean;
+}
+
+// *****************************************************
+//                    helpers
+// *****************************************************
+
+export const isSpeacialkey = (key: string): boolean => {
+	if (Object.values(MathSpecialKey).includes(key as MathSpecialKey))
+		return true;
+
+	if (Object.values(MathOperation).includes(key as MathOperation)) return true;
+
+	return false;
+};
+
+export const initialCalculatorState = (): CalculatorState => {
+	return {
+		createAt: new Date(),
+		textInput: "",
+		a: 0,
+		b: null,
+		result: null,
+		mathOperation: MathOperation.sum,
+		currencyType: CurrencyType.BSF,
+	};
+};
+
+export const onChangeVisorText = (data: CalculatorState, text: string) => {
+	const newText = text.replace(/[^0-9.,]/g, "").replace(/\./g, ",");
+
+	// todo: handle multiple commas and dots
+
+	return { ...data, textInput: newText };
+};
+
+// *****************************************************
+//                    calculators
+// *****************************************************
 
 export const calculateResult = (data: CalculatorState): CalculatorState => {
 	const result = eval(`${data.a}${data.mathOperation}${data.b}`);
@@ -50,42 +116,16 @@ export const onMathOperationKey = (
 	return newState;
 };
 
-export const initialCalculatorState = (): CalculatorState => {
-	return {
-		createAt: new Date(),
-		textInput: "",
-		a: 0,
-		b: null,
-		result: null,
-		mathOperation: MathOperation.sum,
-		currencyType: CurrencyType.BSF,
-	};
-};
-
-export interface HandleChangeCalculator {
-	calculatorState: CalculatorState;
-	key: string;
-	altKey: boolean;
-	ctrlKey: boolean;
-}
-
 export const onSpecialKeyDownHanddle = ({
 	calculatorState,
 	key,
 	altKey,
 	ctrlKey,
 }: HandleChangeCalculator): CalculatorState => {
-	console.log(key, altKey, ctrlKey);
+	if (key === MathSpecialKey.$) return; // switchCurrencyType();
+	if (key === MathSpecialKey.Enter) return calculateResult(calculatorState);
+	if (key === MathSpecialKey.Escape) return initialCalculatorState();
 
-	if (key === "$") return; // switchCurrencyType();
-	if (key === "Enter") return calculateResult(calculatorState);
-	if (key === "Escape") return initialCalculatorState();
-
-	if (
-		key === MathOperation.sum ||
-		key === MathOperation.subtract ||
-		key === MathOperation.division ||
-		key === MathOperation.multiply
-	)
-		return onMathOperationKey(calculatorState, key);
+	if (Object.values(MathOperation).includes(key as MathOperation))
+		return onMathOperationKey(calculatorState, key as MathOperation);
 };

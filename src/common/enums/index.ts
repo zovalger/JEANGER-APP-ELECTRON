@@ -3,10 +3,3 @@ export enum CurrencyType {
 	EUR = "EUR",
 	BSF = "BSF",
 }
-
-export enum MathOperation {
-	sum = "+",
-	subtract = "-",
-	division = "/",
-	multiply = "*",
-}
