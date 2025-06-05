@@ -1,21 +1,21 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface IUI {
+interface IUIState {
 	leftPanelOpen: boolean;
 	rightPanelOpen: boolean;
 }
 
 interface IUIActions {
-	openLeftPanel: () => void;
-	closeLeftPanel: () => void;
-	openRightPanel: () => void;
-	closeRightPanel: () => void;
-	toogleLeftPanel?: () => void;
-	toogleRightPanel?: () => void;
+	onOpenLeftPanel: () => void;
+	onCloseLeftPanel: () => void;
+	onOpenRightPanel: () => void;
+	onCloseRightPanel: () => void;
+	onToogleLeftPanel?: () => void;
+	onToogleRightPanel?: () => void;
 }
 
-interface IUIStore extends IUI, IUIActions {}
+interface IUIStore extends IUIState, IUIActions {}
 
 const useUIStore = create<IUIStore>()(
 	persist<IUIStore>(
@@ -23,26 +23,26 @@ const useUIStore = create<IUIStore>()(
 			leftPanelOpen: false,
 			rightPanelOpen: false,
 
-			openLeftPanel: () => {
+			onOpenLeftPanel: () => {
 				set((state) => ({ ...state, leftPanelOpen: true }));
 			},
-			closeLeftPanel: () => {
+			onCloseLeftPanel: () => {
 				set((state) => ({ ...state, leftPanelOpen: false }));
 			},
-			openRightPanel: () => {
+			onOpenRightPanel: () => {
 				set((state) => ({ ...state, rightPanelOpen: true }));
 			},
-			closeRightPanel: () => {
+			onCloseRightPanel: () => {
 				set((state) => ({ ...state, rightPanelOpen: false }));
 			},
 
-			toogleLeftPanel: () => {
+			onToogleLeftPanel: () => {
 				set((state) => ({
 					...state,
 					leftPanelOpen: !state.leftPanelOpen,
 				}));
 			},
-			toogleRightPanel: () => {
+			onToogleRightPanel: () => {
 				set((state) => ({
 					...state,
 					rightPanelOpen: !state.rightPanelOpen,

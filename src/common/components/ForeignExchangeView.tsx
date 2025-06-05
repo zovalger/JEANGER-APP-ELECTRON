@@ -5,7 +5,8 @@ import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange"
 import Skeleton from "./Skeleton";
 
 export default function ForeignExchangeView() {
-	const { foreignExchange, forceScrapForeignExchange } = useForeignExchange();
+	const { foreignExchange, forceScrapForeignExchange, loadingForeignExchange } =
+		useForeignExchange();
 
 	const [editMode, setEditMode] = useState(false);
 	const [copy, setCopy] = useState(false);
@@ -44,6 +45,7 @@ export default function ForeignExchangeView() {
 
 				<IconButton
 					icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
+					size="small"
 					onClick={async () => {
 						setCopy(true);
 						setTimeout(() => setCopy(false), 800);
@@ -62,6 +64,7 @@ export default function ForeignExchangeView() {
 
 				<IconButton
 					icon={copy2 ? "ClipboardCheck" : "ClipboardCopy"}
+					size="small"
 					onClick={async () => {
 						setCopy2(true);
 						setTimeout(() => setCopy2(false), 800);
@@ -85,8 +88,12 @@ export default function ForeignExchangeView() {
 		<div className="p-4">
 			<div className="flex justify-between items-center">
 				<Text className="mr-auto">Divisas</Text>
-				<IconButton onClick={toggleEditMode} icon="Edit" />
-				<IconButton onClick={forceScrapForeignExchange} icon="Refresh" />
+				<IconButton size="small" onClick={toggleEditMode} icon="Edit" />
+				<IconButton
+					size="small"
+					onClick={forceScrapForeignExchange}
+					icon="Refresh"
+				/>
 			</div>
 
 			{editMode ? (
@@ -109,7 +116,7 @@ export default function ForeignExchangeView() {
 				</>
 			) : (
 				<>
-					{foreignExchange ? (
+					{foreignExchange && !loadingForeignExchange ? (
 						<Content />
 					) : (
 						<div className="">

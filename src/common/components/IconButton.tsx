@@ -40,7 +40,7 @@ const IconButton = (props: IconButtonProps) => {
 				if (onClick) onClick(e);
 			}}
 			{...otherPros}
-			className={` ${className}`}
+			className={`p-4 hover:bg-gray-100 ${className}`}
 		>
 			<IconToShow />
 		</button>
