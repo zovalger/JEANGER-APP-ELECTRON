@@ -3,7 +3,7 @@ import { CurrencyType } from "../enums";
 export interface CalculatorState {
 	createAt: Date | string;
 	textInput: string;
-	a: number;
+	a: number | null;
 	b: number | null;
 	mathOperation: MathOperation;
 	result: number | null;
@@ -47,7 +47,7 @@ export const initialCalculatorState = (): CalculatorState => {
 	return {
 		createAt: new Date(),
 		textInput: "",
-		a: 0,
+		a: null,
 		b: null,
 		result: null,
 		mathOperation: MathOperation.sum,
@@ -55,67 +55,94 @@ export const initialCalculatorState = (): CalculatorState => {
 	};
 };
 
-export const onChangeVisorText = (data: CalculatorState, text: string) => {
+export const onChangeVisorText = (text: string) => {
 	const onlyNumberAndDots = text.replace(/[^0-9.,]/g, "").replace(/\./g, ",");
 
-	const [number, decimal] = onlyNumberAndDots.split(",");
+	const [number, decimal, ...others] = onlyNumberAndDots.split(",");
 
-	let a = number;
+	let numberText = number;
 
-	if (decimal !== undefined) a += `,${decimal}`;
+	if (decimal !== undefined) numberText += `,${decimal}${others.join("")}`;
 
-	return { ...data, textInput: a };
+	return numberText;
 };
 
 // *****************************************************
 //                    calculators
 // *****************************************************
 
+// export const getVisorDataFormated = (data: CalculatorState): string => {
+// 	const { a, b, result } = data;
+
+// 	let valueVisor = b === null ? "0" : b.toFixed(2).toString();
+
+// 	if (a != null && b != null && result != null) {
+// 		valueVisor = result.toFixed(2).toString();
+// 	}
+
+// 	return valueVisor;
+// };
+
+export const getNumberFromTextInput = (textInput: string): number => {
+	return parseFloat(textInput.replace(",", "."));
+};
+
+export const setNumberToTextInput = (textInput: number): string => {
+	return textInput.toString().replace(".", ",");
+};
+
 export const calculateResult = (data: CalculatorState): CalculatorState => {
-	const result = eval(`${data.a}${data.mathOperation}${data.b}`);
+	const { a, mathOperation, textInput } = data;
 
-	return { ...data, result };
-};
+	if (a === null) return data;
 
-export const getVisorDataFormated = (data: CalculatorState): string => {
-	const { a, b, result } = data;
+	const currentB = getNumberFromTextInput(textInput);
 
-	let valueVisor = b === null ? "0" : b.toFixed(2).toString();
+	const result = eval(`${a}${mathOperation}${currentB}`);
 
-	if (a != null && b != null && result != null) {
-		valueVisor = result.toFixed(2).toString();
-	}
-
-	return valueVisor;
-};
-
-export const getNumberByVisorData = (dataVisor: string): number => {
-	const bFormated = dataVisor.trim().replaceAll(",", ".");
-
-	const bValue = bFormated ? parseFloat(bFormated) : 0;
-
-	return bValue;
+	return { ...data, textInput: setNumberToTextInput(result), a: result };
 };
 
 export const onMathOperationKey = (
 	data: CalculatorState,
 	mathOperation: MathOperation
 ): CalculatorState => {
-	const { a, b, result } = data;
+	const { textInput, a, b } = data;
 
-	const currentState =
-		a != null && b != null && result != null ? data : calculateResult(data);
+	if (!textInput.trim().length) return data;
 
-	if (currentState.result === null) return;
-	if (currentState.b === null) return;
+	const numTextInput = getNumberFromTextInput(textInput);
 
-	const newState: CalculatorState = {
-		...currentState,
-		a: currentState.result,
-		mathOperation: mathOperation,
-		b: null,
-		result: null,
-	};
+	console.log(textInput, numTextInput);
+
+	const newState = { ...data, mathOperation };
+
+	if (a === null) {
+		newState.a = numTextInput;
+		newState.textInput = "";
+	}
+
+	if (a !== null) {
+		const n = calculateResult(newState);
+
+		return { ...n, textInput: "" };
+	}
+
+	// if (a !== null) return calculateResult(newState);
+
+	// const currentState =
+	// 	a != null && b != null && result != null ? data : calculateResult(data);
+
+	// if (currentState.result === null) return;
+	// if (currentState.b === null) return;
+
+	// const newStates: CalculatorState = {
+	// 	...currentState,
+	// 	a: currentState.result,
+	// 	mathOperation: mathOperation,
+	// 	b: null,
+	// 	result: null,
+	// };
 
 	return newState;
 };

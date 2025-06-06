@@ -1,40 +1,22 @@
-import { useState } from "react";
 import Input from "./Input";
-import {
-	CalculatorState,
-	initialCalculatorState,
-	isSpeacialkey,
-	onChangeVisorText,
-	onSpecialKeyDownHanddle,
-} from "../helpers/CalculatorHelper";
+import useCalculator from "../hooks/useCalculator";
+import { isSpeacialkey } from "../helpers/CalculatorHelper";
 
 const Calculator = () => {
-	const [calculatorState, setCalculatorState] = useState<CalculatorState>(
-		initialCalculatorState()
-	);
+	const { calculatorState, onChange, onKeyPress } = useCalculator();
 
-	const onChange = (text: string) => {
-		const newCalculatorState = onChangeVisorText(calculatorState, text);
-		setCalculatorState(newCalculatorState);
-	};
-
-	const onKeyPress = (key: string, altKey: boolean, ctrlKey: boolean) => {
-		const newCalculatorState = onSpecialKeyDownHanddle({
-			calculatorState,
-			key,
-			altKey,
-			ctrlKey,
-		});
-
-		setCalculatorState(newCalculatorState);
-	};
-
+	const { mathOperation, a, b, textInput } = calculatorState;
 	return (
 		<>
+			<div>
+				{a}
+				{mathOperation}
+				{textInput}
+			</div>
 			<Input
 				placeholder="calcular"
 				className="text-right"
-				value={calculatorState.textInput}
+				value={textInput}
 				onChange={(event) => onChange(event.target.value)}
 				onKeyDown={(event) => {
 					if (isSpeacialkey(event.key)) {
