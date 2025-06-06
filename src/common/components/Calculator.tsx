@@ -4,15 +4,10 @@ import { isSpeacialkey } from "../helpers/CalculatorHelper";
 
 const Calculator = () => {
 	const { calculatorState, onChange, onKeyPress } = useCalculator();
+	const { textInput } = calculatorState;
 
-	const { mathOperation, a, b, textInput } = calculatorState;
 	return (
 		<>
-			<div>
-				{a}
-				{mathOperation}
-				{textInput}
-			</div>
 			<Input
 				placeholder="calcular"
 				className="text-right"

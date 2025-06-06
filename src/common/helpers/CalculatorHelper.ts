@@ -71,18 +71,6 @@ export const onChangeVisorText = (text: string) => {
 //                    calculators
 // *****************************************************
 
-// export const getVisorDataFormated = (data: CalculatorState): string => {
-// 	const { a, b, result } = data;
-
-// 	let valueVisor = b === null ? "0" : b.toFixed(2).toString();
-
-// 	if (a != null && b != null && result != null) {
-// 		valueVisor = result.toFixed(2).toString();
-// 	}
-
-// 	return valueVisor;
-// };
-
 export const getNumberFromTextInput = (textInput: string): number => {
 	return parseFloat(textInput.replace(",", "."));
 };
@@ -92,59 +80,67 @@ export const setNumberToTextInput = (textInput: number): string => {
 };
 
 export const calculateResult = (data: CalculatorState): CalculatorState => {
-	const { a, mathOperation, textInput } = data;
+	const { a, b, mathOperation, textInput } = data;
 
 	if (a === null) return data;
 
-	const currentB = getNumberFromTextInput(textInput);
+	const sB = b || getNumberFromTextInput(textInput);
 
-	const result = eval(`${a}${mathOperation}${currentB}`);
+	if (isNaN(sB)) return data;
 
-	return { ...data, textInput: setNumberToTextInput(result), a: result };
+	const result = eval(`${a}${mathOperation}${sB}`);
+
+	return { ...data, textInput: setNumberToTextInput(result), result, b: sB };
 };
 
 export const onMathOperationKey = (
 	data: CalculatorState,
 	mathOperation: MathOperation
 ): CalculatorState => {
-	const { textInput, a, b } = data;
+	const { textInput, a, b, result } = data;
 
-	if (!textInput.trim().length) return data;
+	if (!textInput.trim().length) return { ...data, mathOperation };
+
+	const newState = { ...data };
 
 	const numTextInput = getNumberFromTextInput(textInput);
 
-	console.log(textInput, numTextInput);
-
-	const newState = { ...data, mathOperation };
-
 	if (a === null) {
-		newState.a = numTextInput;
-		newState.textInput = "";
+		return {
+			...newState,
+			a: numTextInput,
+			textInput: "",
+			mathOperation,
+		};
+	}
+	if (a !== null && b === null) {
+		const n = calculateResult({
+			...newState,
+			b: numTextInput,
+		});
+
+		return {
+			...n,
+			result: null,
+			textInput: "",
+			b: null,
+			a: n.result,
+			mathOperation,
+		};
 	}
 
-	if (a !== null) {
-		const n = calculateResult(newState);
-
-		return { ...n, textInput: "" };
+	if (a !== null && b !== null && result !== null) {
+		return {
+			...newState,
+			textInput: "",
+			result: null,
+			b: null,
+			a: result,
+			mathOperation,
+		};
 	}
 
-	// if (a !== null) return calculateResult(newState);
-
-	// const currentState =
-	// 	a != null && b != null && result != null ? data : calculateResult(data);
-
-	// if (currentState.result === null) return;
-	// if (currentState.b === null) return;
-
-	// const newStates: CalculatorState = {
-	// 	...currentState,
-	// 	a: currentState.result,
-	// 	mathOperation: mathOperation,
-	// 	b: null,
-	// 	result: null,
-	// };
-
-	return newState;
+	return { ...newState, mathOperation };
 };
 
 export const onSpecialKeyDownHanddle = ({
