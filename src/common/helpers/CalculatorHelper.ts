@@ -56,11 +56,15 @@ export const initialCalculatorState = (): CalculatorState => {
 };
 
 export const onChangeVisorText = (data: CalculatorState, text: string) => {
-	const newText = text.replace(/[^0-9.,]/g, "").replace(/\./g, ",");
+	const onlyNumberAndDots = text.replace(/[^0-9.,]/g, "").replace(/\./g, ",");
 
-	// todo: handle multiple commas and dots
+	const [number, decimal] = onlyNumberAndDots.split(",");
 
-	return { ...data, textInput: newText };
+	let a = number;
+
+	if (decimal !== undefined) a += `,${decimal}`;
+
+	return { ...data, textInput: a };
 };
 
 // *****************************************************
