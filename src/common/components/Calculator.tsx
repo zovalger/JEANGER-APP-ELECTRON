@@ -25,9 +25,9 @@ const Calculator = () => {
 						className="text-right p-1"
 						key={new Date(item.createAt).getMilliseconds()}
 					>
-						{item.a}
+						{item.a.toFixed(2)}
 						{item.mathOperation}
-						{item.b}={item.result}
+						{item.b.toFixed(2)}={item.result.toFixed(2)}
 					</Text>
 				))}
 			</div>
@@ -37,9 +37,9 @@ const Calculator = () => {
 				<div className="flex flex-col flex-1">
 					{a && (
 						<Text className="text-right" variant="bold" size="big">
-							{a.toString().replace(".", ",")}
+							{a.toFixed(2).replace(".", ",")}
 							{mathOperation}
-							{b?.toString().replace(".", ",")}
+							{b?.toFixed(2).replace(".", ",")}
 							{result && "="}
 						</Text>
 					)}
