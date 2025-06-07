@@ -62,7 +62,7 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	return (
 		<>
-			<div className="flex items-center p-4 hover:bg-gray-200 " onClick={handdleOpendiv}>
+			<div className="flex items-center px-4 py-2 hover:bg-gray-200 " onClick={handdleOpendiv}>
 				<Text className="w-4 text-center">{quantity}</Text>
 
 				<Text className="flex-1 ml-4">{name}</Text>
@@ -79,7 +79,8 @@ function BillItem({ data, onDeleteItem }: props) {
 					className="ml-4"
 					variant="danger"
 					onClick={handdleDelete}
-					icon="Minus"
+					icon="Trash"
+					size="small"
 				/>
 			</div>
 

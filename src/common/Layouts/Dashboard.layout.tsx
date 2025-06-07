@@ -25,16 +25,16 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	const LeftPanel = () => (
 		<div
 			onClick={() => closeLeftPanel()}
-			className={`fixed top-0 				${
-				leftPanelOpen ? "translate-x-0" : "-translate-x-full"
+			className={`fixed top-0  w-screen h-full flex flex-col bg-white sm:w-48 sm:translate-x-0				${
+				leftPanelOpen ? "left-0" : "translate-x-full sm:-left-0"
 			}
-				bg-[#0005] w-screen h-full flex flex-col sm:w-48`}
+				`}
 		>
 			<div
 				className="bg-white h-full w-[80%] sm:w-full"
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="flex items-center py-4 mb-4">
+				<div className="flex items-center mb-4">
 					<IconButton
 						className="mr-4 sm:hidden"
 						icon="Close"
@@ -44,7 +44,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				</div>
 
 				<Link to={RouterLinks.Bills} onClick={closeLeftPanel}>
-					Facturas
+					<Text>Facturas</Text>
 				</Link>
 			</div>
 		</div>
@@ -58,11 +58,14 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 		>
 			<div className="flex items-center justify-between pl-4 ">
 				<Text>Panel derecho</Text>
-				<IconButton icon="Close" onClick={() => closeRightPanel()} />
 			</div>
-			<div>
+			<div className="flex-1">
 				<ForeignExchangeView />
 				<Calculator />
+			</div>
+
+			<div className="flex items-center justify-end pl-4 ">
+				<IconButton icon="Close" onClick={() => closeRightPanel()} />
 			</div>
 		</div>
 	);
@@ -77,11 +80,11 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				{children || <Outlet />}
 			</div>
 
-			<LeftPanel />
-
 			<div className="fixed bottom-4 right-4">
 				<IconButton icon="Tools" onClick={toogleRightPanel} />
 			</div>
+
+			<LeftPanel />
 
 			<RightPanel />
 		</>
