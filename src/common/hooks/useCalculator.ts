@@ -5,31 +5,37 @@ import {
 	onChangeVisorText,
 	onSpecialKeyDownHanddle,
 } from "../helpers/CalculatorHelper";
+import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 
 const useCalculator = () => {
+	const { foreignExchange } = useForeignExchange();
 	const [calculatorState, setCalculatorState] = useState<CalculatorState>(
 		initialCalculatorState()
 	);
+	const [history, setHistory] = useState<CalculatorState[]>([]);
 
 	const onChange = (text: string) => {
 		const textInput = onChangeVisorText(text);
-		setCalculatorState((prev) => ({ ...prev, textInput }));
+		setCalculatorState((prev) => ({
+			...prev,
+			textInput,
+		}));
 	};
 
 	const onKeyPress = (key: string, altKey: boolean, ctrlKey: boolean) => {
-		const newCalculatorState = onSpecialKeyDownHanddle({
+		const [newCalculatorState, toHistory] = onSpecialKeyDownHanddle({
 			calculatorState,
+			foreignExchange,
 			key,
 			altKey,
 			ctrlKey,
 		});
 
-		console.log(newCalculatorState);
-
 		setCalculatorState(newCalculatorState);
+		if (toHistory) setHistory((prev) => [...prev, toHistory]);
 	};
 
-	return { calculatorState, onChange, onKeyPress };
+	return { calculatorState, history, onChange, onKeyPress };
 };
 
 export default useCalculator;

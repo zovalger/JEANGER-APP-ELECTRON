@@ -1,3 +1,4 @@
+import { IForeignExchange } from "../../foreign_exchange/interfaces/ForeignExchange.interface";
 import { CurrencyType } from "../enums";
 
 export interface CalculatorState {
@@ -20,11 +21,13 @@ export enum MathOperation {
 export enum MathSpecialKey {
 	Enter = "Enter",
 	Escape = "Escape",
-	$ = "$",
+	F7 = "F7", // euros
+	F8 = "F8", // dolares
 }
 
 export interface HandleChangeCalculator {
 	calculatorState: CalculatorState;
+	foreignExchange: IForeignExchange;
 	key: string;
 	altKey: boolean;
 	ctrlKey: boolean;
@@ -43,7 +46,9 @@ export const isSpeacialkey = (key: string): boolean => {
 	return false;
 };
 
-export const initialCalculatorState = (): CalculatorState => {
+export const initialCalculatorState = (
+	calculatorState?: CalculatorState
+): CalculatorState => {
 	return {
 		createAt: new Date(),
 		textInput: "",
@@ -51,7 +56,7 @@ export const initialCalculatorState = (): CalculatorState => {
 		b: null,
 		result: null,
 		mathOperation: MathOperation.sum,
-		currencyType: CurrencyType.BSF,
+		currencyType: calculatorState?.currencyType || CurrencyType.BSF,
 	};
 };
 
@@ -90,68 +95,164 @@ export const calculateResult = (data: CalculatorState): CalculatorState => {
 
 	const result = eval(`${a}${mathOperation}${sB}`);
 
-	return { ...data, textInput: setNumberToTextInput(result), result, b: sB };
+	return {
+		...data,
+		textInput: setNumberToTextInput(result),
+		result,
+		b: sB,
+		createAt: new Date(),
+	};
 };
 
 export const onMathOperationKey = (
 	data: CalculatorState,
 	mathOperation: MathOperation
-): CalculatorState => {
+): [CalculatorState, CalculatorState?] => {
 	const { textInput, a, b, result } = data;
 
-	if (!textInput.trim().length) return { ...data, mathOperation };
+	if (!textInput.trim().length) return [{ ...data, mathOperation }];
 
 	const newState = { ...data };
 
 	const numTextInput = getNumberFromTextInput(textInput);
 
 	if (a === null) {
-		return {
-			...newState,
-			a: numTextInput,
-			textInput: "",
-			mathOperation,
-		};
+		return [
+			{
+				...newState,
+				a: numTextInput,
+				textInput: "",
+				mathOperation,
+			},
+		];
 	}
+
 	if (a !== null && b === null) {
 		const n = calculateResult({
 			...newState,
 			b: numTextInput,
 		});
 
-		return {
-			...n,
-			result: null,
-			textInput: "",
-			b: null,
-			a: n.result,
-			mathOperation,
-		};
+		return [
+			{
+				...n,
+				result: null,
+				textInput: "",
+				b: null,
+				a: n.result,
+				mathOperation,
+			},
+			n,
+		];
 	}
 
 	if (a !== null && b !== null && result !== null) {
-		return {
-			...newState,
-			textInput: "",
-			result: null,
-			b: null,
-			a: result,
-			mathOperation,
-		};
+		return [
+			{
+				...newState,
+				textInput: "",
+				result: null,
+				b: null,
+				a: result,
+				mathOperation,
+			},
+		];
 	}
 
-	return { ...newState, mathOperation };
+	return [{ ...newState, mathOperation }];
+};
+
+interface SwitchCurrencyType {
+	calculatorState: CalculatorState;
+	foreignExchange: IForeignExchange;
+	toCurrencyType: CurrencyType;
+}
+
+const switchCurrencyType = ({
+	calculatorState,
+	foreignExchange,
+	toCurrencyType,
+}: SwitchCurrencyType): CalculatorState => {
+	const { dolar, euro } = foreignExchange;
+
+	const { a, b, result, textInput, currencyType } = calculatorState;
+
+	const newState = {
+		...calculatorState,
+	};
+
+	if (currencyType === toCurrencyType) {
+		// desconvertir
+		const divisaRef = currencyType === CurrencyType.USD ? dolar : euro;
+
+		const t = getNumberFromTextInput(textInput);
+
+		newState.a = a !== null ? a * divisaRef : null;
+		newState.b = b !== null ? b * divisaRef : null;
+		newState.result = result !== null ? result * divisaRef : null;
+		newState.textInput =
+			!isNaN(t) && t !== null ? setNumberToTextInput(t * divisaRef) : "0";
+		newState.currencyType = CurrencyType.BSF;
+
+		return newState;
+	}
+
+	const divisaToRevert =
+		currencyType === CurrencyType.USD
+			? dolar
+			: currencyType === CurrencyType.EUR
+			? euro
+			: 1;
+
+	const divisaToSet =
+		toCurrencyType === CurrencyType.USD
+			? dolar
+			: toCurrencyType === CurrencyType.EUR
+			? euro
+			: 1;
+
+	const convertTo = (n: number, from: number, to: number): number =>
+		(n * from) / to;
+
+	newState.a = a !== null ? convertTo(a, divisaToRevert, divisaToSet) : null;
+	newState.b = b !== null ? convertTo(b, divisaToRevert, divisaToSet) : null;
+	newState.result =
+		result !== null ? convertTo(result, divisaToRevert, divisaToSet) : null;
+
+	const t = getNumberFromTextInput(textInput);
+
+	newState.textInput = !isNaN(t)
+		? setNumberToTextInput(convertTo(t, divisaToRevert, divisaToSet))
+		: "0";
+
+	newState.currencyType =
+		toCurrencyType == currencyType ? CurrencyType.BSF : toCurrencyType;
+
+	return newState;
 };
 
 export const onSpecialKeyDownHanddle = ({
 	calculatorState,
+	foreignExchange,
 	key,
-	altKey,
-	ctrlKey,
-}: HandleChangeCalculator): CalculatorState => {
-	if (key === MathSpecialKey.$) return; // switchCurrencyType();
-	if (key === MathSpecialKey.Enter) return calculateResult(calculatorState);
-	if (key === MathSpecialKey.Escape) return initialCalculatorState();
+}: HandleChangeCalculator): [CalculatorState, CalculatorState?] => {
+	if (key === MathSpecialKey.F7 || key === MathSpecialKey.F8)
+		return [
+			switchCurrencyType({
+				calculatorState,
+				foreignExchange,
+				toCurrencyType:
+					key === MathSpecialKey.F7 ? CurrencyType.EUR : CurrencyType.USD,
+			}),
+		];
+
+	if (key === MathSpecialKey.Enter) {
+		const result = calculateResult(calculatorState);
+		return [result, result];
+	}
+
+	if (key === MathSpecialKey.Escape)
+		return [initialCalculatorState(calculatorState)];
 
 	if (Object.values(MathOperation).includes(key as MathOperation))
 		return onMathOperationKey(calculatorState, key as MathOperation);
