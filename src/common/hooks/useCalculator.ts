@@ -22,20 +22,27 @@ const useCalculator = () => {
 		}));
 	};
 
-	const onKeyPress = (key: string, altKey: boolean, ctrlKey: boolean) => {
+	const onKeyPress = (
+		key: string
+		// , altKey: boolean, ctrlKey: boolean
+	) => {
 		const [newCalculatorState, toHistory] = onSpecialKeyDownHanddle({
 			calculatorState,
 			foreignExchange,
 			key,
-			altKey,
-			ctrlKey,
+			// altKey,
+			// ctrlKey,
 		});
 
 		setCalculatorState(newCalculatorState);
 		if (toHistory) setHistory((prev) => [...prev, toHistory]);
 	};
 
-	return { calculatorState, history, onChange, onKeyPress };
+	const setHistoryState = (calculatorState: CalculatorState) => {
+		setCalculatorState(calculatorState);
+	};
+
+	return { calculatorState, setHistoryState, history, onChange, onKeyPress };
 };
 
 export default useCalculator;

@@ -1,11 +1,35 @@
 import Input from "./Input";
 import useCalculator from "../hooks/useCalculator";
-import { isSpeacialkey } from "../helpers/CalculatorHelper";
+import {
+	isSpeacialkey,
+	MathOperation,
+	MathSpecialKey,
+} from "../helpers/CalculatorHelper";
 import Text from "./Text";
 import { useEffect, useRef } from "react";
 
+const numbers = [
+	{ title: "7" },
+	{ title: "8" },
+	{ title: "9" },
+	{ title: "*", action: MathOperation.multiply },
+	{ title: "4" },
+	{ title: "5" },
+	{ title: "6" },
+	{ title: "-", action: MathOperation.subtract },
+	{ title: "1" },
+	{ title: "2" },
+	{ title: "3" },
+	{ title: "+", action: MathOperation.sum },
+	{ title: "0" },
+	{ title: "," },
+	{ title: "/", action: MathOperation.division },
+	{ title: "Enter", action: MathSpecialKey.Enter },
+];
+
 const Calculator = () => {
-	const { calculatorState, history, onChange, onKeyPress } = useCalculator();
+	const { calculatorState, history, setHistoryState, onChange, onKeyPress } =
+		useCalculator();
 	const { textInput, a, b, mathOperation, result, currencyType } =
 		calculatorState;
 
@@ -18,17 +42,23 @@ const Calculator = () => {
 	}, [history]);
 
 	return (
-		<>
+		<div className="border-t ">
 			<div ref={historyRef} className=" max-h-20 overflow-y-scroll">
 				{history.map((item) => (
-					<Text
-						className="text-right p-1"
+					<div
+						className="flex justify-end p-1 gap-2 hover:bg-gray-100 "
 						key={new Date(item.createAt).getMilliseconds()}
+						onClick={() => {
+							setHistoryState(item);
+						}}
 					>
-						{item.a.toFixed(2)}
-						{item.mathOperation}
-						{item.b.toFixed(2)}={item.result.toFixed(2)}
-					</Text>
+						<Text>
+							{item.a.toFixed(2)}
+							{item.mathOperation}
+							{item.b.toFixed(2)}={item.result.toFixed(2)}
+						</Text>
+						<Text>{item.currencyType}</Text>
+					</div>
 				))}
 			</div>
 
@@ -55,13 +85,27 @@ const Calculator = () => {
 
 							if (isSpeacialkey(event.key)) {
 								event.preventDefault();
-								onKeyPress(event.key, event.altKey, event.ctrlKey);
+								onKeyPress(event.key);
 							}
 						}}
 					/>
 				</div>
 			</div>
-		</>
+
+			<div className="flex flex-wrap">
+				{numbers.map((item) => (
+					<Text className="flex-1/4 p-4 hover:bg-gray-100 text-center"
+						onClick={() => {
+							if (item.action) return onKeyPress(item.action);
+
+							onChange(textInput + item.title);
+						}}
+					>
+						{item.title}
+					</Text>
+				))}
+			</div>
+		</div>
 	);
 };
 

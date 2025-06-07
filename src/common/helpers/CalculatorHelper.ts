@@ -29,8 +29,8 @@ export interface HandleChangeCalculator {
 	calculatorState: CalculatorState;
 	foreignExchange: IForeignExchange;
 	key: string;
-	altKey: boolean;
-	ctrlKey: boolean;
+	// altKey: boolean;
+	// ctrlKey: boolean;
 }
 
 // *****************************************************

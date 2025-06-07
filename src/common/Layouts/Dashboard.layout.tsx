@@ -59,7 +59,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 			<div className="flex items-center justify-between pl-4 ">
 				<Text>Panel derecho</Text>
 			</div>
-			<div className="flex-1">
+			<div className="flex-1 overflow-y-auto">
 				<ForeignExchangeView />
 				<Calculator />
 			</div>
