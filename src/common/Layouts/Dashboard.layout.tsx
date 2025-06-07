@@ -52,7 +52,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 
 	const RightPanel = () => (
 		<div
-			className={`fixed top-0  w-screen h-full flex flex-col bg-white sm:w-60 sm:translate-x-0 ${
+			className={`fixed top-0 w-screen h-full flex flex-col bg-white sm:w-60 sm:translate-x-0 ${
 				rightPanelOpen ? "right-0" : "translate-x-full sm:-right-60"
 			}`}
 		>
@@ -80,7 +80,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				{children || <Outlet />}
 			</div>
 
-			<div className="fixed bottom-4 right-4">
+			<div className="fixed bottom-0 right-0">
 				<IconButton icon="Tools" onClick={toogleRightPanel} />
 			</div>
 

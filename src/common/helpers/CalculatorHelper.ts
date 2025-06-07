@@ -87,7 +87,7 @@ export const setNumberToTextInput = (textInput: number): string => {
 export const calculateResult = (data: CalculatorState): CalculatorState => {
 	const { a, b, mathOperation, textInput } = data;
 
-	if (a === null) return data;
+	if (a === null) throw new Error("Calculo no valido");
 
 	const sB = b || getNumberFromTextInput(textInput);
 
@@ -236,24 +236,28 @@ export const onSpecialKeyDownHanddle = ({
 	foreignExchange,
 	key,
 }: HandleChangeCalculator): [CalculatorState, CalculatorState?] => {
-	if (key === MathSpecialKey.F7 || key === MathSpecialKey.F8)
-		return [
-			switchCurrencyType({
-				calculatorState,
-				foreignExchange,
-				toCurrencyType:
-					key === MathSpecialKey.F7 ? CurrencyType.EUR : CurrencyType.USD,
-			}),
-		];
+	try {
+		if (key === MathSpecialKey.F7 || key === MathSpecialKey.F8)
+			return [
+				switchCurrencyType({
+					calculatorState,
+					foreignExchange,
+					toCurrencyType:
+						key === MathSpecialKey.F7 ? CurrencyType.EUR : CurrencyType.USD,
+				}),
+			];
 
-	if (key === MathSpecialKey.Enter) {
-		const result = calculateResult(calculatorState);
-		return [result, result];
+		if (key === MathSpecialKey.Enter) {
+			const result = calculateResult(calculatorState);
+			return [result, result];
+		}
+
+		if (key === MathSpecialKey.Escape)
+			return [initialCalculatorState(calculatorState)];
+
+		if (Object.values(MathOperation).includes(key as MathOperation))
+			return onMathOperationKey(calculatorState, key as MathOperation);
+	} catch (error) {
+		return [calculatorState];
 	}
-
-	if (key === MathSpecialKey.Escape)
-		return [initialCalculatorState(calculatorState)];
-
-	if (Object.values(MathOperation).includes(key as MathOperation))
-		return onMathOperationKey(calculatorState, key as MathOperation);
 };

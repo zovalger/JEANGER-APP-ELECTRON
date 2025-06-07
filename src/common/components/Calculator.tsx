@@ -7,8 +7,13 @@ import {
 } from "../helpers/CalculatorHelper";
 import Text from "./Text";
 import { useEffect, useRef } from "react";
+import { CurrencyType } from "../enums";
 
 const numbers = [
+	{ title: "Borrar", action: MathSpecialKey.Escape },
+	{ title: CurrencyType.EUR, action: MathSpecialKey.F7 },
+	{ title: CurrencyType.USD, action: MathSpecialKey.F8 },
+	{ title: "/", action: MathOperation.division },
 	{ title: "7" },
 	{ title: "8" },
 	{ title: "9" },
@@ -21,9 +26,9 @@ const numbers = [
 	{ title: "2" },
 	{ title: "3" },
 	{ title: "+", action: MathOperation.sum },
+	{ title: "00" },
 	{ title: "0" },
 	{ title: "," },
-	{ title: "/", action: MathOperation.division },
 	{ title: "Enter", action: MathSpecialKey.Enter },
 ];
 
@@ -43,7 +48,7 @@ const Calculator = () => {
 
 	return (
 		<div className="border-t ">
-			<div ref={historyRef} className=" max-h-20 overflow-y-scroll">
+			<div ref={historyRef} className="h-20 overflow-y-scroll">
 				{history.map((item) => (
 					<div
 						className="flex justify-end p-1 gap-2 hover:bg-gray-100 "
@@ -53,9 +58,9 @@ const Calculator = () => {
 						}}
 					>
 						<Text>
-							{item.a.toFixed(2)}
-							{item.mathOperation}
-							{item.b.toFixed(2)}={item.result.toFixed(2)}
+							{item.a?.toFixed(2)}
+							{item?.mathOperation}
+							{item.b?.toFixed(2)}={item.result?.toFixed(2)}
 						</Text>
 						<Text>{item.currencyType}</Text>
 					</div>
@@ -92,16 +97,19 @@ const Calculator = () => {
 				</div>
 			</div>
 
-			<div className="flex flex-wrap">
+			<div className="flex flex-wrap mt-1">
 				{numbers.map((item) => (
-					<Text className="flex-1/4 p-4 hover:bg-gray-100 text-center"
+					<Text
+						key={item.title}
+						className="flex-1/4 p-2 hover:bg-gray-100 text-center"
 						onClick={() => {
 							if (item.action) return onKeyPress(item.action);
-
 							onChange(textInput + item.title);
 						}}
 					>
-						{item.title}
+						{item.title == CurrencyType.USD && currencyType == CurrencyType.USD
+							? CurrencyType.BSF
+							: item.title}
 					</Text>
 				))}
 			</div>
