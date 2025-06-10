@@ -12,4 +12,10 @@ export type Icons =
 	| "ChevronLeft"
 	| "Refresh"
 	| "ClipboardCopy"
-	| "ClipboardCheck"|"Tools";
+	| "ClipboardCheck"
+	| "Tools"
+	| "Pause"
+	| "Play"
+	| "Reply"
+	| "ShoppingCart"
+	| "SwitchHorizontal";

@@ -14,6 +14,11 @@ import ChevronLeftIcon from "./ChevronLeftIcon";
 import ClipboardCheckIcon from "./ClipboardCheckIcon";
 import ClipboardCopyIcon from "./ClipboardCopyIcon";
 import ToolsIcon from "./ToolsIcon";
+import PauseIcon from "./PauseIcon";
+import PlayIcon from "./PlayIcon";
+import ReplyIcon from "./ReplyIcon";
+import ShoppingCartIcon from "./ShoppingCartIcon";
+import SwitchHorizontalIcon from "./SwitchHorizontalIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	Trash: TrashIcon,
@@ -31,6 +36,11 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	ClipboardCheck: ClipboardCheckIcon,
 	ClipboardCopy: ClipboardCopyIcon,
 	Tools: ToolsIcon,
+	Pause: PauseIcon,
+	Play: PlayIcon,
+	Reply: ReplyIcon,
+	ShoppingCart: ShoppingCartIcon,
+	SwitchHorizontal: SwitchHorizontalIcon,
 };
 
 export default IconMap;
