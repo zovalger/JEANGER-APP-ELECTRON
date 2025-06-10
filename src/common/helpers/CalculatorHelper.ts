@@ -23,6 +23,7 @@ export enum MathSpecialKey {
 	Escape = "Escape",
 	F7 = "F7", // euros
 	F8 = "F8", // dolares
+	F9 = "F9", // dolares
 }
 
 export interface HandleChangeCalculator {
@@ -177,25 +178,11 @@ const switchCurrencyType = ({
 
 	const { a, b, result, textInput, currencyType } = calculatorState;
 
+	if (currencyType === toCurrencyType) return calculatorState;
+
 	const newState = {
 		...calculatorState,
 	};
-
-	if (currencyType === toCurrencyType) {
-		// desconvertir
-		const divisaRef = currencyType === CurrencyType.USD ? dolar : euro;
-
-		const t = getNumberFromTextInput(textInput);
-
-		newState.a = a !== null ? a * divisaRef : null;
-		newState.b = b !== null ? b * divisaRef : null;
-		newState.result = result !== null ? result * divisaRef : null;
-		newState.textInput =
-			!isNaN(t) && t !== null ? setNumberToTextInput(t * divisaRef) : "0";
-		newState.currencyType = CurrencyType.BSF;
-
-		return newState;
-	}
 
 	const divisaToRevert =
 		currencyType === CurrencyType.USD
@@ -225,8 +212,7 @@ const switchCurrencyType = ({
 		? setNumberToTextInput(convertTo(t, divisaToRevert, divisaToSet))
 		: "0";
 
-	newState.currencyType =
-		toCurrencyType == currencyType ? CurrencyType.BSF : toCurrencyType;
+	newState.currencyType = toCurrencyType;
 
 	return newState;
 };
@@ -237,13 +223,21 @@ export const onSpecialKeyDownHanddle = ({
 	key,
 }: HandleChangeCalculator): [CalculatorState, CalculatorState?] => {
 	try {
-		if (key === MathSpecialKey.F7 || key === MathSpecialKey.F8)
+		if (
+			key === MathSpecialKey.F7 ||
+			key === MathSpecialKey.F8 ||
+			key === MathSpecialKey.F9
+		)
 			return [
 				switchCurrencyType({
 					calculatorState,
 					foreignExchange,
 					toCurrencyType:
-						key === MathSpecialKey.F7 ? CurrencyType.EUR : CurrencyType.USD,
+						key === MathSpecialKey.F7
+							? CurrencyType.EUR
+							: key === MathSpecialKey.F8
+							? CurrencyType.USD
+							: CurrencyType.BSF,
 				}),
 			];
 
@@ -257,6 +251,8 @@ export const onSpecialKeyDownHanddle = ({
 
 		if (Object.values(MathOperation).includes(key as MathOperation))
 			return onMathOperationKey(calculatorState, key as MathOperation);
+
+		throw new Error("Bonton no especial no encontrado");
 	} catch (error) {
 		return [calculatorState];
 	}
