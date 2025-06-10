@@ -12,7 +12,14 @@ import { Stopwatch } from "../interfaces/Stopwatch.interface";
 
 const useStopwatch = () => {
 	const stopwatches = useStopwatchStore((state) => state.stopwatches);
+	const onSetAllStopwatches = useStopwatchStore(
+		(state) => state.onSetAllStopwatches
+	);
 	const onSetStopwatch = useStopwatchStore((state) => state.onSetStopwatch);
+
+	const onRemoveStopwatch = useStopwatchStore(
+		(state) => state.onRemoveStopwatch
+	);
 
 	// todo: quitar time reference
 	const [referenceTime, setReferenceTime] = useState(Date.now());
@@ -29,7 +36,7 @@ const useStopwatch = () => {
 		try {
 			const data = await getAllStopwatchRequest();
 
-			onSetStopwatch(data);
+			onSetAllStopwatches(data);
 		} catch (error) {
 			console.log(error);
 		}
@@ -38,13 +45,13 @@ const useStopwatch = () => {
 	const start = (stopwatch: Stopwatch) => {
 		const { timeSeted } = stopwatch;
 
-		const newTimer =
+		const newStopwatch =
 			timeSeted !== null ? startTimer(stopwatch) : startStopwatch(stopwatch);
 
-		// todo: setear en el array
+		onSetStopwatch(newStopwatch._id, newStopwatch);
+
 		// todo: enviar por socket
-		// setClock(newTimer);
-		// sendUpdateStopwatch(newTimer);
+		// sendUpdateStopwatch(newStopwatch);
 	};
 
 	const pause = (stopwatch: Stopwatch) => {
@@ -52,13 +59,13 @@ const useStopwatch = () => {
 
 		if (!timeDate) return;
 
-		const newTimer =
+		const newStopwatch =
 			timeSeted !== null ? pauseTimer(stopwatch) : pauseStopwatch(stopwatch);
 
-		// todo: setear en el array
+		onSetStopwatch(newStopwatch._id, newStopwatch);
 		// todo: enviar por socket
-		// setClock(newTimer);
-		// sendUpdateStopwatch(newTimer);
+		// setClock(newStopwatch);
+		// sendUpdateStopwatch(newStopwatch);
 	};
 
 	const switchClock = (stopwatch: Stopwatch) => {
@@ -68,7 +75,7 @@ const useStopwatch = () => {
 
 		const newSeted = timeSeted !== null ? null : 600000;
 
-		const newClock: Stopwatch = {
+		const newStopwatch: Stopwatch = {
 			...stopwatch,
 			timeSeted: newSeted,
 			accumulatedTime: 0,
@@ -76,22 +83,26 @@ const useStopwatch = () => {
 			timeDate: null,
 		};
 
-		// setClock(newClock);
+		onSetStopwatch(newStopwatch._id, newStopwatch);
 		// sendUpdateStopwatch(newClock);
 	};
 
 	const restart = (stopwatch: Stopwatch) => {
-		const newTimer: Stopwatch = {
+		const newStopwatch: Stopwatch = {
 			...stopwatch,
 			accumulatedTime: 0,
 			// timeSeted: 0,
 			timeDate: null,
 		};
 
-		// setClock(newTimer);
-		// sendUpdateStopwatch(newTimer);
+		onSetStopwatch(newStopwatch._id, newStopwatch);
+		// sendUpdateStopwatch(newStopwatch);
 	};
 
+	const remove = (id: string) => {
+		onRemoveStopwatch(id);
+		// sendUpdateStopwatch(newStopwatch);
+	};
 	return {
 		stopwatches,
 		getAllStopwatch,
@@ -100,7 +111,8 @@ const useStopwatch = () => {
 		pause,
 		switchClock,
 		restart,
-		referenceTime
+		remove,
+		referenceTime,
 	};
 };
 

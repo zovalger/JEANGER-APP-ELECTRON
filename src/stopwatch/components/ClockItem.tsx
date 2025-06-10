@@ -1,4 +1,3 @@
-import { useNavigation } from "react-router-dom";
 import { Stopwatch } from "../interfaces/Stopwatch.interface";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
@@ -10,8 +9,9 @@ interface props {
 	data: Stopwatch;
 }
 export default function ClockItem({ data }: props) {
-	const router = useNavigation();
-	const { getTime, start, pause, restart, switchClock } = useStopwatch();
+	// const router = useNavigation();
+	const { getTime, start, pause, restart, switchClock, referenceTime } =
+		useStopwatch();
 
 	// const { productSettings, foreignExchange: dolar } = useGlobalContext();
 	// const { productsIndexed } = useProductContext();
@@ -27,17 +27,14 @@ export default function ClockItem({ data }: props) {
 	// }, [data]);
 
 	const onChangeMinuteInput = (minutes: string) => {
-		const newTimeSeted = minutes ? parseInt(minutes) * 60000 : 0;
-		setClock({ ...data, timeSeted: newTimeSeted });
+		// const newTimeSeted = minutes ? parseInt(minutes) * 60000 : 0;
+		// setClock({ ...data, timeSeted: newTimeSeted });
 	};
 
 	// ****************************************************************************
 	// 										          funciones
 	// ****************************************************************************
 
-	// ****************************************************************************
-	// 										          triggers
-	// ****************************************************************************
 
 	// const addToBill = () => {
 	// 	if (!productSettings) return;
@@ -88,39 +85,45 @@ export default function ClockItem({ data }: props) {
 			<div>
 				<Text>{data.name}</Text>
 
-				{editing ? (
+				{/* {editing ? (
 					<IconButton onClick={onEdit} icon="Edit" />
-				) : (
-					<>
-						<IconButton
+				) : ( */}
+				<>
+					{/* <IconButton
 							onClick={addToBill}
 							icon="ShoppingCart"
 							// disabled={!!data.timeDate}
-						/>
+						/> */}
 
-						<IconButton
-							onClick={switchClock}
-							icon="SwitchHorizontal"
-							disabled={!!data.timeDate}
-						/>
-					</>
-				)}
+					<IconButton
+						onClick={()=>switchClock(data)}
+						icon="SwitchHorizontal"
+						disabled={!!data.timeDate}
+					/>
+				</>
+				{/* )} */}
 			</div>
 
 			<ClockTimeContainer
 				data={data}
-				time={getTime().format.time}
+				time={getTime(data,referenceTime).format.time}
 				onChangeMinuteInput={onChangeMinuteInput}
-				onStart={onStart}
+				onStart={() => {
+					start(data);
+				}}
 			/>
 
 			<div>
-				<Button icon="Reply" disabled={!!data.timeDate} onClick={onRestart} />
+				<Button
+					icon="Reply"
+					disabled={!!data.timeDate}
+					onClick={() => restart(data)}
+				/>
 
-				{!!data.timeDate ? (
-					<Button icon="Pause" onClick={onPause} />
+				{data.timeDate ? (
+					<Button icon="Pause" onClick={() => pause(data)} />
 				) : (
-					<Button icon="Play" onClick={onStart} />
+					<Button icon="Play" onClick={() => start(data)} />
 				)}
 			</div>
 		</div>

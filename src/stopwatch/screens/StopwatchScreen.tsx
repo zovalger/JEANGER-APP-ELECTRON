@@ -1,12 +1,19 @@
+import { useEffect } from "react";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import ClockItem from "../components/ClockItem";
 import useStopwatch from "../hooks/useStopwatch";
 
 export default function StopwatchScreen() {
-	const { stopwatches } = useStopwatch();
+	const { stopwatches, getAllStopwatch } = useStopwatch();
 
 	// const [openStopwatchForm, setOpenStopwatchForm] = useState(false);
 	// const [editing, setEditing] = useState(false);
+	
+	useEffect(() => {
+		getAllStopwatch()
+			.then()
+			.catch((err) => console.log(err));
+	}, []);
 
 	return (
 		<PageTemplateLayout
