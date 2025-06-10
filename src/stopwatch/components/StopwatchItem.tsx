@@ -8,10 +8,17 @@ import useStopwatch from "../hooks/useStopwatch";
 interface props {
 	data: Stopwatch;
 }
-export default function ClockItem({ data }: props) {
+export default function StopwatchItem({ data }: props) {
 	// const router = useNavigation();
-	const { getTime, start, pause, restart, switchClock, referenceTime } =
-		useStopwatch();
+	const {
+		getTime,
+		start,
+		pause,
+		restart,
+		switchClock,
+		setTimeTo,
+		referenceTime,
+	} = useStopwatch();
 
 	// const { productSettings, foreignExchange: dolar } = useGlobalContext();
 	// const { productsIndexed } = useProductContext();
@@ -26,15 +33,9 @@ export default function ClockItem({ data }: props) {
 	// 	setClock(data);
 	// }, [data]);
 
-	const onChangeMinuteInput = (minutes: string) => {
-		// const newTimeSeted = minutes ? parseInt(minutes) * 60000 : 0;
-		// setClock({ ...data, timeSeted: newTimeSeted });
-	};
-
 	// ****************************************************************************
 	// 										          funciones
 	// ****************************************************************************
-
 
 	// const addToBill = () => {
 	// 	if (!productSettings) return;
@@ -96,7 +97,7 @@ export default function ClockItem({ data }: props) {
 						/> */}
 
 					<IconButton
-						onClick={()=>switchClock(data)}
+						onClick={() => switchClock(data)}
 						icon="SwitchHorizontal"
 						disabled={!!data.timeDate}
 					/>
@@ -106,8 +107,8 @@ export default function ClockItem({ data }: props) {
 
 			<ClockTimeContainer
 				data={data}
-				time={getTime(data,referenceTime).format.time}
-				onChangeMinuteInput={onChangeMinuteInput}
+				time={getTime(data, referenceTime).format.time}
+				onChangeMinuteInput={(minutes: string) => setTimeTo(data, minutes)}
 				onStart={() => {
 					start(data);
 				}}

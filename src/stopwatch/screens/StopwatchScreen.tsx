@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
-import ClockItem from "../components/ClockItem";
+import StopwatchItem from "../components/StopwatchItem";
 import useStopwatch from "../hooks/useStopwatch";
 
 export default function StopwatchScreen() {
@@ -8,7 +8,7 @@ export default function StopwatchScreen() {
 
 	// const [openStopwatchForm, setOpenStopwatchForm] = useState(false);
 	// const [editing, setEditing] = useState(false);
-	
+
 	useEffect(() => {
 		getAllStopwatch()
 			.then()
@@ -40,7 +40,7 @@ export default function StopwatchScreen() {
 		>
 			<div>
 				{stopwatches.map((t) => (
-					<ClockItem key={t._id} data={t} />
+					<StopwatchItem key={t._id} data={t} />
 				))}
 			</div>
 

@@ -103,6 +103,19 @@ const useStopwatch = () => {
 		onRemoveStopwatch(id);
 		// sendUpdateStopwatch(newStopwatch);
 	};
+
+	const setTimeTo = (stopwatch: Stopwatch, minutes: string | number) => {
+		const newTimeSeted = minutes
+			? (typeof minutes == "string" ? parseInt(minutes) : minutes) * 60000
+			: 0;
+
+		const newT = { ...stopwatch, timeSeted: newTimeSeted };
+
+		onSetStopwatch(newT._id, newT);
+
+		// todo: enviar por socket
+		// sendUpdateStopwatch(newStopwatch);
+	};
 	return {
 		stopwatches,
 		getAllStopwatch,
@@ -112,6 +125,7 @@ const useStopwatch = () => {
 		switchClock,
 		restart,
 		remove,
+		setTimeTo,
 		referenceTime,
 	};
 };

@@ -24,7 +24,6 @@ export default function ClockTimeContainer({
 						name="name"
 						value={data.timeSeted / 60000}
 						type="number"
-						// sx={{ px: "1rem" }}
 						onChange={(e) => {
 							onChangeMinuteInput(e.target.value);
 						}}
