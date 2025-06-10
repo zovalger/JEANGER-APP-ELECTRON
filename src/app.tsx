@@ -5,6 +5,7 @@ import "./index.css";
 import HomeScreen from "./auth/screens/HomeScreen";
 import BillRoutes from "./bills/routes";
 import DashboardLayout from "./common/Layouts/Dashboard.layout";
+import StopwatchRoutes from "./stopwatch/routes";
 
 const root = createRoot(document.body);
 
@@ -15,6 +16,7 @@ root.render(
 
 			<Route path="/dashboard" element={<DashboardLayout />}>
 				{BillRoutes()}
+				{StopwatchRoutes()}
 			</Route>
 		</Routes>
 	</BrowserRouter>

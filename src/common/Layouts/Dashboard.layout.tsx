@@ -46,6 +46,9 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				<Link to={RouterLinks.Bills} onClick={closeLeftPanel}>
 					<Text>Facturas</Text>
 				</Link>
+				<Link to={RouterLinks.Stopwatchs} onClick={closeLeftPanel}>
+					<Text>cronometros</Text>
+				</Link>
 			</div>
 		</div>
 	);
