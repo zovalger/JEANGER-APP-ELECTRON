@@ -31,11 +31,11 @@ export default function StopwatchScreen() {
 				</>
 			}
 		>
-			{/* <div>
+			<div>
 				{stopwatches.map((t) => (
 					<ClockItem key={t._id} data={t} />
 				))}
-			</div> */}
+			</div>
 
 			{/* {openStopwatchForm && (
 				<StopwatchForm

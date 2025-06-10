@@ -1,7 +1,7 @@
-import { Box, Typography, TextField } from "@mui/material";
-
-import { Stopwatch } from "@/types";
-import { milisecondsToTime } from "@/utils/milisecondsToTime";
+import Input from "../../common/components/Input";
+import Text from "../../common/components/Text";
+import { milisecondsToTime } from "../helpers/Stopwatch.helper";
+import { Stopwatch } from "../interfaces/Stopwatch.interface";
 
 interface props {
 	data: Stopwatch;
@@ -16,20 +16,11 @@ export default function ClockTimeContainer({
 	onStart,
 }: props) {
 	return (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				flexDirection: "column",
-				minHeight: "65px",
-			}}
-		>
+		<div>
 			{data.timeSeted !== null ? (
 				!data.timeDate && !data.accumulatedTime ? (
-					<TextField
+					<Input
 						placeholder="Minutos"
-						variant="standard"
 						name="name"
 						value={data.timeSeted / 60000}
 						type="number"
@@ -38,32 +29,21 @@ export default function ClockTimeContainer({
 							onChangeMinuteInput(e.target.value);
 						}}
 						onKeyDown={(e) => {
-							if (e.key === "Enter") onStart()
-						}}
-						inputProps={{
-							style: {
-								fontSize: "1.3rem",
-								textAlign: "center",
-								// maxWidth: "250px",
-							},
+							if (e.key === "Enter") onStart();
 						}}
 						autoComplete="none"
 					/>
 				) : (
 					<>
-						<Typography>{milisecondsToTime(data.timeSeted).time}</Typography>
-						<Typography variant="h4" component={"p"}>
-							{time}
-						</Typography>
+						<Text>{milisecondsToTime(data.timeSeted).time}</Text>
+						<Text>{time}</Text>
 					</>
 				)
 			) : (
 				<>
-					<Typography variant="h4" component={"p"}>
-						{time}
-					</Typography>
+					<Text>{time}</Text>
 				</>
 			)}
-		</Box>
+		</div>
 	);
 }
