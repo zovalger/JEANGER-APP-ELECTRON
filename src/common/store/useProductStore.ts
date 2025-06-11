@@ -1,23 +1,35 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { IProduct } from "../../products/interfaces/product.interface";
+import { IProductSettings } from "../../products/interfaces/product_settings.interface";
 
-interface IProductStore {
+interface IProductState {
 	products: IProduct[];
-	setProducts: (products: IProduct[]) => void;
-	removeAllProducts: () => void;
+	productSettings: IProductSettings | null;
 }
+
+interface IProductActions {
+	onSetProducts: (products: IProduct[]) => void;
+	onSetProductsSettings: (products: IProductSettings) => void;
+	onRemoveAllProducts: () => void;
+}
+
+interface IProductStore extends IProductState, IProductActions {}
 
 const useProductStore = create<IProductStore>()(
 	persist<IProductStore>(
 		(set) => ({
 			products: [],
-
-			setProducts: (products: IProduct[]) => {
+			productSettings: null,
+			onSetProducts: (products: IProduct[]) => {
 				set((state) => ({ ...state, products }));
 			},
 
-			removeAllProducts: () => set((state) => ({ ...state, products: [] })),
+			onSetProductsSettings: (productSettings: IProductSettings) => {
+				set((state) => ({ ...state, productSettings }));
+			},
+
+			onRemoveAllProducts: () => set((state) => ({ ...state, products: [] })),
 		}),
 		{ name: "product-store" }
 	)

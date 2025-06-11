@@ -4,6 +4,8 @@ import Text from "../../common/components/Text";
 import Button from "../../common/components/Button";
 import ClockTimeContainer from "./ClockTimeContainer";
 import useStopwatch from "../hooks/useStopwatch";
+import useProduct from "../../products/hooks/useProduct";
+import useBill from "../../bills/hooks/useBill";
 
 interface props {
 	data: Stopwatch;
@@ -11,6 +13,8 @@ interface props {
 export default function StopwatchItem({ data }: props) {
 	// const router = useNavigation();
 	
+	const {productSettings,getProductSettings} =useProduct()
+	const {addProductToBill} =useBill()
 	const {
 		getTime,
 		start,
@@ -20,42 +24,35 @@ export default function StopwatchItem({ data }: props) {
 		setTimeTo,
 		referenceTime,
 	} = useStopwatch();
+	
 
 	// ****************************************************************************
 	// 										          funciones
 	// ****************************************************************************
 
-	// const addToBill = () => {
-	// 	if (!productSettings) return;
-	// 	if (!productSettings.stopwatchProductId) return;
+	const addToBill = async () => {
 
-	// 	const { timeSeted } = data;
+		// todo: remover y colocar en una parte mas general
+		await getProductSettings()
 
-	// 	onPause();
+		if (!productSettings) return;
+		if (!productSettings.stopwatchProductId) return;
 
-	// 	const time = timeSeted ? timeSeted : getTime().time;
+		const { timeSeted } = data;
 
-	// 	// todo: obtener product
+		pause(data);
 
-	// 	const productId = productSettings.stopwatchProductId;
+		const time = timeSeted ? timeSeted : getTime(data,referenceTime).time;
 
-	// 	const { currencyType, cost } = productsIndexed[productId];
+		// todo: obtener product
 
-	// 	// todo: modificar bill
-	// 	const billItem: BillItem = {
-	// 		productId,
-	// 		quantity: Math.round(time / 60000),
-	// 		cost,
-	// 		currencyType,
-	// 	};
+		const productId = productSettings.stopwatchProductId;
 
-	// 	const newBill = setOneBillItem(currentBill, billItem, dolar);
+		const { currencyType, cost } = productsIndexed[productId];
 
-	// 	// todo: actualizar en contexto
-	// 	setCurrentBill(newBill);
-
-	// 	router.replace("./bill");
-	// };
+	
+		router.replace("./bill");
+	};
 
 	// ****************************************************************************
 	// 										          render

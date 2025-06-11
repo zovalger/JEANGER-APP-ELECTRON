@@ -29,10 +29,9 @@ const regExpAdder = /^(\+|-)\d{1,}/i;
 const BillScreen = () => {
 	const { foreignExchange } = useForeignExchange();
 	const { products, getProduct, getAllProductsWithServer } = useProduct();
-	const { currentBill, setCurrentBill } = useBill();
+	const { currentBill, setCurrentBill, addProductToBill } = useBill();
 
 	const [inputValue, setInputValue] = useState("");
-	const [adderValue, setAdderValue] = useState<null | number>(null);
 	const [productList, setProductList] = useState<string[]>([]);
 	const [selected, setSelected] = useState<number>(-1);
 
@@ -64,18 +63,22 @@ const BillScreen = () => {
 		refreshShowList(inputValue);
 	}, [inputValue]);
 
-	const addProductToBill = (productId: string, quantity?: number) => {
-		const newItemBill: IBillItem = {
-			productId,
-			quantity: quantity ? quantity : adderValue ? adderValue : 1,
-			cost: getProduct(productId).cost,
-			currencyType: getProduct(productId).currencyType,
-		};
+	// const addProductToBill = async (productId: string, quantity?: number) => {
+	// 	try {
+	// 		const newItemBill: IBillItem = {
+	// 			productId,
+	// 			quantity: quantity ? quantity : adderValue ? adderValue : 1,
+	// 			cost: getProduct(productId).cost,
+	// 			currencyType: getProduct(productId).currencyType,
+	// 		};
 
-		const newBill = updateBillItem(currentBill, newItemBill, foreignExchange);
+	// 		const newBill = updateBillItem(currentBill, newItemBill, foreignExchange);
 
-		setCurrentBill(newBill);
-	};
+	// 		setCurrentBill(newBill);
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
 
 	// *******************************************************************
 	// 													controls
@@ -104,7 +107,7 @@ const BillScreen = () => {
 		const matching = inputValue.match(regExpAdder);
 
 		let newInputText = inputValue;
-		let quantity = adderValue || 1;
+		let quantity = 1;
 
 		if (matching) {
 			quantity = parseInt(matching[0]);
@@ -114,6 +117,7 @@ const BillScreen = () => {
 		if (selected > -1 || position !== undefined) {
 			const productId =
 				productList[position !== undefined ? position : selected];
+
 			addProductToBill(productId, quantity);
 
 			quantity = 0;
@@ -122,14 +126,12 @@ const BillScreen = () => {
 
 		//todo: añadir a la lista
 
-		setAdderValue(quantity || null);
 		setInputValue(newInputText);
 		setSelected(-1);
 	};
 
 	const onClear = () => {
 		setInputValue("");
-		setAdderValue(null);
 		setSelected(-1);
 	};
 
@@ -272,7 +274,6 @@ const BillScreen = () => {
 
 	return (
 		<PageTemplateLayout
-		
 			rightButtons={<IconButton icon="Refresh" onClick={onDelete} />}
 		>
 			<div className="sticky top-14 my-2">

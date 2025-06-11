@@ -64,7 +64,6 @@ const useStopwatch = () => {
 
 		onSetStopwatch(newStopwatch._id, newStopwatch);
 		// todo: enviar por socket
-		// setClock(newStopwatch);
 		// sendUpdateStopwatch(newStopwatch);
 	};
 
