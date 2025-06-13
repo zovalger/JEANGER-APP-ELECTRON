@@ -81,16 +81,12 @@ export default function ConsultMovilnet() {
 					name="tlf"
 					onKeyDown={(event) => {
 						event.stopPropagation();
-						if (event.key === "Escape") setValue("");
+						if (event.key === "Escape") handdleClear();
 						if (event.key === "Enter") handdleSubmit();
 					}}
 					value={value || ""}
 					onChange={({ target: { value } }) => handdleChange(value)}
 				/>
-
-				{value && (
-					<IconButton icon="Close" size="small" onClick={handdleClear} />
-				)}
 
 				<IconButton
 					icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
