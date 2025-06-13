@@ -18,4 +18,5 @@ export type Icons =
 	| "Play"
 	| "Reply"
 	| "ShoppingCart"
-	| "SwitchHorizontal";
+	| "SwitchHorizontal"
+	| "Search";

@@ -6,6 +6,7 @@ import Text from "../components/Text";
 import useUI from "../hooks/useUI";
 import ForeignExchangeView from "../components/ForeignExchangeView";
 import Calculator from "../components/Calculator";
+import ConsultMovilnet from "../components/ConsultMovilnet";
 
 interface DashboardLayoutProps {
 	// Define any props if needed
@@ -62,9 +63,11 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 			<div className="flex items-center justify-between pl-4 ">
 				<Text>Panel derecho</Text>
 			</div>
+
 			<div className="flex-1 overflow-y-auto">
 				<ForeignExchangeView />
 				<Calculator />
+				<ConsultMovilnet />
 			</div>
 
 			<div className="flex items-center justify-end pl-4 ">

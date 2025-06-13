@@ -19,6 +19,7 @@ import PlayIcon from "./PlayIcon";
 import ReplyIcon from "./ReplyIcon";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import SwitchHorizontalIcon from "./SwitchHorizontalIcon";
+import SearchIcon from "./SearchIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	Trash: TrashIcon,
@@ -41,6 +42,7 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	Reply: ReplyIcon,
 	ShoppingCart: ShoppingCartIcon,
 	SwitchHorizontal: SwitchHorizontalIcon,
+	Search: SearchIcon,
 };
 
 export default IconMap;
