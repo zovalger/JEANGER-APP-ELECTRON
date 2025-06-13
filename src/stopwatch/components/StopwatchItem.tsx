@@ -58,11 +58,13 @@ export default function StopwatchItem({ data }: props) {
 
 	return (
 		<div
-			className={`${
+			className={`flex flex-col flex-1 min-w-52 w-60 overflow-hidden rounded-lg  ${
+				data.timeSeted !== null ? "bg-[#ff07]" : "bg-[#0cf7]"
+			} ${
 				data.timeSeted !== null &&
 				data.timeDate &&
 				data.timeDate < referenceTime
-					? "animate__animated animate__headShake animate__infinite"
+					? " animate__animated animate__headShake animate__infinite"
 					: ""
 			}`}
 		>

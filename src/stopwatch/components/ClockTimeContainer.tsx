@@ -16,10 +16,12 @@ export default function ClockTimeContainer({
 	onStart,
 }: props) {
 	return (
-		<div>
+		<div className="flex-1 flex flex-col items-center justify-center">
 			{data.timeSeted !== null ? (
 				!data.timeDate && !data.accumulatedTime ? (
 					<Input
+						textSize="big"
+						className="text-center"
 						placeholder="Minutos"
 						name="name"
 						value={data.timeSeted / 60000}
@@ -35,13 +37,11 @@ export default function ClockTimeContainer({
 				) : (
 					<>
 						<Text>{milisecondsToTime(data.timeSeted).time}</Text>
-						<Text>{time}</Text>
+						<Text size="big">{time}</Text>
 					</>
 				)
 			) : (
-				<>
-					<Text>{time}</Text>
-				</>
+				<Text size="big">{time}</Text>
 			)}
 		</div>
 	);
