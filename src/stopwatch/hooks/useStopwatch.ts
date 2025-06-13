@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import useStopwatchStore from "../../common/store/useStopwatchStore";
 import { getAllStopwatchRequest } from "../api/Stopwatch.api";
 import {
@@ -9,8 +8,11 @@ import {
 	startTimer,
 } from "../helpers/Stopwatch.helper";
 import { Stopwatch } from "../interfaces/Stopwatch.interface";
+import { useStopwatchContext } from "../context/Stopwatch.context";
 
 const useStopwatch = () => {
+	const stopwatchContext = useStopwatchContext();
+
 	const stopwatches = useStopwatchStore((state) => state.stopwatches);
 	const onSetAllStopwatches = useStopwatchStore(
 		(state) => state.onSetAllStopwatches
@@ -21,16 +23,14 @@ const useStopwatch = () => {
 		(state) => state.onRemoveStopwatch
 	);
 
-	// todo: quitar time reference
-	const [referenceTime, setReferenceTime] = useState(Date.now());
+	// ************************************************************
+	// 										functions
+	// ************************************************************
 
-	useEffect(() => {
-		setInterval(() => {
-			const time = Date.now();
+	const setStopwatch = (stopwatch: Stopwatch) =>
+		onSetStopwatch(stopwatch._id, stopwatch);
 
-			setReferenceTime(time);
-		}, 1000);
-	}, []);
+	const removeStopwatch = (id: string) => onRemoveStopwatch(id);
 
 	const getAllStopwatch = async () => {
 		try {
@@ -42,16 +42,15 @@ const useStopwatch = () => {
 		}
 	};
 
+
 	const start = (stopwatch: Stopwatch) => {
 		const { timeSeted } = stopwatch;
 
 		const newStopwatch =
 			timeSeted !== null ? startTimer(stopwatch) : startStopwatch(stopwatch);
 
-		onSetStopwatch(newStopwatch._id, newStopwatch);
-
-		// todo: enviar por socket
-		// sendUpdateStopwatch(newStopwatch);
+		setStopwatch(newStopwatch);
+		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
 	const pause = (stopwatch: Stopwatch) => {
@@ -62,9 +61,8 @@ const useStopwatch = () => {
 		const newStopwatch =
 			timeSeted !== null ? pauseTimer(stopwatch) : pauseStopwatch(stopwatch);
 
-		onSetStopwatch(newStopwatch._id, newStopwatch);
-		// todo: enviar por socket
-		// sendUpdateStopwatch(newStopwatch);
+		setStopwatch(newStopwatch);
+		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
 	const switchClock = (stopwatch: Stopwatch) => {
@@ -82,8 +80,8 @@ const useStopwatch = () => {
 			timeDate: null,
 		};
 
-		onSetStopwatch(newStopwatch._id, newStopwatch);
-		// sendUpdateStopwatch(newClock);
+		setStopwatch(newStopwatch);
+		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
 	const restart = (stopwatch: Stopwatch) => {
@@ -94,13 +92,8 @@ const useStopwatch = () => {
 			timeDate: null,
 		};
 
-		onSetStopwatch(newStopwatch._id, newStopwatch);
-		// sendUpdateStopwatch(newStopwatch);
-	};
-
-	const remove = (id: string) => {
-		onRemoveStopwatch(id);
-		// sendUpdateStopwatch(newStopwatch);
+		setStopwatch(newStopwatch);
+		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
 	const setTimeTo = (stopwatch: Stopwatch, minutes: string | number) => {
@@ -110,13 +103,21 @@ const useStopwatch = () => {
 
 		const newT = { ...stopwatch, timeSeted: newTimeSeted };
 
-		onSetStopwatch(newT._id, newT);
-
-		// todo: enviar por socket
-		// sendUpdateStopwatch(newStopwatch);
+		setStopwatch(newT);
+		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newT);
 	};
+
+	const remove = (id: string) => {
+		removeStopwatch(id);
+		if (stopwatchContext) stopwatchContext.sendDeleteStopwatch(id);
+	};
+
 	return {
 		stopwatches,
+		referenceTime: stopwatchContext
+			? stopwatchContext.referenceTime
+			: Date.now(),
+
 		getAllStopwatch,
 		getTime,
 		start,
@@ -125,7 +126,10 @@ const useStopwatch = () => {
 		restart,
 		remove,
 		setTimeTo,
-		referenceTime,
+
+		// without socket
+		setStopwatch,
+		removeStopwatch,
 	};
 };
 

@@ -6,6 +6,7 @@ import HomeScreen from "./auth/screens/HomeScreen";
 import BillRoutes from "./bills/routes";
 import DashboardLayout from "./common/Layouts/Dashboard.layout";
 import StopwatchRoutes from "./stopwatch/routes";
+import BackgroundProcessesLayout from "./common/Layouts/BackgroundProcesses.layout";
 
 const root = createRoot(document.body);
 
@@ -14,9 +15,11 @@ root.render(
 		<Routes>
 			<Route path="/" index element={<HomeScreen />} />
 
-			<Route path="/dashboard" element={<DashboardLayout />}>
-				{BillRoutes()}
-				{StopwatchRoutes()}
+			<Route element={<BackgroundProcessesLayout />}>
+				<Route path="/dashboard" element={<DashboardLayout />}>
+					{BillRoutes()}
+					{StopwatchRoutes()}
+				</Route>
 			</Route>
 		</Routes>
 	</BrowserRouter>
