@@ -18,6 +18,23 @@ const useForeignExchange = () => {
 		(state) => state.onSetLoadingForeignExchange
 	);
 
+	const getForeignExchange = async () => {
+		try {
+			onSetLoadingForeignExchange(true);
+
+			const data = await getForeignExchangeRequest();
+
+			onSetForeignExchange(data);
+		} catch (error) {
+			console.log(error);
+			onSetLoadingForeignExchange(false);
+
+			throw new Error("not found");
+		}
+
+		onSetLoadingForeignExchange(false);
+	};
+
 	const forceScrapForeignExchange = async () => {
 		try {
 			onSetLoadingForeignExchange(true);
@@ -35,7 +52,12 @@ const useForeignExchange = () => {
 		onSetLoadingForeignExchange(false);
 	};
 
-	return { foreignExchange, loadingForeignExchange, forceScrapForeignExchange };
+	return {
+		foreignExchange,
+		loadingForeignExchange,
+		getForeignExchange,
+		forceScrapForeignExchange,
+	};
 };
 
 export default useForeignExchange;

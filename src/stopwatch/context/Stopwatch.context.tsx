@@ -1,15 +1,5 @@
-"use client";
-
 import { io, Socket } from "socket.io-client";
-
-// import ReactHowler from "react-howler";
-
-// import { Stopwatch, propsWithChildren } from "@/types";
-
 import { createContext, useContext, useState, useEffect } from "react";
-
-// import { StopwatchEvents } from "@/config/SocketEventsSystem";
-// import { getAllStopwatchRequest } from "@/api/Stopwatch.api";
 import { Stopwatch } from "../interfaces/Stopwatch.interface";
 import useStopwatch from "../hooks/useStopwatch";
 import { StopwatchEvents } from "../enums/StopwatchEvents.enum";
