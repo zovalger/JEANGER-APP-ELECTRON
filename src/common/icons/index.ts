@@ -20,8 +20,10 @@ import ReplyIcon from "./ReplyIcon";
 import ShoppingCartIcon from "./ShoppingCartIcon";
 import SwitchHorizontalIcon from "./SwitchHorizontalIcon";
 import SearchIcon from "./SearchIcon";
+import IconNotFound from "./IconNotFound";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
+	icon_not_found: IconNotFound,
 	Trash: TrashIcon,
 	Close: CloseIcon,
 	Plus: PlusIcon,

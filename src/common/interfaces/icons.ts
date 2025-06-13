@@ -1,4 +1,5 @@
 export type Icons =
+	| "icon_not_found"
 	| "Trash"
 	| "Close"
 	| "Plus"

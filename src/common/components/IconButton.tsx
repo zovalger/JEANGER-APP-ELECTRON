@@ -1,44 +1,16 @@
-import { ButtonHTMLAttributes } from "react";
-import { Icons } from "../interfaces/icons";
-import IconMap from "../icons";
-import { ButtonVariants } from "../interfaces/ButtonVariants";
-import { ButtonSizes } from "../interfaces/ButtonSizes";
+import useButtonAspect, { ButtonProps } from "../hooks/useButtonAspect";
 
-interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-	icon: Icons;
-	variant?: ButtonVariants;
-	size?: ButtonSizes;
-	href?: string;
-}
-
-const IconButton = (props: IconButtonProps) => {
-	const {
-		className,
-		onClick,
-		icon,
-		variant,
-		size = "normal",
-		href,
-		...otherPros
-	} = props;
-
-	const sizeClass =
-		size === "small"
-			? "p-2"
-			: size === "big"
-			? "p-6"
-			: size === "tiny"
-			? "p-1"
-			: "p-4";
-
-	const IconToShow = IconMap[icon]
-		? IconMap[icon]
-		: () => <span className="text-red-500">Icon not found</span>;
+const IconButton = (props: Omit<ButtonProps, "typeButton">) => {
+	const { className, onClick, IconComponent, href, ...otherPros } =
+		useButtonAspect({
+			...props,
+			typeButton: "icon",
+		});
 
 	if (href)
 		return (
-			<a href={href} className={` ${className}`}>
-				<IconToShow />
+			<a href={href} className={className}>
+				{IconComponent && <IconComponent />}
 			</a>
 		);
 
@@ -49,9 +21,9 @@ const IconButton = (props: IconButtonProps) => {
 				if (onClick) onClick(e);
 			}}
 			{...otherPros}
-			className={`hover:bg-gray-200 ${sizeClass} ${className}`}
+			className={" "+className}
 		>
-			<IconToShow />
+			{IconComponent && <IconComponent />}
 		</button>
 	);
 };
