@@ -3,7 +3,6 @@ import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange"
 import useProduct from "../../products/hooks/useProduct";
 import useBill from "../hooks/useBill";
 import { IBillItem } from "../interfaces/bill.interface";
-import { deleteItemInBill, updateBillItem } from "../helpers/Bill.helpers";
 import { initialValuesForeignExchange } from "../../common/config/initialValues";
 import { CurrencyType } from "../../common/enums";
 import Modal from "../../common/components/Modal";
@@ -17,7 +16,8 @@ interface props {
 }
 
 function BillItem({ data, onDeleteItem }: props) {
-	const { currentBill, setCurrentBill } = useBill();
+	const { addOrUpdateProduct_To_CurrentBill, deleteProduct_To_CurrentBill } =
+		useBill();
 	const { foreignExchange } = useForeignExchange();
 	const { getProduct } = useProduct();
 
@@ -32,7 +32,7 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	const handdleDelete = async () => {
 		if (onDeleteItem) onDeleteItem(productId);
-		setCurrentBill(deleteItemInBill(currentBill, foreignExchange, productId));
+		deleteProduct_To_CurrentBill(productId);
 	};
 
 	const d = foreignExchange || initialValuesForeignExchange;
@@ -45,14 +45,15 @@ function BillItem({ data, onDeleteItem }: props) {
 	// *******************************************************************
 
 	const [qu, setQu] = useState(0);
+	const [signo, setSigno] = useState<"+" | "-">("+");
+
+	const haddleChange = (text: string) => {
+		const n = parseFloat(signo + text.replace(/[-+]/gi, ""));
+		setQu(isNaN(n) ? 0 : n);
+	};
 
 	const onSubmit = () => {
-		const newBill = updateBillItem(
-			currentBill,
-			{ ...data, quantity: qu },
-			foreignExchange
-		);
-		setCurrentBill(newBill);
+		addOrUpdateProduct_To_CurrentBill(data.productId, qu);
 		handdleCloseModal();
 	};
 
@@ -62,7 +63,10 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	return (
 		<>
-			<div className="flex items-center px-4 py-2 hover:bg-gray-200 " onClick={handdleOpendiv}>
+			<div
+				className="flex items-center px-4 py-2 hover:bg-gray-200 "
+				onClick={handdleOpendiv}
+			>
 				<Text className="w-4 text-center">{quantity}</Text>
 
 				<Text className="flex-1 ml-4">{name}</Text>
@@ -95,12 +99,16 @@ function BillItem({ data, onDeleteItem }: props) {
 				<div className="flex items-center gap-2">
 					<Input
 						autoFocus
+						className={`${
+							signo === "-" ? "outline-red-500" : "outline-lime-500"
+						}`}
 						placeholder="Cantidad"
 						onKeyDown={({ nativeEvent: { key } }) => {
 							if (key === "Enter") onSubmit();
+							if (key === "+" || key === "-") setSigno(key);
 						}}
 						value={qu.toString()}
-						onChange={({ target: { value } }) => setQu(parseFloat(value))}
+						onChange={({ target: { value } }) => haddleChange(value)}
 					/>
 
 					<IconButton onClick={onSubmit} icon="Plus" />

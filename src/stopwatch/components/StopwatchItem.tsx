@@ -6,15 +6,17 @@ import ClockTimeContainer from "./ClockTimeContainer";
 import useStopwatch from "../hooks/useStopwatch";
 import useProduct from "../../products/hooks/useProduct";
 import useBill from "../../bills/hooks/useBill";
+import { useNavigate } from "react-router-dom";
+import RouterLinks from "../../common/config/RouterLinks";
 
 interface props {
 	data: Stopwatch;
 }
 export default function StopwatchItem({ data }: props) {
-	// const router = useNavigation();
-	
-	const {productSettings,getProductSettings} =useProduct()
-	const {addProductToBill} =useBill()
+	const navigate = useNavigate();
+
+	const { productSettings, getProductSettings } = useProduct();
+	const { addOrUpdateProduct_To_CurrentBill } = useBill();
 	const {
 		getTime,
 		start,
@@ -24,34 +26,30 @@ export default function StopwatchItem({ data }: props) {
 		setTimeTo,
 		referenceTime,
 	} = useStopwatch();
-	
 
 	// ****************************************************************************
 	// 										          funciones
 	// ****************************************************************************
 
 	const addToBill = async () => {
-
 		// todo: remover y colocar en una parte mas general
-		await getProductSettings()
+		if (!productSettings) await getProductSettings();
+		if (!productSettings?.stopwatchProductId) return;
 
-		if (!productSettings) return;
-		if (!productSettings.stopwatchProductId) return;
+		const productId = productSettings.stopwatchProductId;
 
 		const { timeSeted } = data;
 
 		pause(data);
 
-		const time = timeSeted ? timeSeted : getTime(data,referenceTime).time;
+		const time =
+			(timeSeted ? timeSeted : getTime(data, referenceTime).time) / 60000;
 
-		// todo: obtener product
+		await addOrUpdateProduct_To_CurrentBill(productId, time, {
+			setQuantity: true,
+		});
 
-		const productId = productSettings.stopwatchProductId;
-
-		const { currencyType, cost } = productsIndexed[productId];
-
-	
-		router.replace("./bill");
+		navigate(RouterLinks.Bills);
 	};
 
 	// ****************************************************************************

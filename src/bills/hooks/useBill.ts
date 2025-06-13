@@ -1,7 +1,11 @@
 import useBillStore from "../../common/store/useBillStore";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import useProduct from "../../products/hooks/useProduct";
-import { updateBillItem } from "../helpers/Bill.helpers";
+import {
+	clearBill,
+	deleteItemInBill,
+	updateBillItem,
+} from "../helpers/Bill.helpers";
 import { IBill, IBillItem } from "../interfaces/bill.interface";
 
 const useBill = (billId?: string) => {
@@ -14,7 +18,11 @@ const useBill = (billId?: string) => {
 
 	const setCurrentBill = (bill: IBill) => onSetCurrentBill(bill);
 
-	const addProductToBill = async (productId: string, quantity?: number) => {
+	const addOrUpdateProduct_To_CurrentBill = async (
+		productId: string,
+		quantity?: number,
+		options?: { setQuantity?: boolean }
+	) => {
 		try {
 			const newItemBill: IBillItem = {
 				productId,
@@ -23,7 +31,12 @@ const useBill = (billId?: string) => {
 				currencyType: getProduct(productId).currencyType,
 			};
 
-			const newBill = updateBillItem(currentBill, newItemBill, foreignExchange);
+			const newBill = updateBillItem(
+				currentBill,
+				newItemBill,
+				foreignExchange,
+				options
+			);
 
 			setCurrentBill(newBill);
 		} catch (error) {
@@ -31,7 +44,22 @@ const useBill = (billId?: string) => {
 		}
 	};
 
-	return { bills, currentBill, setCurrentBill, addProductToBill };
+	const deleteProduct_To_CurrentBill = (productId: string) => {
+		const newBill = deleteItemInBill(currentBill, foreignExchange, productId);
+
+		setCurrentBill(newBill);
+	};
+
+	const clear_CurrentBill = () => setCurrentBill(clearBill());
+
+	return {
+		bills,
+		currentBill,
+		setCurrentBill,
+		addOrUpdateProduct_To_CurrentBill,
+		deleteProduct_To_CurrentBill,
+		clear_CurrentBill,
+	};
 };
 
 export default useBill;

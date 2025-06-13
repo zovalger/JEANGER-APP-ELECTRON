@@ -1,4 +1,7 @@
-import { initialValuesBill, initialValuesForeignExchange } from "../../common/config/initialValues";
+import {
+	initialValuesBill,
+	initialValuesForeignExchange,
+} from "../../common/config/initialValues";
 import { CurrencyType } from "../../common/enums";
 import { IForeignExchange } from "../../foreign_exchange/interfaces/ForeignExchange.interface";
 import { IBill, IBillItem } from "../interfaces/bill.interface";
@@ -29,11 +32,11 @@ const calculateTotals = (
 	};
 };
 
-// todo: comentar paso
 export const updateBillItem = (
 	bill: IBill | null,
 	billItem: IBillItem,
-	foreignExchange: IForeignExchange | null
+	foreignExchange: IForeignExchange | null,
+	options?: { setQuantity?: boolean }
 ): IBill => {
 	const currentBill = bill || initialValuesBill;
 	const foreignExchangeCurrent =
@@ -47,20 +50,21 @@ export const updateBillItem = (
 
 	const oldQuantity = oldBillItem ? oldBillItem.quantity : 0;
 
-	const newQuantity = oldQuantity + billItem.quantity;
+	const newQuantity = options?.setQuantity
+		? billItem.quantity
+		: oldQuantity + billItem.quantity;
 
-	// todo: anadirlo
-
+	// anadirlo
 	if (!oldBillItem && newQuantity > 0) {
 		newItems = [...newItems, billItem];
 	} else if (!oldBillItem) return currentBill;
 
-	// todo quitarlo
+	// quitarlo
 	if (newQuantity <= 0) {
 		newItems = newItems.filter((item) => item.productId !== billItem.productId);
 	}
 
-	// todo actualizarlo
+	// actualizarlo
 	if (newQuantity > 0) {
 		newItems = newItems.map((item) =>
 			item.productId === billItem.productId

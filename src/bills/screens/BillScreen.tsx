@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
 import BillItem from "../components/BillItem";
-import { clearBill, updateBillItem } from "../helpers/Bill.helpers";
 import useBill from "../hooks/useBill";
-import { IBillItem } from "../interfaces/bill.interface";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import useProduct from "../../products/hooks/useProduct";
 import {
@@ -20,16 +18,19 @@ import Input from "../../common/components/Input";
 import { CurrencyType } from "../../common/enums";
 import Text from "../../common/components/Text";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
-import Button from "../../common/components/Button";
 import IconButton from "../../common/components/IconButton";
-import RouterLinks from "../../common/config/RouterLinks";
 
 const regExpAdder = /^(\+|-)\d{1,}/i;
 
 const BillScreen = () => {
 	const { foreignExchange } = useForeignExchange();
 	const { products, getProduct, getAllProductsWithServer } = useProduct();
-	const { currentBill, setCurrentBill, addProductToBill } = useBill();
+	const {
+		currentBill,
+		setCurrentBill,
+		addOrUpdateProduct_To_CurrentBill,
+		clear_CurrentBill,
+	} = useBill();
 
 	const [inputValue, setInputValue] = useState("");
 	const [productList, setProductList] = useState<string[]>([]);
@@ -62,23 +63,6 @@ const BillScreen = () => {
 	useEffect(() => {
 		refreshShowList(inputValue);
 	}, [inputValue]);
-
-	// const addProductToBill = async (productId: string, quantity?: number) => {
-	// 	try {
-	// 		const newItemBill: IBillItem = {
-	// 			productId,
-	// 			quantity: quantity ? quantity : adderValue ? adderValue : 1,
-	// 			cost: getProduct(productId).cost,
-	// 			currencyType: getProduct(productId).currencyType,
-	// 		};
-
-	// 		const newBill = updateBillItem(currentBill, newItemBill, foreignExchange);
-
-	// 		setCurrentBill(newBill);
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// };
 
 	// *******************************************************************
 	// 													controls
@@ -118,7 +102,7 @@ const BillScreen = () => {
 			const productId =
 				productList[position !== undefined ? position : selected];
 
-			addProductToBill(productId, quantity);
+			addOrUpdateProduct_To_CurrentBill(productId, quantity);
 
 			quantity = 0;
 			newInputText = "";
@@ -251,7 +235,7 @@ const BillScreen = () => {
 
 	const onDelete = async () => {
 		setDeletedFavorites([]);
-		setCurrentBill(clearBill());
+		clear_CurrentBill();
 	};
 
 	// *******************************************************************
