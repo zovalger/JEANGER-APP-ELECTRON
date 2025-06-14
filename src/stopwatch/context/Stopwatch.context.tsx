@@ -4,6 +4,7 @@ import { Stopwatch } from "../interfaces/Stopwatch.interface";
 import useStopwatch from "../hooks/useStopwatch";
 import { StopwatchEvents } from "../enums/StopwatchEvents.enum";
 import { SOCKET_SERVER_URL } from "../../common/config";
+import useSound from "../../common/hooks/useSound";
 
 interface ContextProps {
 	sendCreateStopwatch(data: Stopwatch): void;
@@ -27,21 +28,25 @@ interface props {
 }
 
 export const StopwatchContextProvider = ({ children }: props) => {
+	// todo: agregar notificaciones
 	// const { createNotification, closeNotification } = useSnackbarContext();
 
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [referenceTime, setReferenceTime] = useState(Date.now());
 
-	const { getAllStopwatch, setStopwatch, removeStopwatch } = useStopwatch();
-
-	// const [soundAlarmPlay, setSoundAlarmPlay] = useState(false);
-	// const [lastTimer, setLastTimer] = useState("");
+	const { getExpiredTimers, getAllStopwatch, setStopwatch, removeStopwatch } =
+		useStopwatch();
+	const { activeSound, unactiveSound } = useSound();
 
 	useEffect(() => {
 		setInterval(() => {
 			const time = Date.now();
-
 			setReferenceTime(time);
+
+			const pasados = getExpiredTimers(time);
+
+			if (pasados.length) activeSound("StopwatchAlarm");
+			else unactiveSound("StopwatchAlarm");
 		}, 1000);
 	}, []);
 
@@ -53,60 +58,6 @@ export const StopwatchContextProvider = ({ children }: props) => {
 		socket.on(StopwatchEvents.sendUpdate, setStopwatch);
 		socket.on(StopwatchEvents.delete, removeStopwatch);
 	};
-
-	// useEffect(() => {
-	// 	const pasados = stopwatches.filter(
-	// 		(item) =>
-	// 			item.timeSeted !== null &&
-	// 			item.timeDate &&
-	// 			item.timeDate < referenceTime
-	// 	);
-
-	// 	if (pasados.length) {
-	// 		if (pasados[0]._id != lastTimer) {
-	// 			setLastTimer(pasados[0]._id);
-	// 			createNotification({
-	// 				message: `Tiempo terminado: ${pasados[0].name}`,
-	// 				autoHideDuration: null,
-	// 				action: (
-	// 					<>
-	// 						<IconButton
-	// 							size="small"
-	// 							aria-label="close"
-	// 							color="inherit"
-	// 							onClick={() => {
-	// 								const newStopwatch = startStopwatch(pasados[0]);
-	// 								sendUpdateStopwatch(newStopwatch);
-	// 								closeNotification();
-	// 							}}
-	// 						>
-	// 							<PlayArrowIcon fontSize="small" sx={{ color: "#0cf7" }} />
-
-	// 							{/* <CloseIcon /> */}
-	// 						</IconButton>
-	// 						<IconButton
-	// 							size="small"
-	// 							aria-label="close"
-	// 							color="inherit"
-	// 							onClick={() => {
-	// 								const newTimer = pauseTimer(pasados[0]);
-	// 								sendUpdateStopwatch(newTimer);
-	// 								closeNotification();
-	// 							}}
-	// 						>
-	// 							<CloseIcon fontSize="small" />
-	// 						</IconButton>
-	// 					</>
-	// 				),
-	// 			});
-	// 		}
-
-	// 		setSoundAlarmPlay(true);
-	// 	} else {
-	// 		setSoundAlarmPlay(false);
-	// 		setLastTimer("");
-	// 	}
-	// }, [referenceTime]);
 
 	useEffect(() => {
 		if (socket) return;
@@ -151,15 +102,6 @@ export const StopwatchContextProvider = ({ children }: props) => {
 				referenceTime,
 			}}
 		>
-			{/* {isClient && (
-				<ReactHowler
-					src="/sounds/ringtone-126505.mp3"
-					playing={soundAlarmPlay}
-					volume={0.4}
-					html5={true}
-				/>
-			)} */}
-
 			{children}
 		</StopwatchContext.Provider>
 	);

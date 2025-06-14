@@ -10,13 +10,14 @@ interface IStopwatchActions {
 	onSetAllStopwatches: (stopwatches: Stopwatch[]) => void;
 	onSetStopwatch: (id: string, stopwatches: Stopwatch) => void;
 	onRemoveStopwatch: (id: string) => void;
+	onGetExpiredTimers: (referenceTime: number) => Stopwatch[];
 }
 
 interface IStopwatchStore extends IStopwatchState, IStopwatchActions {}
 
 const useStopwatchStore = create<IStopwatchStore>()(
 	persist<IStopwatchStore>(
-		(set) => ({
+		(set, get) => ({
 			stopwatches: [],
 			onSetAllStopwatches: (stopwatches) =>
 				set((state) => ({ ...state, stopwatches })),
@@ -46,6 +47,14 @@ const useStopwatchStore = create<IStopwatchStore>()(
 					};
 				});
 			},
+
+			onGetExpiredTimers: (referenceTime) =>
+				get().stopwatches.filter(
+					(item) =>
+						item.timeSeted !== null &&
+						item.timeDate &&
+						item.timeDate < referenceTime
+				),
 		}),
 		{ name: "stopwatch-store" }
 	)

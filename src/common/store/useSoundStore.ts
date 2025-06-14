@@ -26,6 +26,8 @@ const useSoundStore = create<ISoundStore>((set) => ({
 		set((state) => {
 			const { currentsSounds } = state;
 
+			if (!currentsSounds.includes(sound)) return state;
+
 			return {
 				...state,
 				currentsSounds: currentsSounds.filter((item) => item !== sound),

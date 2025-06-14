@@ -22,6 +22,9 @@ const useStopwatch = () => {
 	const onRemoveStopwatch = useStopwatchStore(
 		(state) => state.onRemoveStopwatch
 	);
+	const onGetExpiredTimers = useStopwatchStore(
+		(state) => state.onGetExpiredTimers
+	);
 
 	// ************************************************************
 	// 										functions
@@ -41,7 +44,6 @@ const useStopwatch = () => {
 			console.log(error);
 		}
 	};
-
 
 	const start = (stopwatch: Stopwatch) => {
 		const { timeSeted } = stopwatch;
@@ -76,7 +78,6 @@ const useStopwatch = () => {
 			...stopwatch,
 			timeSeted: newSeted,
 			accumulatedTime: 0,
-			// timeSeted: 0,
 			timeDate: null,
 		};
 
@@ -88,7 +89,6 @@ const useStopwatch = () => {
 		const newStopwatch: Stopwatch = {
 			...stopwatch,
 			accumulatedTime: 0,
-			// timeSeted: 0,
 			timeDate: null,
 		};
 
@@ -112,6 +112,9 @@ const useStopwatch = () => {
 		if (stopwatchContext) stopwatchContext.sendDeleteStopwatch(id);
 	};
 
+	const getExpiredTimers = (referenceTime: number) =>
+		onGetExpiredTimers(referenceTime);
+
 	return {
 		stopwatches,
 		referenceTime: stopwatchContext
@@ -130,6 +133,7 @@ const useStopwatch = () => {
 		// without socket
 		setStopwatch,
 		removeStopwatch,
+		getExpiredTimers,
 	};
 };
 
