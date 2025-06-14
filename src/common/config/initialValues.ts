@@ -1,7 +1,6 @@
 import { IBill } from "../../bills/interfaces/bill.interface";
 import { IForeignExchange } from "../../foreign_exchange/interfaces/ForeignExchange.interface";
 
-
 export const initialValuesForeignExchange: IForeignExchange = {
 	bankBusinessDate: new Date().toString(),
 	dolar: 0,

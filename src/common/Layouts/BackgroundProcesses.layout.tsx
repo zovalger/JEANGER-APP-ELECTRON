@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import { StopwatchContextProvider } from "../../stopwatch/context/Stopwatch.context";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import { SoundPlayer } from "../components/SoundPlayer";
+import { SocketContextProvider } from "../context/Socket.context";
 
 interface BackgroundProcessesLayoutProps {
 	children?: React.ReactNode;
@@ -20,12 +21,12 @@ const BackgroundProcessesLayout = (
 	}, []);
 
 	return (
-		<>
+		<SocketContextProvider>
 			<StopwatchContextProvider>
 				<SoundPlayer />
 				{children || <Outlet />}
 			</StopwatchContextProvider>
-		</>
+		</SocketContextProvider>
 	);
 };
 

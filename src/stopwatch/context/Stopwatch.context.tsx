@@ -1,10 +1,10 @@
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { createContext, useContext, useState, useEffect } from "react";
 import { Stopwatch } from "../interfaces/Stopwatch.interface";
 import useStopwatch from "../hooks/useStopwatch";
 import { StopwatchEvents } from "../enums/StopwatchEvents.enum";
-import { SOCKET_SERVER_URL } from "../../common/config";
 import useSound from "../../common/hooks/useSound";
+import { useSocketContext } from "../../common/context/Socket.context";
 
 interface ContextProps {
 	sendCreateStopwatch(data: Stopwatch): void;
@@ -31,12 +31,13 @@ export const StopwatchContextProvider = ({ children }: props) => {
 	// todo: agregar notificaciones
 	// const { createNotification, closeNotification } = useSnackbarContext();
 
-	const [socket, setSocket] = useState<Socket | null>(null);
-	const [referenceTime, setReferenceTime] = useState(Date.now());
-
-	const { getExpiredTimers, getAllStopwatch, setStopwatch, removeStopwatch } =
-		useStopwatch();
+	const { socket } = useSocketContext();
 	const { activeSound, unactiveSound } = useSound();
+	
+	const { getExpiredTimers, getAllStopwatch, setStopwatch, removeStopwatch } =
+	useStopwatch();
+	
+	const [referenceTime, setReferenceTime] = useState(Date.now());
 
 	useEffect(() => {
 		setInterval(() => {
@@ -54,27 +55,13 @@ export const StopwatchContextProvider = ({ children }: props) => {
 		getAllStopwatch().catch();
 	}, []);
 
-	const setListeners = async (socket: Socket) => {
-		socket.on(StopwatchEvents.sendUpdate, setStopwatch);
-		socket.on(StopwatchEvents.delete, removeStopwatch);
+	const setListeners = async (s: Socket) => {
+		s.on(StopwatchEvents.sendUpdate, setStopwatch);
+		s.on(StopwatchEvents.delete, removeStopwatch);
 	};
 
 	useEffect(() => {
-		if (socket) return;
-
-		try {
-			const soc = io(SOCKET_SERVER_URL);
-			setSocket(soc);
-			setListeners(soc);
-		} catch (error) {
-			console.log(error);
-		}
-
-		return () => {
-			if (!socket) return;
-
-			socket.disconnect();
-		};
+		if (socket) setListeners(socket);
 	}, [socket]);
 
 	const sendCreateStopwatch = (data: Omit<Stopwatch, "_id">) => {

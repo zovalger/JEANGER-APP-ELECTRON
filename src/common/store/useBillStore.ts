@@ -1,44 +1,62 @@
 import { create } from "zustand";
-import { IBill } from "../../bills/interfaces/bill.interface";
+import { persist } from "zustand/middleware";
+import { IBill, IBillItem } from "../../bills/interfaces/bill.interface";
 import { initialValuesBill } from "../config/initialValues";
 
-interface IBillStore {
-	bills: IBill[];
+interface IBillState {
 	currentBill: IBill | null;
-	onSetCurrentBill(bill: IBill): void;
+	bills: IBill[];
 }
 
-const useBillStore = create<IBillStore>((set) => ({
-	bills: [],
-	currentBill: initialValuesBill,
-	onSetCurrentBill: (bill: IBill) => {
-		set((state) => ({ ...state, currentBill: bill }));
-	},
+interface IBillActions {
+	onSetCurrentBill(bill: IBill): void;
 
-	// {
-	// 	_id: "sadasda",
-	// 	name: "asdasda",
-	// 	date: new Date(),
-	// 	items: [
-	// 		{
-	// 			productId: "64ea2f45abe42c738578b3be",
-	// 			cost: 0.11,
-	// 			currencyType: CurrencyType.USD,
-	// 			quantity: 1,
-	// 		},
-	// 	],
-	// 	foreignExchange: {
-	// 		euro: 105.63515899,
-	// 		dolar: 94.763,
-	// 		date: new Date().toString(),
-	// 		bankBusinessDate: "19/5/2025",
-	// 	},
-	// 	totals: {
-	// 		BSF: 0,
-	// 		USD: 0,
-	// 	},
-	// }
-	removeAllBills: () => set((state) => ({ ...state, bills: [] })),
-}));
+	onAddOrUpdateBill(bill_id: string, bill: IBill): void;
+	onRemoveBill(bill_id: string): void;
+
+	onAddOrUpdateProduct_in_Bill(bill_id: string, billItem: IBillItem): void;
+	onRemoveProduct_in_Bill(bill_id: string, billItemId: string): void;
+}
+
+interface IBillStore extends IBillState, IBillActions {}
+
+const useBillStore = create<IBillStore>()(
+	persist<IBillStore>(
+		(set) => ({
+			bills: [],
+			currentBill: initialValuesBill,
+
+			onSetCurrentBill: (bill: IBill) => {
+				set((state) => ({ ...state, currentBill: bill }));
+			},
+
+
+			onAddOrUpdateBill: (bill_id: string, bill: IBill) =>
+				set((state) => {
+					const { bills } = state;
+					const b = bills.find((item) => item._id == bill_id);
+
+					if (!b) return { ...state, bills: [...bills, bill] };
+
+					console.log("no encontrado",b);
+					
+
+					return {
+						...state,
+						bills: bills.map((item) => (item._id === bill_id ? bill : item)),
+					};
+				}),
+
+			onRemoveBill: (bill_id: string) => {},
+			onAddOrUpdateProduct_in_Bill: (
+				bill_id: string,
+				billItem: IBillItem
+			) => {},
+			onRemoveProduct_in_Bill: (bill_id: string, billItemId: string) => {},
+		}),
+
+		{ name: "bill-store" }
+	)
+);
 
 export default useBillStore;

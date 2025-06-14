@@ -19,18 +19,15 @@ import { CurrencyType } from "../../common/enums";
 import Text from "../../common/components/Text";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import IconButton from "../../common/components/IconButton";
+import SavedBills from "../components/SavedBills";
 
 const regExpAdder = /^(\+|-)\d{1,}/i;
 
 const BillScreen = () => {
 	const { foreignExchange } = useForeignExchange();
 	const { products, getProduct, getAllProductsWithServer } = useProduct();
-	const {
-		currentBill,
-		setCurrentBill,
-		addOrUpdateProduct_To_CurrentBill,
-		clear_CurrentBill,
-	} = useBill();
+	const { currentBill, addOrUpdateProduct_To_CurrentBill, clear_CurrentBill } =
+		useBill();
 
 	const [inputValue, setInputValue] = useState("");
 	const [productList, setProductList] = useState<string[]>([]);
@@ -336,6 +333,8 @@ const BillScreen = () => {
 					</div>
 				</div>
 			</div>
+
+			<SavedBills />
 		</PageTemplateLayout>
 	);
 };
