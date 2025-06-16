@@ -169,7 +169,7 @@ interface SwitchCurrencyType {
 	toCurrencyType: CurrencyType;
 }
 
-const switchCurrencyType = ({
+export const switchCurrencyType = ({
 	calculatorState,
 	foreignExchange,
 	toCurrencyType,
@@ -217,43 +217,43 @@ const switchCurrencyType = ({
 	return newState;
 };
 
-export const onSpecialKeyDownHanddle = ({
-	calculatorState,
-	foreignExchange,
-	key,
-}: HandleChangeCalculator): [CalculatorState, CalculatorState?] => {
-	try {
-		if (
-			key === MathSpecialKey.F7 ||
-			key === MathSpecialKey.F8 ||
-			key === MathSpecialKey.F9
-		)
-			return [
-				switchCurrencyType({
-					calculatorState,
-					foreignExchange,
-					toCurrencyType:
-						key === MathSpecialKey.F7
-							? CurrencyType.EUR
-							: key === MathSpecialKey.F8
-							? CurrencyType.USD
-							: CurrencyType.BSF,
-				}),
-			];
+// export const onSpecialKeyDownHanddle = ({
+// 	calculatorState,
+// 	foreignExchange,
+// 	key,
+// }: HandleChangeCalculator): [CalculatorState, CalculatorState?] => {
+// 	try {
+// 		if (
+// 			key === MathSpecialKey.F7 ||
+// 			key === MathSpecialKey.F8 ||
+// 			key === MathSpecialKey.F9
+// 		)
+// 			return [
+// 				switchCurrencyType({
+// 					calculatorState,
+// 					foreignExchange,
+// 					toCurrencyType:
+// 						key === MathSpecialKey.F7
+// 							? CurrencyType.EUR
+// 							: key === MathSpecialKey.F8
+// 							? CurrencyType.USD
+// 							: CurrencyType.BSF,
+// 				}),
+// 			];
 
-		if (key === MathSpecialKey.Enter) {
-			const result = calculateResult(calculatorState);
-			return [result, result];
-		}
+// 		if (key === MathSpecialKey.Enter) {
+// 			const result = calculateResult(calculatorState);
+// 			return [result, result];
+// 		}
 
-		if (key === MathSpecialKey.Escape)
-			return [initialCalculatorState(calculatorState)];
+// 		if (key === MathSpecialKey.Escape)
+// 			return [initialCalculatorState(calculatorState)];
 
-		if (Object.values(MathOperation).includes(key as MathOperation))
-			return onMathOperationKey(calculatorState, key as MathOperation);
+// 		if (Object.values(MathOperation).includes(key as MathOperation))
+// 			return onMathOperationKey(calculatorState, key as MathOperation);
 
-		throw new Error("Bonton no especial no encontrado");
-	} catch (error) {
-		return [calculatorState];
-	}
-};
+// 		throw new Error("Bonton no especial no encontrado");
+// 	} catch (error) {
+// 		return [calculatorState];
+// 	}
+// };

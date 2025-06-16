@@ -11,6 +11,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	size?: UI_Sizes;
 	href?: string;
 	textJustify?: "left" | "center" | "right";
+	stopPropagation?: boolean;
 	onClick?: (
 		event:
 			| React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -31,6 +32,7 @@ const useButtonAspect = (props: ButtonProps): ButtonPropsToReturn => {
 		disabled,
 		icon,
 		textJustify = "center",
+		stopPropagation = true,
 		...otherPros
 	} = props;
 
@@ -70,6 +72,7 @@ const useButtonAspect = (props: ButtonProps): ButtonPropsToReturn => {
 		size,
 		disabled,
 		IconComponent: IconToShow,
+		stopPropagation,
 		className: ` ${classOfTypeButton} ${color} ${sizeClass} ${className} `,
 	};
 };

@@ -10,6 +10,7 @@ const Button = (props: Omit<ButtonProps, "typeButton">) => {
 		IconComponent,
 		href,
 		children,
+		stopPropagation,
 		...otherPros
 	} = useButtonAspect({
 		...props,
@@ -22,12 +23,12 @@ const Button = (props: Omit<ButtonProps, "typeButton">) => {
 				to={href}
 				className={className}
 				onClick={(e) => {
-					e.stopPropagation();
+					if (stopPropagation) e.stopPropagation();
 					if (onClick) onClick(e);
 				}}
 			>
 				{IconComponent && <IconComponent />}
-				<Text size={size} className="ml-2">
+				<Text size={size} className={IconComponent ? "ml-2" : "0"}>
 					{children}
 				</Text>
 			</Link>
@@ -35,15 +36,15 @@ const Button = (props: Omit<ButtonProps, "typeButton">) => {
 
 	return (
 		<button
+			{...otherPros}
 			onClick={(e) => {
-				e.stopPropagation();
+				if (stopPropagation) e.stopPropagation();
 				if (onClick) onClick(e);
 			}}
-			{...otherPros}
 			className={className}
 		>
 			{IconComponent && <IconComponent />}
-			<Text size={size} className="ml-2">
+			<Text size={size} className={IconComponent ? "ml-2" : "0"}>
 				{children}
 			</Text>
 		</button>

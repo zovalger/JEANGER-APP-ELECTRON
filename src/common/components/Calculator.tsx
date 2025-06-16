@@ -1,4 +1,4 @@
-import Input from "./Input";
+import Input, { CustomInputProps } from "./Input";
 import useCalculator from "../hooks/useCalculator";
 import {
 	isSpeacialkey,
@@ -8,11 +8,12 @@ import {
 import Text from "./Text";
 import { useEffect, useRef } from "react";
 import { CurrencyType } from "../enums";
+import Button from "./Button";
 
 const numbers = [
-	{ title: CurrencyType.EUR, action: MathSpecialKey.F7 },
-	{ title: CurrencyType.USD, action: MathSpecialKey.F8 },
-	{ title: CurrencyType.BSF, action: MathSpecialKey.F9 },
+	{ title: CurrencyType.EUR, helpText: "F7", action: MathSpecialKey.F7 },
+	{ title: CurrencyType.USD, helpText: "F8", action: MathSpecialKey.F8 },
+	{ title: CurrencyType.BSF, helpText: "F9", action: MathSpecialKey.F9 },
 	{ title: "/", action: MathOperation.division },
 	{ title: "7" },
 	{ title: "8" },
@@ -35,10 +36,12 @@ const numbers = [
 const Calculator = () => {
 	const { calculatorState, history, setHistoryState, onChange, onKeyPress } =
 		useCalculator();
+
 	const { textInput, a, b, mathOperation, result, currencyType } =
 		calculatorState;
 
 	const historyRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLInputElement | null>(null);
 
 	useEffect(() => {
 		if (!historyRef.current) return;
@@ -70,18 +73,24 @@ const Calculator = () => {
 			<div className="flex items-center justify-between gap-4 px-4">
 				<Text>{currencyType}</Text>
 				<div className="flex flex-col flex-1">
-					{a && (
-						<Text className="text-right" variant="bold" size="big">
-							{a.toFixed(2).replace(".", ",")}
-							{mathOperation}
-							{b?.toFixed(2).replace(".", ",")}
-							{result && "="}
-						</Text>
-					)}
+					<label htmlFor={calculatorState.createAt.toString()}>
+						{a ? (
+							<Text className="text-right">
+								{a.toFixed(2).replace(".", ",")}
+								{mathOperation}
+								{b?.toFixed(2).replace(".", ",")}
+								{result && "="}
+							</Text>
+						) : (
+							<Text className="text-right"> =</Text>
+						)}
+					</label>
 
 					<Input
+						ref={inputRef}
+						id={calculatorState.createAt.toString()}
 						placeholder="calcular"
-						className="text-right"
+						className="text-right outline-none"
 						value={textInput}
 						textSize="big"
 						onChange={(event) => onChange(event.target.value)}
@@ -97,18 +106,26 @@ const Calculator = () => {
 
 			<div className="flex flex-wrap mt-1">
 				{numbers.map((item) => (
-					<Text
+					<label
 						key={item.title}
-						className={`flex-1/4 p-2 hover:bg-gray-200 text-center ${
-							item.title === currencyType && "bg-green-200"
-						}`}
+						htmlFor={calculatorState.createAt.toString()}
 						onClick={() => {
+							if (inputRef?.current) inputRef.current.focus();
 							if (item.action) return onKeyPress(item.action);
 							onChange(textInput + item.title);
 						}}
+						className={`flex-1/4 hover:bg-gray-200 p-1 ${
+							item.title === currencyType && "bg-green-200"
+						}`}
 					>
-						{item.title}
-					</Text>
+						<Text size="small" className="text-center">
+							{item.title}
+						</Text>
+
+						<Text size="tiny" className="text-center">
+							{item?.helpText}
+						</Text>
+					</label>
 				))}
 			</div>
 		</div>

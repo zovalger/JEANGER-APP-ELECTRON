@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router";
 
 import "./index.css";
 import HomeScreen from "./auth/screens/HomeScreen";
@@ -11,7 +11,7 @@ import BackgroundProcessesLayout from "./common/Layouts/BackgroundProcesses.layo
 const root = createRoot(document.body);
 
 root.render(
-	<BrowserRouter>
+	<HashRouter>
 		<Routes>
 			<Route path="/" index element={<HomeScreen />} />
 
@@ -22,5 +22,5 @@ root.render(
 				</Route>
 			</Route>
 		</Routes>
-	</BrowserRouter>
+	</HashRouter>
 );

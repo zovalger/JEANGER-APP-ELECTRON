@@ -1,26 +1,40 @@
+import { Link } from "react-router-dom";
 import useButtonAspect, { ButtonProps } from "../hooks/useButtonAspect";
 
 const IconButton = (props: Omit<ButtonProps, "typeButton">) => {
-	const { className, onClick, IconComponent, href, ...otherPros } =
-		useButtonAspect({
-			...props,
-			typeButton: "icon",
-		});
+	const {
+		className,
+		onClick,
+		IconComponent,
+		href,
+		stopPropagation,
+		...otherPros
+	} = useButtonAspect({
+		...props,
+		typeButton: "icon",
+	});
 
 	if (href)
 		return (
-			<a href={href} className={className}>
+			<Link
+				to={href}
+				className={className}
+				onClick={(e) => {
+					if (stopPropagation) e.stopPropagation();
+					if (onClick) onClick(e);
+				}}
+			>
 				{IconComponent && <IconComponent />}
-			</a>
+			</Link>
 		);
 
 	return (
 		<button
+			{...otherPros}
 			onClick={(e) => {
-				e.stopPropagation();
+				if (stopPropagation) e.stopPropagation();
 				if (onClick) onClick(e);
 			}}
-			{...otherPros}
 			className={className}
 		>
 			{IconComponent && <IconComponent />}
