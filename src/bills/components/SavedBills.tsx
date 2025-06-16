@@ -11,9 +11,9 @@ export default function SavedBills() {
 		<>
 			{/* <Divider sx={{ my: 3 }} /> */}
 
-			<div>
-				<div>
-					<Text>Facturas guardadas</Text>
+			<div >
+				<div className="flex items-center justify-between">
+					<Text variant="bold">Facturas guardadas</Text>
 
 					{/* <IconButton
 						

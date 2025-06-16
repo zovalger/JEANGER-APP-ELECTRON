@@ -11,6 +11,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	size?: UI_Sizes;
 	href?: string;
 	textJustify?: "left" | "center" | "right";
+	onClick?: (
+		event:
+			| React.MouseEvent<HTMLAnchorElement, MouseEvent>
+			| React.MouseEvent<HTMLButtonElement, MouseEvent>
+	) => void;
 }
 
 interface ButtonPropsToReturn extends Omit<ButtonProps, "typeButton"> {

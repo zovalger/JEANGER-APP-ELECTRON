@@ -257,8 +257,8 @@ const BillScreen = () => {
 		<PageTemplateLayout
 			rightButtons={<IconButton icon="Refresh" onClick={onDelete} />}
 		>
-			<div className="sticky top-14 my-2">
-				<div className="px-4 ">
+			<div className="sticky top-14 mb-2">
+				<div className="">
 					<Input
 						className="bg-gray-100 rounded-xl "
 						placeholder="Buscar"
@@ -305,7 +305,7 @@ const BillScreen = () => {
 							<Button onClick={() => opendiv()}>añadir</Button> */}
 
 				<div className="mx-12	">
-					<div className="flex justify-between items-center">
+					{/* <div className="flex justify-between items-center">
 						<Text>SubTotal</Text>
 						<Text>
 							{(totals.BSF * (1 / 1.16)).toFixed(2)} {CurrencyType.BSF}
@@ -319,14 +319,16 @@ const BillScreen = () => {
 							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}{" "}
 							{CurrencyType.BSF}
 						</Text>
-					</div>
+					</div> */}
 					<div className="flex justify-between items-center">
-						<Text>Total</Text>
+						<Text size="big" variant="bold">
+							Total
+						</Text>
 						<div className="flex flex-col">
-							<Text className="text-right">
+							<Text size="big" variant="bold" className="text-right">
 								{totals.USD.toFixed(2)} {CurrencyType.USD}
 							</Text>
-							<Text className="text-right">
+							<Text size="big" variant="bold" className="text-right">
 								{totals.BSF.toFixed(2)} {CurrencyType.BSF}
 							</Text>
 						</div>

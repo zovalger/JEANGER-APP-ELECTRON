@@ -12,19 +12,23 @@ interface props {
 export default function SavedBillsItem({ data }: props) {
 	const { name, totals, items, date, _id } = data;
 
-	const { selectBill, removeBill } = useBill();
+	const { currentBill, selectBill, removeBill } = useBill();
 	const { getProduct } = useProduct();
-
 
 	const handdleSelect = () => selectBill(_id);
 
 	const handdleDelete = () => removeBill(_id);
 
-
 	return (
-		<div onClick={handdleSelect}>
-			<div className="flex">
+		<div
+			onClick={handdleSelect}
+			className={`p-2 rounded ${
+				currentBill._id === _id ? "border border-cyan-400" : ""
+			} `}
+		>
+			<div className="flex items-center">
 				<Text>{name || "Sin Nombre"}</Text>
+
 				<Text className="mr-2 ml-auto">{totals.BSF?.toFixed(2) + " BSF"}</Text>
 
 				<IconButton
@@ -32,7 +36,7 @@ export default function SavedBillsItem({ data }: props) {
 						e.stopPropagation();
 						handdleDelete();
 					}}
-					size="small"
+					size="tiny"
 					icon="Close"
 					variant="danger"
 				/>
@@ -43,10 +47,10 @@ export default function SavedBillsItem({ data }: props) {
 					const product = getProduct(item.productId);
 
 					return (
-						<Text key={item.productId}>
-							{item.quantity}
-							{product ? product.name : ". . ."}
-						</Text>
+						<div key={item.productId} className="flex gap-2">
+							<Text size="tiny">{item.quantity}</Text>
+							<Text size="tiny">{product ? product.name : ". . ."}</Text>
+						</div>
 					);
 				})}
 			</div>

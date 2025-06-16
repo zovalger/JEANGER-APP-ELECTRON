@@ -32,7 +32,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				`}
 		>
 			<div
-				className="bg-white h-full w-[80%] sm:w-full shadow-sm"
+				className="bg-white h-full w-[80%] sm:w-full border-r border-gray-500"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex min-h-12 items-center justify-start sm:justify-start  bg-gray-100 ">
@@ -71,7 +71,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 
 	const RightPanel = () => (
 		<div
-			className={`fixed top-0 w-screen h-full flex flex-col bg-white sm:w-60 sm:translate-x-0 ${
+			className={`fixed top-0 w-screen h-full flex flex-col bg-white sm:w-60 sm:translate-x-0 border-l border-gray-500 ${
 				rightPanelOpen ? "right-0" : "translate-x-full sm:-right-60"
 			}`}
 		>

@@ -1,5 +1,6 @@
 import Text from "./Text";
 import useButtonAspect, { ButtonProps } from "../hooks/useButtonAspect";
+import { Link } from "react-router-dom";
 
 const Button = (props: Omit<ButtonProps, "typeButton">) => {
 	const {
@@ -17,12 +18,19 @@ const Button = (props: Omit<ButtonProps, "typeButton">) => {
 
 	if (href)
 		return (
-			<a href={href} className={className}>
+			<Link
+				to={href}
+				className={className}
+				onClick={(e) => {
+					e.stopPropagation();
+					if (onClick) onClick(e);
+				}}
+			>
 				{IconComponent && <IconComponent />}
 				<Text size={size} className="ml-2">
 					{children}
 				</Text>
-			</a>
+			</Link>
 		);
 
 	return (

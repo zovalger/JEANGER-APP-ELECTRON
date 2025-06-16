@@ -45,7 +45,10 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 				<div className="flex ml-auto">{rightButtons}</div>
 			</div>
 
+<div className="px-4 pt-4">
+
 			{children}
+</div>
 		</>
 	);
 };
