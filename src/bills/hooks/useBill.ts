@@ -10,27 +10,35 @@ import {
 } from "../helpers/Bill.helpers";
 
 import { IBill, IBillItem } from "../interfaces/bill.interface";
+import { getAllBillsRequest } from "../api/Bill.api";
+import { useBillContext } from "../context/Bill.context";
 
 interface ComunicationOption {
 	resend?: boolean;
 }
 
+const defaultOptions: ComunicationOption = {
+	resend: true,
+};
 const useBill = () => {
+	const billContext = useBillContext();
 	const { getProduct } = useProduct();
 	const { foreignExchange } = useForeignExchange();
 
 	const bills = useBillStore((state) => state.bills);
 	const currentBill = useBillStore((state) => state.currentBill);
 
+	const onGetBill = useBillStore((state) => state.onGetBill);
 	const onSetCurrentBill = useBillStore((state) => state.onSetCurrentBill);
+	const onSetBills = useBillStore((state) => state.onSetBills);
 	const onAddOrUpdateBill = useBillStore((state) => state.onAddOrUpdateBill);
 	const onRemoveBill = useBillStore((state) => state.onRemoveBill);
-	const onAddOrUpdateProduct_in_Bill = useBillStore(
-		(state) => state.onAddOrUpdateProduct_in_Bill
-	);
-	const onRemoveProduct_in_Bill = useBillStore(
-		(state) => state.onRemoveProduct_in_Bill
-	);
+	// const onAddOrUpdateProduct_in_Bill = useBillStore(
+	// 	(state) => state.onAddOrUpdateProduct_in_Bill
+	// );
+	// const onRemoveProduct_in_Bill = useBillStore(
+	// 	(state) => state.onRemoveProduct_in_Bill
+	// );
 
 	// ************************************************************
 	// 										functions
@@ -59,6 +67,7 @@ const useBill = () => {
 			);
 
 			setCurrentBill(newBill);
+			// addOrUpdateBill(newBill);
 		} catch (error) {
 			console.log(error);
 		}
@@ -72,55 +81,83 @@ const useBill = () => {
 
 	const clear_CurrentBill = () => setCurrentBill(clearBill());
 
-	// 	getAllBillsRequest()
-	// 		.then(setBills)
-	// 		.catch((err) => console.log(err));
+	// ************************************************************
+	// 										facturas guardadas
+	// ************************************************************
 
-	const addOrUpdateBill = (bill: IBill, options?: ComunicationOption) => {
+	const getAllBills = async () => {
+		try {
+			const allBills = await getAllBillsRequest();
+
+			onSetBills(allBills);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const addOrUpdateBill = (
+		bill: IBill,
+		options: ComunicationOption = defaultOptions
+	) => {
 		onAddOrUpdateBill(bill._id, bill);
 
-		if (options?.resend) console.log("envio por socket", bill);
+		if (billContext && options?.resend) {
+			console.log("envio por socket", bill);
+			billContext.sendBillBroadcast(bill);
+		}
 	};
 
-	const removeBill = (bill_id: string, options?: ComunicationOption) => {
-		onRemoveBill(bill_id);
-
-		if (options?.resend) console.log("envio por socket", bill_id);
-	};
-
-	const addOrUpdateProductBill = (
-		bill_id: string,
-		billItem: IBillItem,
-		options?: ComunicationOption
-	) => {
-		onAddOrUpdateProduct_in_Bill(bill_id, billItem);
-	};
-
-	const removeProductBill = (
-		bill_id: string,
-		billItemId: string,
-		options?: ComunicationOption
-	) => {
-		onRemoveProduct_in_Bill(bill_id, billItemId);
-	};
-
-	const selectBill = (bill_id: string, options?: ComunicationOption) => {
-		// onRemoveProduct_in_Bill(bill_id, billItemId);
-	};
-
-	const saveCurrentBill = (options?: ComunicationOption) => {
-		const toSave: IBill = currentBill._id.length
-			? { ...currentBill, _id: uuid() }
-			: currentBill;
-
-			console.log(currentBill._id.length);
-			console.log(toSave);
+	const saveCurrentBill = (options: ComunicationOption = defaultOptions) => {
+		const toSave: IBill = currentBill._id
+			? currentBill
+			: { ...currentBill, _id: uuid() };
 
 		addOrUpdateBill(toSave);
 		clear_CurrentBill();
 
-		if (options?.resend) console.log("envio por socket");
+		if (billContext && options?.resend) console.log("envio por socket");
 	};
+
+	const selectBill = (
+		bill_id: string,
+		options: ComunicationOption = defaultOptions
+	) => {
+		if (currentBill.items.length) saveCurrentBill();
+
+		const selectedBill = onGetBill(bill_id);
+		setCurrentBill(selectedBill);
+
+		if (billContext && options?.resend)
+			console.log("envio por socket", "seleccion de bill");
+	};
+
+	const removeBill = (
+		bill_id: string,
+		options: ComunicationOption = defaultOptions
+	) => {
+		onRemoveBill(bill_id);
+
+		if (billContext && options?.resend) {
+			console.log("envio por socket", bill_id);
+			billContext.sendDeleteBillBroadcast(bill_id);
+		}
+	};
+
+	// const addOrUpdateProductBill = (
+	// 	bill_id: string,
+	// 	billItem: IBillItem,
+	// 	options: ComunicationOption = defaultOptions
+	// ) => {
+	// 	onAddOrUpdateProduct_in_Bill(bill_id, billItem);
+	// };
+
+	// const removeProductBill = (
+	// 	bill_id: string,
+	// 	billItemId: string,
+	// 	options: ComunicationOption = defaultOptions
+	// ) => {
+	// 	onRemoveProduct_in_Bill(bill_id, billItemId);
+	// };
 
 	return {
 		bills,
@@ -131,12 +168,13 @@ const useBill = () => {
 		clear_CurrentBill,
 
 		// saved bills
+		getAllBills,
 		saveCurrentBill,
 		selectBill,
 		addOrUpdateBill,
 		removeBill,
-		addOrUpdateProductBill,
-		removeProductBill,
+		// addOrUpdateProductBill,
+		// removeProductBill,
 	};
 };
 

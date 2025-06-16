@@ -5,6 +5,7 @@ import { StopwatchContextProvider } from "../../stopwatch/context/Stopwatch.cont
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import { SoundPlayer } from "../components/SoundPlayer";
 import { SocketContextProvider } from "../context/Socket.context";
+import { BillContextProvider } from "../../bills/context/Bill.context";
 
 interface BackgroundProcessesLayoutProps {
 	children?: React.ReactNode;
@@ -22,10 +23,12 @@ const BackgroundProcessesLayout = (
 
 	return (
 		<SocketContextProvider>
-			<StopwatchContextProvider>
-				<SoundPlayer />
-				{children || <Outlet />}
-			</StopwatchContextProvider>
+			<BillContextProvider>
+				<StopwatchContextProvider>
+					<SoundPlayer />
+					{children || <Outlet />}
+				</StopwatchContextProvider>
+			</BillContextProvider>
 		</SocketContextProvider>
 	);
 };

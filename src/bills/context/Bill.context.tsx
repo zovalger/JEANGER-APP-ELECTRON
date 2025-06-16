@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect } from "react";
 import { IBill } from "../interfaces/bill.interface";
 import { useSocketContext } from "../../common/context/Socket.context";
 import { BillEvents } from "../enums/BillEvents.enum";
+import useBill from "../hooks/useBill";
+import { Socket } from "socket.io-client";
 
 interface ContextProps {
 	sendBillBroadcast(data: IBill): void;
@@ -21,18 +23,32 @@ interface props {
 
 export const BillContextProvider = ({ children }: props) => {
 	// lista de todos los billos
-	const {socket} =useSocketContext()
-
-	// useEffect(() => {
-	// 	getAllBillsRequest()
-	// 		.then(setBills)
-	// 		.catch((err) => console.log(err));
-	// }, []);
+	const { socket } = useSocketContext();
+	const { getAllBills, addOrUpdateBill, removeBill } = useBill();
 
 	useEffect(() => {
-		if (socket)	setListeners(socket);
+		getAllBills();
+	}, []);
+
+	useEffect(() => {
+		if (socket) setListeners(socket);
 	}, [socket]);
 
+	const reciveBill = ({ data, oldId }: { data: IBill; oldId: string }) => {
+		console.log(data);
+
+		removeBill(oldId, { resend: false });
+		addOrUpdateBill(data, { resend: false });
+	};
+
+	const reciveDeleteBill = (_id: string) => removeBill(_id, { resend: false });
+
+	const setListeners = async (s: Socket) => {
+		s.on(BillEvents.send, reciveBill);
+		s.on(BillEvents.delete, reciveDeleteBill);
+	};
+
+	// send methods
 	const sendBillBroadcast = (data: IBill) => {
 		if (!socket) return;
 		socket.emit(BillEvents.send, data);
@@ -41,19 +57,6 @@ export const BillContextProvider = ({ children }: props) => {
 	const sendDeleteBillBroadcast = (_id: string) => {
 		if (!socket) return;
 		socket.emit(BillEvents.delete, _id);
-	};
-
-	const reciveBill = ({ data, oldId }: { data: Bill; oldId: string }) => {
-		setBills((prev) => addBillToList(deleteOneBillFromList(prev, oldId), data));
-	};
-
-	const reciveDeleteBill = (_id: string) => {
-		setBills((prev) => deleteOneBillFromList(prev, _id));
-	};
-
-	const setListeners = async (socket: Socket) => {
-		socket.on(BillEvents.send, reciveBill);
-		socket.on(BillEvents.delete, reciveDeleteBill);
 	};
 
 	return (
