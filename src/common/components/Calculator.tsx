@@ -75,7 +75,7 @@ const Calculator = () => {
 				<div className="flex flex-col flex-1">
 					<label htmlFor={calculatorState.createAt.toString()}>
 						{a ? (
-							<Text className="text-right">
+							<Text className="text-right" selectable={true}>
 								{a.toFixed(2).replace(".", ",")}
 								{mathOperation}
 								{b?.toFixed(2).replace(".", ",")}
