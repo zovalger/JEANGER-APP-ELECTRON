@@ -1,15 +1,16 @@
-import React, { ButtonHTMLAttributes, JSX } from "react";
+import { ButtonHTMLAttributes, JSX } from "react";
 import { Icons } from "../interfaces/icons";
 import { ButtonVariants } from "../interfaces/ButtonVariants";
-import { ButtonSizes } from "../interfaces/ButtonSizes";
 import IconMap from "../icons";
+import { UI_Sizes } from "../interfaces/UI_Sizes";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	typeButton: "normal" | "icon";
 	icon?: Icons;
 	variant?: ButtonVariants;
-	size?: ButtonSizes;
+	size?: UI_Sizes;
 	href?: string;
+	textJustify?: "left" | "center" | "right";
 }
 
 interface ButtonPropsToReturn extends Omit<ButtonProps, "typeButton"> {
@@ -24,11 +25,20 @@ const useButtonAspect = (props: ButtonProps): ButtonPropsToReturn => {
 		size = "normal",
 		disabled,
 		icon,
+		textJustify = "center",
 		...otherPros
 	} = props;
 
 	const classOfTypeButton =
-		typeButton == "normal" ? "flex justify-center items-center" : "";
+		typeButton == "normal"
+			? `flex items-center ${
+					textJustify === "center"
+						? "justify-center"
+						: textJustify === "left"
+						? "justify-start"
+						: "justify-end"
+			  }`
+			: "";
 
 	const sizeClass =
 		size === "small"
@@ -55,7 +65,7 @@ const useButtonAspect = (props: ButtonProps): ButtonPropsToReturn => {
 		size,
 		disabled,
 		IconComponent: IconToShow,
-		className: `  ${classOfTypeButton} ${color} ${sizeClass} ${className} `,
+		className: ` ${classOfTypeButton} ${color} ${sizeClass} ${className} `,
 	};
 };
 

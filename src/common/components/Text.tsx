@@ -1,10 +1,10 @@
 import { ParamHTMLAttributes } from "react";
-import { TextSizes } from "../interfaces/TextSizes";
+import { UI_Sizes } from "../interfaces/UI_Sizes";
 import { TextVariants } from "../interfaces/TextVariants";
 
 interface TextProps extends ParamHTMLAttributes<HTMLDivElement> {
 	variant?: TextVariants;
-	size?: TextSizes;
+	size?: UI_Sizes;
 	selectable?: boolean;
 }
 
@@ -17,11 +17,25 @@ const Text = (props: TextProps) => {
 		...otherPros
 	} = props;
 
+	const sizeClass =
+		size === "tiny"
+			? "text-[0.7rem]"
+			: size === "small"
+			? "text-xs"
+			: size == "big"
+			? "text-xl"
+			: "text-sm";
+
+	const weightClass =
+		variant == "bold" ? "font-bold" : variant == "lighter" ? "font-light" : "";
+
 	return (
 		<div
 			{...otherPros}
-			className={`h-fit text-xs ${selectable || "select-none"}  ${className}`}
-		></div>
+			className={`h-fit  ${
+				selectable || "select-none"
+			} ${weightClass} ${sizeClass} ${className}`}
+		/>
 	);
 };
 

@@ -1,8 +1,8 @@
 import { InputHTMLAttributes } from "react";
-import { TextSizes } from "../interfaces/TextSizes";
+import { UI_Sizes } from "../interfaces/UI_Sizes";
 
 interface props extends InputHTMLAttributes<HTMLInputElement> {
-	textSize?: TextSizes;
+	textSize?: UI_Sizes;
 }
 
 const Input = (props: props) => {

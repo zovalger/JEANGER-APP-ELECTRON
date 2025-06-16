@@ -21,6 +21,7 @@ import ShoppingCartIcon from "./ShoppingCartIcon";
 import SwitchHorizontalIcon from "./SwitchHorizontalIcon";
 import SearchIcon from "./SearchIcon";
 import IconNotFound from "./IconNotFound";
+import ClockIcon from "./ClockIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	icon_not_found: IconNotFound,
@@ -45,6 +46,7 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	ShoppingCart: ShoppingCartIcon,
 	SwitchHorizontal: SwitchHorizontalIcon,
 	Search: SearchIcon,
+	Clock: ClockIcon,
 };
 
 export default IconMap;

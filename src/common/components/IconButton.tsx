@@ -21,7 +21,7 @@ const IconButton = (props: Omit<ButtonProps, "typeButton">) => {
 				if (onClick) onClick(e);
 			}}
 			{...otherPros}
-			className={" "+className}
+			className={className}
 		>
 			{IconComponent && <IconComponent />}
 		</button>

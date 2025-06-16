@@ -2,17 +2,26 @@ import Text from "./Text";
 import useButtonAspect, { ButtonProps } from "../hooks/useButtonAspect";
 
 const Button = (props: Omit<ButtonProps, "typeButton">) => {
-	const { className, onClick, IconComponent, href, children, ...otherPros } =
-		useButtonAspect({
-			...props,
-			typeButton: "normal",
-		});
+	const {
+		className,
+		size,
+		onClick,
+		IconComponent,
+		href,
+		children,
+		...otherPros
+	} = useButtonAspect({
+		...props,
+		typeButton: "normal",
+	});
 
 	if (href)
 		return (
 			<a href={href} className={className}>
 				{IconComponent && <IconComponent />}
-				<Text>{children}</Text>
+				<Text size={size} className="ml-2">
+					{children}
+				</Text>
 			</a>
 		);
 
@@ -26,7 +35,9 @@ const Button = (props: Omit<ButtonProps, "typeButton">) => {
 			className={className}
 		>
 			{IconComponent && <IconComponent />}
-			<Text>{children}</Text>
+			<Text size={size} className="ml-2">
+				{children}
+			</Text>
 		</button>
 	);
 };

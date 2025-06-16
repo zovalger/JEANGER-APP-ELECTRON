@@ -20,4 +20,5 @@ export type Icons =
 	| "Reply"
 	| "ShoppingCart"
 	| "SwitchHorizontal"
-	| "Search";
+	| "Search"
+	| "Clock";
