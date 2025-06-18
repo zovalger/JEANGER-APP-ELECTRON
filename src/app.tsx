@@ -10,17 +10,27 @@ import BackgroundProcessesLayout from "./common/Layouts/BackgroundProcesses.layo
 
 const root = createRoot(document.body);
 
-root.render(
-	<HashRouter>
-		<Routes>
-			<Route path="/" index element={<HomeScreen />} />
+const App = () => (
+	<Routes>
+		<Route path="/" index element={<HomeScreen />} />
 
-			<Route element={<BackgroundProcessesLayout />}>
-				<Route path="/dashboard" element={<DashboardLayout />}>
-					{BillRoutes()}
-					{StopwatchRoutes()}
-				</Route>
+		<Route element={<BackgroundProcessesLayout />}>
+			<Route path="/dashboard" element={<DashboardLayout />}>
+				{BillRoutes()}
+				{StopwatchRoutes()}
 			</Route>
-		</Routes>
-	</HashRouter>
+		</Route>
+	</Routes>
+);
+
+root.render(
+	Object.keys(window).includes("electronAPI") ? (
+		<HashRouter>
+			<App />
+		</HashRouter>
+	) : (
+		<BrowserRouter>
+			<App />
+		</BrowserRouter>
+	)
 );
