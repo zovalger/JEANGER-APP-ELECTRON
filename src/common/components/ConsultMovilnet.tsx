@@ -6,15 +6,15 @@ import Text from "./Text";
 import Input from "./Input";
 import IconButton from "./IconButton";
 import Skeleton from "./Skeleton";
+import useClipboard from "../hooks/useClipboard";
 
 export default function ConsultMovilnet() {
 	const [id] = useState(uuid());
+	const { isCopy, copyToClipboard } = useClipboard();
 	const [saldoMovilnet, setSaldoMovilnet] = useState<ISaldoMovilnet | null>();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
-
 	const [value, setValue] = useState("");
-	const [copy, setCopy] = useState(false);
 
 	const handdleChange = (v: string) => setValue(v);
 
@@ -41,10 +41,6 @@ export default function ConsultMovilnet() {
 		setSaldoMovilnet(null);
 	};
 
-	const copyToClipboard = async (text: string) => {
-		await navigator.clipboard.writeText(text);
-	};
-
 	return (
 		<div
 			className="border-t mt-4 p-4"
@@ -55,7 +51,38 @@ export default function ConsultMovilnet() {
 		>
 			<label htmlFor={id}>
 				<Text>Consulta Movilnet</Text>
+			</label>
 
+			<div className="flex items-center ">
+				<label htmlFor={id}>
+					<Text className="">Tlf.:</Text>
+				</label>
+
+				<Input
+					id={id}
+					inputVariant="without-border"
+					type="tel"
+					placeholder="Número"
+					autoComplete="none"
+					name="tlf"
+					onKeyDown={(event) => {
+						event.stopPropagation();
+						if (event.key === "Escape") handdleClear();
+						if (event.key === "Enter") handdleSubmit();
+					}}
+					value={value || ""}
+					onChange={({ target: { value } }) => handdleChange(value)}
+				/>
+
+				<IconButton
+					icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
+					size="small"
+					onClick={() => copyToClipboard(value.trim().replace(/^0/, ""))}
+				/>
+
+				<IconButton icon="Search" size="small" onClick={handdleSubmit} />
+			</div>
+			<label htmlFor={id}>
 				{error ? (
 					<Text>{error}</Text>
 				) : loading ? (
@@ -74,38 +101,6 @@ export default function ConsultMovilnet() {
 					)
 				)}
 			</label>
-			<div className="flex items-center ">
-				<label htmlFor={id}>
-					<Text className="">Tlf.:</Text>
-				</label>
-
-				<Input
-					id={id}
-					type="tel"
-					placeholder="Número"
-					autoComplete="none"
-					name="tlf"
-					onKeyDown={(event) => {
-						event.stopPropagation();
-						if (event.key === "Escape") handdleClear();
-						if (event.key === "Enter") handdleSubmit();
-					}}
-					value={value || ""}
-					onChange={({ target: { value } }) => handdleChange(value)}
-				/>
-
-				<IconButton
-					icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
-					size="small"
-					onClick={() => {
-						setCopy(true);
-						copyToClipboard(value.trim().replace(/^0/, ""));
-						setTimeout(() => setCopy(false), 1000);
-					}}
-				/>
-
-				<IconButton icon="Search" size="small" onClick={handdleSubmit} />
-			</div>
 		</div>
 	);
 }

@@ -3,14 +3,15 @@ import IconButton from "./IconButton";
 import Text from "./Text";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import Skeleton from "./Skeleton";
+import useClipboard from "../hooks/useClipboard";
 
 export default function ForeignExchangeView() {
 	const { foreignExchange, forceScrapForeignExchange, loadingForeignExchange } =
 		useForeignExchange();
 
 	const [editMode, setEditMode] = useState(false);
-	const [copy, setCopy] = useState(false);
-	const [copy2, setCopy2] = useState(false);
+	const { isCopy, copyToClipboard } = useClipboard();
+	const { isCopy: isCopy2, copyToClipboard: copyToClipboard2 } = useClipboard();
 
 	const toggleEditMode = () => setEditMode(!editMode);
 
@@ -31,10 +32,6 @@ export default function ForeignExchangeView() {
 	// 	},
 	// });
 
-	const copyToClipboard = async (text: string) => {
-		await navigator.clipboard.writeText(text);
-	};
-
 	const Content = () => (
 		<>
 			<div className="flex gap-2">
@@ -46,15 +43,13 @@ export default function ForeignExchangeView() {
 				</div>
 
 				<IconButton
-					icon={copy ? "ClipboardCheck" : "ClipboardCopy"}
+					icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 					size="small"
-					onClick={async () => {
-						setCopy(true);
-						setTimeout(() => setCopy(false), 800);
+					onClick={async () =>
 						await copyToClipboard(
 							foreignExchange.dolar?.toString().replace(".", ",")
-						);
-					}}
+						)
+					}
 				/>
 			</div>
 
@@ -67,15 +62,13 @@ export default function ForeignExchangeView() {
 				</div>
 
 				<IconButton
-					icon={copy2 ? "ClipboardCheck" : "ClipboardCopy"}
+					icon={isCopy2 ? "ClipboardCheck" : "ClipboardCopy"}
 					size="small"
-					onClick={async () => {
-						setCopy2(true);
-						setTimeout(() => setCopy2(false), 800);
-						await copyToClipboard(
+					onClick={async () =>
+						await copyToClipboard2(
 							foreignExchange.euro?.toString().replace(".", ",")
-						);
-					}}
+						)
+					}
 				/>
 			</div>
 
@@ -93,7 +86,9 @@ export default function ForeignExchangeView() {
 	return (
 		<div className=" p-4">
 			<div className="flex justify-between items-center">
-				<Text className="mr-auto" variant="bold">Divisas</Text>
+				<Text className="mr-auto" variant="bold">
+					Divisas
+				</Text>
 				{/* <IconButton size="small" onClick={toggleEditMode} icon="Edit" /> */}
 				<IconButton
 					size="small"

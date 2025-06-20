@@ -3,176 +3,29 @@ import { v4 as uuid } from "uuid";
 
 import BillItem from "../components/BillItem";
 import useBill from "../hooks/useBill";
-import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import useProduct from "../../products/hooks/useProduct";
 import {
 	getOnlyFavoriteProduct,
-	searchProductsByWord,
 	sortProductByPriority,
 } from "../../products/helpers/Product.helpers";
-import {
-	initialValuesBill,
-	initialValuesForeignExchange,
-} from "../../common/config/initialValues";
-import Input from "../../common/components/Input";
+import { initialValuesBill } from "../../common/config/initialValues";
 import { CurrencyType } from "../../common/enums";
 import Text from "../../common/components/Text";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import IconButton from "../../common/components/IconButton";
 import SavedBills from "../components/SavedBills";
-
-const regExpAdder = /^(\+|-)\d{1,}/i;
+import Button from "../../common/components/Button";
+import BillProductSearch from "../components/BillProductSearch";
+import useClipboard from "../../common/hooks/useClipboard";
 
 const BillScreen = () => {
-	const { foreignExchange } = useForeignExchange();
-	const { products, getProduct, getAllProductsWithServer } = useProduct();
-	const { currentBill, addOrUpdateProduct_To_CurrentBill, clear_CurrentBill } =
-		useBill();
-
-	const [inputValue, setInputValue] = useState("");
-	const [productList, setProductList] = useState<string[]>([]);
-	const [selected, setSelected] = useState<number>(-1);
+	const { isCopy, copyToClipboard } = useClipboard();
+	const { products, getAllProductsWithServer } = useProduct();
+	const { currentBill, clear_CurrentBill, billToText } = useBill();
 
 	useEffect(() => {
 		getAllProductsWithServer();
 	}, []);
-
-	// *******************************************************************
-	// 													Fuctions
-	// *******************************************************************
-
-	const refreshShowList = (search: string) => {
-		if (search.length < 2) {
-			setProductList([]);
-			setSelected(-1);
-			return;
-		}
-
-		const resultSearch = searchProductsByWord(search, products);
-
-		const productsIds = sortProductByPriority(resultSearch).map(
-			(product) => product._id
-		);
-
-		setProductList(productsIds);
-	};
-
-	useEffect(() => {
-		refreshShowList(inputValue);
-	}, [inputValue]);
-
-	// *******************************************************************
-	// 													controls
-	// *******************************************************************
-
-	const onChange = (value: string) => setInputValue(value);
-
-	const moveSelected = (direction: number) => {
-		const brutePos = selected + direction;
-
-		const newPos =
-			brutePos < 0
-				? productList.length - 1
-				: brutePos >= productList.length
-				? 0
-				: brutePos;
-
-		setSelected(newPos);
-	};
-
-	const moveSelectedToPos = (index: number) => {
-		setSelected(index);
-	};
-
-	const onEnter = (position?: number) => {
-		const matching = inputValue.match(regExpAdder);
-
-		let newInputText = inputValue;
-		let quantity = 1;
-
-		if (matching) {
-			quantity = parseInt(matching[0]);
-			newInputText = inputValue.trim().replace(regExpAdder, "");
-		}
-
-		if (selected > -1 || position !== undefined) {
-			const productId =
-				productList[position !== undefined ? position : selected];
-
-			addOrUpdateProduct_To_CurrentBill(productId, quantity);
-
-			quantity = 0;
-			newInputText = "";
-		}
-
-		//todo: añadir a la lista
-
-		setInputValue(newInputText);
-		setSelected(-1);
-	};
-
-	const onClear = () => {
-		setInputValue("");
-		setSelected(-1);
-	};
-
-	// *******************************************************************
-	// 													Selector
-	// *******************************************************************
-
-	const showLimitedProducts = (arr: string[]) => {
-		const limited = arr.slice(0, 15);
-
-		return limited.map((_id, index) => {
-			// <BillProductItem
-			// 	key={_id}
-			// 	_id={_id}
-			// 	index={index}
-			// 	selected={selected}
-			// 	onClick={() => {
-			// 		onEnter(index);
-			// 	}}
-
-			const { name, cost, currencyType } = getProduct(_id);
-
-			const d = foreignExchange || initialValuesForeignExchange;
-
-			const divisaRef =
-				currencyType == CurrencyType.BSF || currencyType == CurrencyType.USD
-					? d.dolar
-					: d.euro;
-
-			// costo bolivares
-			const BSF = currencyType == CurrencyType.BSF ? cost : cost * divisaRef;
-
-			// costo en divisa
-			const divisaCost =
-				currencyType == CurrencyType.BSF ? cost / divisaRef : cost;
-
-			return (
-				<div
-					className={`flex items-center px-4 py-2 hover:bg-gray-200 ${
-						selected === index && "bg-gray-200"
-					}`}
-					key={_id}
-					onClick={() => onEnter(index)}
-				>
-					<Text className="flex-1">{name}</Text>
-
-					<Text className="min-w-20 text-right">
-						{Math.round(BSF)} {CurrencyType.BSF}
-					</Text>
-
-					<Text className="min-w-20 text-right">
-						{divisaCost.toFixed(2)}{" "}
-						{currencyType == CurrencyType.EUR
-							? CurrencyType.EUR
-							: CurrencyType.USD}
-					</Text>
-				</div>
-			);
-		});
-	};
 
 	// *******************************************************************
 	// 													Visor
@@ -215,21 +68,6 @@ const BillScreen = () => {
 		);
 	}, [currentBill]);
 
-	// *******************************************************************
-	// 													Functions
-	// *******************************************************************
-
-	const [submiting, setSubmiting] = useState(false);
-
-	const opendiv = () => {
-		if (!currentBill || !currentBill.items.length) return;
-		setSubmiting(true);
-	};
-
-	const closediv = () => {
-		setSubmiting(false);
-	};
-
 	const onDelete = async () => {
 		setDeletedFavorites([]);
 		clear_CurrentBill();
@@ -246,44 +84,22 @@ const BillScreen = () => {
 	};
 
 	// *******************************************************************
-	// 													BillProductVisorItem
-	// *******************************************************************
-
-	// *******************************************************************
 	// 													Render
 	// *******************************************************************
 
 	return (
 		<PageTemplateLayout
-			rightButtons={<IconButton icon="Refresh" onClick={onDelete} />}
+			rightButtons={
+				<>
+					<IconButton icon="Refresh" onClick={onDelete} />
+				</>
+			}
 		>
-			<div className="sticky top-14 mb-2">
-				<div className="">
-					<Input
-						className="bg-gray-100 rounded-xl "
-						placeholder="Buscar"
-						value={inputValue}
-						onChange={({ target: { value } }) => onChange(value)}
-						onKeyDown={({ nativeEvent: { key } }) => {
-							if (key === "Escape") onClear();
-							if (key === "ArrowUp") moveSelected(-1);
-							if (key === "ArrowDown") moveSelected(1);
-							if (key === "Enter") onEnter();
-						}}
-					/>
-				</div>
-
-				{productList.length > 0 && (
-					<div className="absolute z-10 left-0 right-0 bg-white rounded-lg shadow-lg p-2">
-						{showLimitedProducts(productList)}
-					</div>
-				)}
-				{/* ******************************* Selector del buscador ************************************ */}
-			</div>
+			<BillProductSearch />
 
 			{/* ******************************* visor ************************************ */}
 
-			<div>
+			<div className="px-4">
 				{/* // todo: que no se desordenen al agregarlos a la factura  */}
 				{productsBillItemsFavoritesByPriority.map((data) => (
 					<BillItem key={uuid()} data={data} onDeleteItem={onDeleteItem} />
@@ -294,43 +110,51 @@ const BillScreen = () => {
 						<BillItem key={uuid()} data={item} />
 					))}
 
-				{/* <Button
-								onClick={() => {
-									onDelete();
-								}}
-							>
-								Eliminar
-							</Button>
-
-							<Button onClick={() => opendiv()}>añadir</Button> */}
-
-				<div className="mx-12	">
-					{/* <div className="flex justify-between items-center">
-						<Text>SubTotal</Text>
+				<div className="mt-4 flex flex-col sm:flex-row sm:justify-between">
+					<div className="flex flex-wrap order-3 sm:order-1 sm:flex-1 sm:mr-16">
+						<Button icon="Trash" variant="danger" onClick={onDelete}>
+							Limpiar
+						</Button>
+						<Button icon="ClipboardCopy">Simplificar</Button>
+						<Button icon="ClipboardCopy">IVA</Button>
+						<Button
+							icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
+							onClick={() => {
+								const text = billToText(currentBill);
+								copyToClipboard(text);
+							}}
+						>
+							Copiar
+						</Button>
+					</div>
+					<div className="order-2 sm:mr-16">
+						{/* <div className="flex justify-between items-center sm:justify-end">
+						<Text className="mr-8">SubTotal</Text>
 						<Text>
 							{(totals.BSF * (1 / 1.16)).toFixed(2)} {CurrencyType.BSF}
 						</Text>
 					</div>
 
-					<div className="flex justify-between items-center">
-						<Text>iva 16%</Text>
+					<div className="flex justify-between items-center sm:justify-end">
+						<Text className="mr-8">iva 16%</Text>
 
 						<Text className="text-right">
-							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}{" "}
+							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}
 							{CurrencyType.BSF}
 						</Text>
 					</div> */}
-					<div className="flex justify-between items-center">
-						<Text size="big" variant="bold">
-							Total
-						</Text>
-						<div className="flex flex-col">
-							<Text size="big" variant="bold" className="text-right">
-								{totals.USD.toFixed(2)} {CurrencyType.USD}
+						<div className="flex justify-between items-center sm:justify-end ">
+							<Text className="mr-8" size="big" variant="bold">
+								Total
 							</Text>
-							<Text size="big" variant="bold" className="text-right">
-								{totals.BSF.toFixed(2)} {CurrencyType.BSF}
-							</Text>
+							<div className="flex flex-col ">
+								<Text size="big" variant="bold" className="text-right ">
+									{totals.USD.toFixed(2)} {CurrencyType.USD}
+								</Text>
+								<Text size="big" variant="bold" className="text-right">
+									{totals.BSF.toFixed(2)} {CurrencyType.BSF}
+								</Text>
+							</div>
 						</div>
 					</div>
 				</div>

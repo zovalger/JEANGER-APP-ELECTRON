@@ -8,10 +8,20 @@ import ForeignExchangeView from "../components/ForeignExchangeView";
 import Calculator from "../components/Calculator";
 import ConsultMovilnet from "../components/ConsultMovilnet";
 import Button from "../components/Button";
+import { Icons } from "../interfaces/icons";
 
 interface DashboardLayoutProps {
 	children?: React.ReactNode;
 }
+
+const a: {
+	icon: Icons;
+	href: string;
+	text: string;
+}[] = [
+	{ icon: "ShoppingCart", href: RouterLinks.Bills, text: "Facturas" },
+	{ icon: "Clock", href: RouterLinks.Stopwatchs, text: "Cronometros" },
+];
 
 const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	const { children } = DashboardLayoutProps;
@@ -26,7 +36,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	const LeftPanel = () => (
 		<div
 			onClick={() => closeLeftPanel()}
-			className={`fixed top-0  w-screen h-full flex flex-col bg-[#0003] sm:w-48 sm:translate-x-0				${
+			className={`fixed top-0  w-screen h-full flex flex-col bg-[#0003] sm:w-12 lg:w-48 sm:translate-x-0				${
 				leftPanelOpen ? "left-0" : "translate-x-full sm:-left-0"
 			}
 				`}
@@ -41,29 +51,31 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 						icon="Close"
 						onClick={() => closeLeftPanel()}
 					/>
-					<Text size="big" variant="bold">
+					<Text size="big" variant="bold" className="block sm:hidden lg:block">
 						JEANGER APP
 					</Text>
 				</div>
 				<div className="h-full overflow-y-auto overflow-x-hidden">
-					<Button
-						textJustify="left"
-						icon="ShoppingCart"
-						href={RouterLinks.Bills}
-						onClick={closeLeftPanel}
-					>
-						Facturas
-					</Button>
-
-					<Button
-						textJustify="left"
-						icon="Clock"
-						href={RouterLinks.Stopwatchs}
-						onClick={closeLeftPanel}
-						className=""
-					>
-						Cronometros
-					</Button>
+					{a.map((item) => (
+						<div key={item.text}>
+							<Button
+								textJustify="left"
+								icon={item.icon}
+								href={item.href}
+								onClick={closeLeftPanel}
+								className="sm:hidden lg:flex"
+							>
+								{item.text}
+							</Button>
+							<IconButton
+								textJustify="left"
+								icon={item.icon}
+								href={item.href}
+								onClick={closeLeftPanel}
+								className="hidden sm:block lg:hidden"
+							/>
+						</div>
+					))}
 				</div>
 			</div>
 		</div>
@@ -90,7 +102,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	return (
 		<>
 			<div
-				className={`max-h-screen overflow-y-auto sm:ml-48 ${
+				className={`max-h-screen overflow-y-auto sm:ml-12 lg:ml-48 ${
 					rightPanelOpen && "sm:mr-60"
 				}`}
 			>

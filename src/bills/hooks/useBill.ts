@@ -12,6 +12,13 @@ import {
 import { IBill, IBillItem } from "../interfaces/bill.interface";
 import { getAllBillsRequest } from "../api/Bill.api";
 import { useBillContext } from "../context/Bill.context";
+import {
+	BillItemToText_helper,
+	BillToText_helper,
+	IBill_CopyToClipboard,
+	IBillItem_CopyToClipboard,
+} from "../helpers/BillToText.helper";
+import { CurrencyType } from "../../common/enums";
 
 interface ComunicationOption {
 	resend?: boolean;
@@ -23,7 +30,7 @@ const defaultOptions: ComunicationOption = {
 const useBill = () => {
 	const billContext = useBillContext();
 	const { getProduct } = useProduct();
-	const { foreignExchange } = useForeignExchange();
+	const { foreignExchange, getCostInBSAndCurrency } = useForeignExchange();
 
 	const bills = useBillStore((state) => state.bills);
 	const currentBill = useBillStore((state) => state.currentBill);
@@ -159,6 +166,30 @@ const useBill = () => {
 	// 	onRemoveProduct_in_Bill(bill_id, billItemId);
 	// };
 
+	const billItemToText = (item: IBillItem_CopyToClipboard) =>
+		BillItemToText_helper(item);
+
+	const billToText = (bill: IBill) => {
+		const convertedItems: IBillItem_CopyToClipboard[] = bill.items.map(
+			(item) => {
+				const { productId, cost, currencyType, quantity } = item;
+				const { name } = getProduct(productId);
+				const { BSF } = getCostInBSAndCurrency({ currencyType, cost });
+
+				return {
+					productName: name,
+					cost: BSF,
+					currencyType: "bs",
+					quantity,
+				};
+			}
+		);
+
+		const b: IBill_CopyToClipboard = { ...bill, items: convertedItems };
+
+		return BillToText_helper({ bill: b, foreignExchange });
+	};
+
 	return {
 		bills,
 		currentBill,
@@ -175,6 +206,10 @@ const useBill = () => {
 		removeBill,
 		// addOrUpdateProductBill,
 		// removeProductBill,
+
+		// comodidades
+		billToText,
+		billItemToText,
 	};
 };
 

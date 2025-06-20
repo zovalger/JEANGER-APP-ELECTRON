@@ -1,0 +1,129 @@
+import { useEffect, useState } from "react";
+import Input from "../../common/components/Input";
+import useBill from "../hooks/useBill";
+import {
+	searchProductsByWord,
+	sortProductByPriority,
+} from "../../products/helpers/Product.helpers";
+import useProduct from "../../products/hooks/useProduct";
+import BillProductSearchItem from "./BillProductSearchItem";
+
+const regExpAdder = /^(\+|-)\d{1,}/i;
+
+const BillProductSearch = () => {
+	const { addOrUpdateProduct_To_CurrentBill } = useBill();
+	const { products } = useProduct();
+
+	const [inputValue, setInputValue] = useState("");
+	const [productList, setProductList] = useState<string[]>([]);
+	const [selected, setSelected] = useState<number>(-1);
+
+	const onChange = (value: string) => setInputValue(value);
+
+	const moveSelected = (direction: number) => {
+		const brutePos = selected + direction;
+
+		const newPos =
+			brutePos < 0
+				? productList.length - 1
+				: brutePos >= productList.length
+				? 0
+				: brutePos;
+
+		setSelected(newPos);
+	};
+
+	const onEnter = (position?: number) => {
+		const matching = inputValue.match(regExpAdder);
+
+		let newInputText = inputValue;
+		let quantity = 1;
+
+		if (matching) {
+			quantity = parseInt(matching[0]);
+			newInputText = inputValue.trim().replace(regExpAdder, "");
+		}
+
+		if (selected > -1 || position !== undefined) {
+			const productId =
+				productList[position !== undefined ? position : selected];
+
+			addOrUpdateProduct_To_CurrentBill(productId, quantity);
+
+			quantity = 0;
+			newInputText = "";
+		}
+
+		setInputValue(newInputText);
+		setSelected(-1);
+	};
+
+	const onClear = () => {
+		setInputValue("");
+		setSelected(-1);
+	};
+
+	const refreshShowList = (search: string) => {
+		if (search.length < 2) {
+			setProductList([]);
+			setSelected(-1);
+			return;
+		}
+
+		const resultSearch = searchProductsByWord(search, products);
+
+		const productsIds = sortProductByPriority(resultSearch).map(
+			(product) => product._id
+		);
+
+		setProductList(productsIds);
+	};
+
+	useEffect(() => {
+		refreshShowList(inputValue);
+	}, [inputValue]);
+
+	// *******************************************************************
+	// 													Selector
+	// *******************************************************************
+
+	const showLimitedProducts = (arr: string[]) => {
+		const limited = arr.slice(0, 15);
+
+		return limited.map((id, index) => (
+			<BillProductSearchItem
+				key={id}
+				_id={id}
+				index={index}
+				onClick={onEnter}
+				selected={selected}
+			/>
+		));
+	};
+
+	return (
+		<div className="sticky top-14 p-4 backdrop-blur-sm bg-[#fff9]">
+			<div className="">
+				<Input
+					placeholder="Buscar"
+					value={inputValue}
+					onChange={({ target: { value } }) => onChange(value)}
+					onKeyDown={({ nativeEvent: { key } }) => {
+						if (key === "Escape") onClear();
+						if (key === "ArrowUp") moveSelected(-1);
+						if (key === "ArrowDown") moveSelected(1);
+						if (key === "Enter") onEnter();
+					}}
+				/>
+			</div>
+
+			{productList.length > 0 && (
+				<div className="absolute z-10 left-4 right-4 bg-white rounded-lg shadow-2xl">
+					{showLimitedProducts(productList)}
+				</div>
+			)}
+		</div>
+	);
+};
+
+export default BillProductSearch;

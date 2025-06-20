@@ -1,14 +1,16 @@
 import { useState } from "react";
+
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import useProduct from "../../products/hooks/useProduct";
 import useBill from "../hooks/useBill";
 import { IBillItem } from "../interfaces/bill.interface";
-import { initialValuesForeignExchange } from "../../common/config/initialValues";
 import { CurrencyType } from "../../common/enums";
 import Modal from "../../common/components/Modal";
 import Text from "../../common/components/Text";
 import Input from "../../common/components/Input";
 import IconButton from "../../common/components/IconButton";
+import Button from "../../common/components/Button";
+import useClipboard from "../../common/hooks/useClipboard";
 
 interface props {
 	data: IBillItem;
@@ -16,18 +18,23 @@ interface props {
 }
 
 function BillItem({ data, onDeleteItem }: props) {
+	const { isCopy, copyToClipboard } = useClipboard();
+	const { billItemToText } = useBill();
+	const { getCostInBSAndCurrency } = useForeignExchange();
+	const { getProduct } = useProduct();
+
 	const { addOrUpdateProduct_To_CurrentBill, deleteProduct_To_CurrentBill } =
 		useBill();
-	const { foreignExchange } = useForeignExchange();
-	const { getProduct } = useProduct();
 
 	const { quantity, productId } = data;
 	const { name, cost, currencyType } = getProduct(data.productId);
 
+	const [openContext, setOpenContext] = useState(false);
+	const handdleOpenContext = () => setOpenContext(true);
+	const handdleCloseContext = () => setOpenContext(false);
+
 	const [openModal, setOpenModal] = useState(false);
-
 	const handdleOpendiv = () => setOpenModal(true);
-
 	const handdleCloseModal = () => setOpenModal(false);
 
 	const handdleDelete = async () => {
@@ -35,10 +42,7 @@ function BillItem({ data, onDeleteItem }: props) {
 		deleteProduct_To_CurrentBill(productId);
 	};
 
-	const d = foreignExchange || initialValuesForeignExchange;
-
-	const divisaRef = currencyType === CurrencyType.USD ? d.dolar : d.euro;
-	const BSF = currencyType === CurrencyType.BSF ? cost : cost * divisaRef;
+	const { BSF } = getCostInBSAndCurrency({ cost, currencyType });
 
 	// *******************************************************************
 	// 													modal
@@ -64,8 +68,11 @@ function BillItem({ data, onDeleteItem }: props) {
 	return (
 		<>
 			<div
-				className="flex items-center px-4 py-2 hover:bg-gray-200 "
+				className="flex items-center mb-0.5 px-4 py-1 rounded border border-gray-500 hover:bg-gray-200 "
 				onClick={handdleOpendiv}
+				onContextMenu={() => {
+					handdleOpenContext();
+				}}
 			>
 				<Text className="w-4 text-center">{quantity}</Text>
 
@@ -87,6 +94,27 @@ function BillItem({ data, onDeleteItem }: props) {
 					size="small"
 				/>
 			</div>
+			{openContext && (
+				<div className="flex p-2">
+					<Button
+						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
+						size="small"
+						onClick={() => {
+							const text = billItemToText({
+								...data,
+								productName: name,
+								cost: BSF,
+								currencyType: CurrencyType.BSF,
+							});
+
+							copyToClipboard(text);
+							handdleCloseContext();
+						}}
+					>
+						Copiar
+					</Button>
+				</div>
+			)}
 
 			{/* modal */}
 

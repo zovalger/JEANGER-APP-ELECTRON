@@ -88,6 +88,7 @@ const Calculator = () => {
 
 					<Input
 						ref={inputRef}
+						inputVariant="without-border"
 						id={calculatorState.createAt.toString()}
 						placeholder="calcular"
 						className="text-right outline-none"

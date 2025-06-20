@@ -1,5 +1,7 @@
+import { CurrencyType } from "../../common/enums";
 import useForeignExchangeStore from "../../common/store/useForeignExchangeStore";
 import { getForeignExchangeRequest } from "../api/ForeignExchange.api";
+import { getCostInBSAndCurrency_helper } from "../helpers/foreingEnchange.helper";
 
 const useForeignExchange = () => {
 	const foreignExchange = useForeignExchangeStore(
@@ -52,11 +54,21 @@ const useForeignExchange = () => {
 		onSetLoadingForeignExchange(false);
 	};
 
+	const getCostInBSAndCurrency = (toCalculate: {
+		currencyType: CurrencyType;
+		cost: number;
+	}) => {
+		if (!foreignExchange) return;
+
+		return getCostInBSAndCurrency_helper(foreignExchange, toCalculate);
+	};
+
 	return {
 		foreignExchange,
 		loadingForeignExchange,
 		getForeignExchange,
 		forceScrapForeignExchange,
+		getCostInBSAndCurrency
 	};
 };
 

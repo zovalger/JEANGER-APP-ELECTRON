@@ -17,6 +17,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 			| React.MouseEvent<HTMLAnchorElement, MouseEvent>
 			| React.MouseEvent<HTMLButtonElement, MouseEvent>
 	) => void;
+	tooltip?: string;
 }
 
 interface ButtonPropsToReturn extends Omit<ButtonProps, "typeButton"> {
