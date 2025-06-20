@@ -35,7 +35,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				className="bg-white h-full w-[80%] sm:w-full border-r border-gray-500"
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="flex min-h-12 items-center justify-start sm:justify-start  bg-gray-100 ">
+				<div className="flex min-h-14 items-center justify-start sm:justify-center  bg-gray-100 ">
 					<IconButton
 						className="mr-4 sm:hidden"
 						icon="Close"
@@ -71,21 +71,17 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 
 	const RightPanel = () => (
 		<div
-			className={`fixed top-0 w-screen h-full flex flex-col bg-white sm:w-60 sm:translate-x-0 border-l border-gray-500 ${
+			className={`fixed top-0 w-screen h-full flex flex-col overflow-y-visible bg-white sm:w-60 sm:translate-x-0 border-l border-gray-500  ${
 				rightPanelOpen ? "right-0" : "translate-x-full sm:-right-60"
 			}`}
 		>
-			<div className="flex items-center justify-between pl-4 ">
-				<Text>Panel derecho</Text>
-			</div>
-
-			<div className="flex-1 overflow-y-auto">
+			<div className="flex-1 overflow-y-auto pb-16">
 				<ForeignExchangeView />
 				<Calculator />
 				<ConsultMovilnet />
 			</div>
 
-			<div className="flex items-center justify-end pl-4 ">
+			<div className="fixed bottom-0 left-0 right-0 flex items-center justify-end pl-4 bg-[#fff1] backdrop-blur-sm ">
 				<IconButton icon="Close" onClick={() => closeRightPanel()} />
 			</div>
 		</div>

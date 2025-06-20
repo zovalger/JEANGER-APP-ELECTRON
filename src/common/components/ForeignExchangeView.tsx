@@ -93,7 +93,7 @@ export default function ForeignExchangeView() {
 	return (
 		<div className=" p-4">
 			<div className="flex justify-between items-center">
-				<Text className="mr-auto">Divisas</Text>
+				<Text className="mr-auto" variant="bold">Divisas</Text>
 				{/* <IconButton size="small" onClick={toggleEditMode} icon="Edit" /> */}
 				<IconButton
 					size="small"

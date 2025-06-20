@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { v4 as uuid } from "uuid";
 import { ISaldoMovilnet } from "../interfaces/SaldoMovilnet.interface";
 import { getSaldoMovilnet_Request } from "../api/ConsultMovilnet.api";
 import Text from "./Text";
@@ -7,6 +8,7 @@ import IconButton from "./IconButton";
 import Skeleton from "./Skeleton";
 
 export default function ConsultMovilnet() {
+	const [id] = useState(uuid());
 	const [saldoMovilnet, setSaldoMovilnet] = useState<ISaldoMovilnet | null>();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
@@ -51,30 +53,34 @@ export default function ConsultMovilnet() {
 				handdleSubmit();
 			}}
 		>
-			<Text>Consulta Movilnet</Text>
+			<label htmlFor={id}>
+				<Text>Consulta Movilnet</Text>
 
-			{error ? (
-				<Text>{error}</Text>
-			) : loading ? (
-				<div className="space-y-1">
-					<Skeleton />
-					<Skeleton />
-					<Skeleton />
-				</div>
-			) : (
-				saldoMovilnet && (
-					<div>
-						<Text>{saldoMovilnet.saldo}</Text>
-						<Text>{saldoMovilnet.status}</Text>
-						<Text>{saldoMovilnet.date}</Text>
+				{error ? (
+					<Text>{error}</Text>
+				) : loading ? (
+					<div className="space-y-1">
+						<Skeleton />
+						<Skeleton />
+						<Skeleton />
 					</div>
-				)
-			)}
-
+				) : (
+					saldoMovilnet && (
+						<div>
+							<Text>{saldoMovilnet.saldo}</Text>
+							<Text>{saldoMovilnet.status}</Text>
+							<Text>{saldoMovilnet.date}</Text>
+						</div>
+					)
+				)}
+			</label>
 			<div className="flex items-center ">
-				<Text className="">Tlf.:</Text>
+				<label htmlFor={id}>
+					<Text className="">Tlf.:</Text>
+				</label>
 
 				<Input
+					id={id}
 					type="tel"
 					placeholder="Número"
 					autoComplete="none"
