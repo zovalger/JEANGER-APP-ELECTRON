@@ -126,7 +126,11 @@ const BillScreen = () => {
 						</Button>
 
 						<Button
-							icon="ClipboardCopy"
+							icon={
+								deletedFavorites.length === productsFavorites.length
+									? "Eye"
+									: "EyeOff"
+							}
 							onClick={() => {
 								if (deletedFavorites.length === productsFavorites.length)
 									return setDeletedFavorites([]);
@@ -137,11 +141,7 @@ const BillScreen = () => {
 							Simplificar
 						</Button>
 
-						<Button
-							variant="danger"
-							icon="ClipboardCopy"
-							onClick={() => toggleIVAMode()}
-						>
+						<Button variant="danger" onClick={() => toggleIVAMode()}>
 							IVA
 						</Button>
 

@@ -1,4 +1,4 @@
-const moneyFormat = (number: number) => {
+const moneyFormat = (number: number, IntWithDecimals = true) => {
 	const exp = /(\d)(?=(\d{3})+(?!\d))/g;
 	const rep = "$1.";
 	const arr = number.toString().split(".");
@@ -22,7 +22,7 @@ const moneyFormat = (number: number) => {
 
 	arr[0] = enteros.toString().replace(exp, rep);
 
-	return arr[1] ? arr.join(",") : arr[0] + ",00";
+	return arr[1] ? arr.join(",") : `${arr[0]}${IntWithDecimals ? ",00" : ""}`;
 };
 
 console.log(moneyFormat(0.999));

@@ -22,6 +22,8 @@ import SwitchHorizontalIcon from "./SwitchHorizontalIcon";
 import SearchIcon from "./SearchIcon";
 import IconNotFound from "./IconNotFound";
 import ClockIcon from "./ClockIcon";
+import EyeIcon from "./EyeIcon";
+import EyeOffIcon from "./EyeOffIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	icon_not_found: IconNotFound,
@@ -47,6 +49,8 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	SwitchHorizontal: SwitchHorizontalIcon,
 	Search: SearchIcon,
 	Clock: ClockIcon,
+	Eye: EyeIcon,
+	EyeOff: EyeOffIcon,
 };
 
 export default IconMap;

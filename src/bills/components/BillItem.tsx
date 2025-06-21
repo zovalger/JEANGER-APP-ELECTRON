@@ -82,7 +82,7 @@ function BillItem({ data, onDeleteItem }: props) {
 					handdleOpenContext();
 				}}
 			>
-				<Text className="w-4 text-center">{quantity}</Text>
+				<Text className="w-4 text-center">{moneyFormat(quantity, false)}</Text>
 
 				<Text className="flex-1 ml-4">{name}</Text>
 

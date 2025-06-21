@@ -1,7 +1,7 @@
 {
   "name": "jeanger-app-electron",
   "productName": "JEANGER-APP",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Rebuilding the Jeanger app desktop application in Electron.js, using vite, react and tailwindcss.",
   "main": ".vite/build/main.js",
   "scripts": {

@@ -72,11 +72,7 @@ export default function StopwatchItem({ data }: props) {
 				<Text>{data.name}</Text>
 
 				<div>
-					<IconButton
-						onClick={addToBill}
-						icon="ShoppingCart"
-						disabled={!!data.timeDate}
-					/>
+					<IconButton onClick={addToBill} icon="ShoppingCart" />
 
 					<IconButton
 						onClick={() => switchClock(data)}
