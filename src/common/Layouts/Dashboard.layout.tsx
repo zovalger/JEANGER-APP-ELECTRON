@@ -102,7 +102,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	return (
 		<>
 			<div
-				className={`max-h-screen overflow-y-auto sm:ml-12 lg:ml-48 ${
+				className={`flex flex-col h-screen overflow-y-auto sm:ml-12 lg:ml-48 ${
 					rightPanelOpen && "sm:mr-60"
 				}`}
 			>

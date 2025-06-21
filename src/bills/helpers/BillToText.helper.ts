@@ -1,3 +1,4 @@
+import moneyFormat from "../../common/helpers/moneyFormat.helper";
 import { IForeignExchange } from "../../foreign_exchange/interfaces/ForeignExchange.interface";
 import { IBill, IBillItem } from "../interfaces/bill.interface";
 
@@ -6,15 +7,6 @@ export interface IBillItem_CopyToClipboard
 	productName: string;
 	currencyType: string;
 }
-
-const formatoMexico = (number: number) => {
-	const exp = /(\d)(?=(\d{3})+(?!\d))/g;
-	const rep = "$1.";
-	const arr = number.toString().split(".");
-
-	arr[0] = arr[0].replace(exp, rep);
-	return arr[1] ? arr.join(",") : arr[0];
-};
 
 export const BillItemToText_helper = (
 	{ productName, cost, currencyType, quantity = 1 }: IBillItem_CopyToClipboard,
@@ -25,9 +17,9 @@ export const BillItemToText_helper = (
 	const total = cost * q;
 
 	if (simplify)
-		return `${q} ${productName}: ${formatoMexico(total)} ${currencyType} `;
+		return `${q} ${productName}: ${moneyFormat(total)} ${currencyType} `;
 
-	return `${q} ${productName} tiene un costo de ${formatoMexico(
+	return `${q} ${productName} tiene un costo de ${moneyFormat(
 		total
 	)} ${currencyType} `;
 };
@@ -49,7 +41,7 @@ export const BillToText_helper = ({ bill }: IBillToText): string => {
 	const text = [
 		itemsText.join("\n"),
 		"",
-		`*total: ${formatoMexico(totals.BSF)} bs*`,
+		`*total: ${moneyFormat(totals.BSF)} bs*`,
 	];
 
 	return text.join("\n");

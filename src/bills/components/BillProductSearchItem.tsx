@@ -43,7 +43,7 @@ const BillProductSearchItem = (props: props) => {
 						productName: name,
 						quantity: 1,
 						cost: BSF,
-						currencyType: CurrencyType.BSF,
+						currencyType: "bs",
 					});
 					copyToClipboard(text);
 				}}

@@ -17,11 +17,13 @@ import SavedBills from "../components/SavedBills";
 import Button from "../../common/components/Button";
 import BillProductSearch from "../components/BillProductSearch";
 import useClipboard from "../../common/hooks/useClipboard";
+import moneyFormat from "../../common/helpers/moneyFormat.helper";
 
 const BillScreen = () => {
 	const { isCopy, copyToClipboard } = useClipboard();
 	const { products, getAllProductsWithServer } = useProduct();
-	const { currentBill, clear_CurrentBill, billToText } = useBill();
+	const { currentBill, clear_CurrentBill, billToText, IVAMode, toggleIVAMode } =
+		useBill();
 
 	useEffect(() => {
 		getAllProductsWithServer();
@@ -95,12 +97,17 @@ const BillScreen = () => {
 				</>
 			}
 		>
+			{IVAMode && (
+				<div className="absolute left-1/2 top-1/2 -translate-1/2 text-gray-500 text-9xl  -z-10 select-none">
+					IVA
+				</div>
+			)}
+
 			<BillProductSearch />
 
 			{/* ******************************* visor ************************************ */}
 
-			<div className="px-4">
-				{/* // todo: que no se desordenen al agregarlos a la factura  */}
+			<div className="px-4 flex-1">
 				{productsBillItemsFavoritesByPriority.map((data) => (
 					<BillItem key={uuid()} data={data} onDeleteItem={onDeleteItem} />
 				))}
@@ -109,14 +116,35 @@ const BillScreen = () => {
 					remainingBillItem.map((item) => (
 						<BillItem key={uuid()} data={item} />
 					))}
+			</div>
 
-				<div className="mt-4 flex flex-col sm:flex-row sm:justify-between">
-					<div className="flex flex-wrap order-3 sm:order-1 sm:flex-1 sm:mr-16">
+			<div className="m-4 flex flex-col sm:flex-row sm:justify-between gap-2">
+				<div className="order-3 sm:order-1 sm:flex-1">
+					<div className="flex flex-wrap ">
 						<Button icon="Trash" variant="danger" onClick={onDelete}>
 							Limpiar
 						</Button>
-						<Button icon="ClipboardCopy">Simplificar</Button>
-						<Button icon="ClipboardCopy">IVA</Button>
+
+						<Button
+							icon="ClipboardCopy"
+							onClick={() => {
+								if (deletedFavorites.length === productsFavorites.length)
+									return setDeletedFavorites([]);
+
+								setDeletedFavorites(productsFavorites.map((item) => item._id));
+							}}
+						>
+							Simplificar
+						</Button>
+
+						<Button
+							variant="danger"
+							icon="ClipboardCopy"
+							onClick={() => toggleIVAMode()}
+						>
+							IVA
+						</Button>
+
 						<Button
 							icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 							onClick={() => {
@@ -127,40 +155,45 @@ const BillScreen = () => {
 							Copiar
 						</Button>
 					</div>
-					<div className="order-2 sm:mr-16">
-						{/* <div className="flex justify-between items-center sm:justify-end">
-						<Text className="mr-8">SubTotal</Text>
-						<Text>
-							{(totals.BSF * (1 / 1.16)).toFixed(2)} {CurrencyType.BSF}
-						</Text>
-					</div>
 
-					<div className="flex justify-between items-center sm:justify-end">
-						<Text className="mr-8">iva 16%</Text>
+					<SavedBills />
+				</div>
 
-						<Text className="text-right">
-							{(totals.BSF - totals.BSF * (1 / 1.16)).toFixed(2)}
-							{CurrencyType.BSF}
-						</Text>
-					</div> */}
-						<div className="flex justify-between items-center sm:justify-end ">
-							<Text className="mr-8" size="big" variant="bold">
-								Total
-							</Text>
-							<div className="flex flex-col ">
-								<Text size="big" variant="bold" className="text-right ">
-									{totals.USD.toFixed(2)} {CurrencyType.USD}
-								</Text>
-								<Text size="big" variant="bold" className="text-right">
-									{totals.BSF.toFixed(2)} {CurrencyType.BSF}
+				<div className="order-2 sm:mr-16">
+					{IVAMode && (
+						<>
+							<div className="flex justify-between items-center sm:justify-end">
+								<Text className="mr-8">SubTotal</Text>
+								<Text>
+									{moneyFormat(totals.BSF / 1.16)} {CurrencyType.BSF}
 								</Text>
 							</div>
+
+							<div className="flex justify-between items-center sm:justify-end">
+								<Text className="mr-8">iva 16%</Text>
+
+								<Text className="text-right">
+									{moneyFormat(totals.BSF - totals.BSF / 1.16)}
+									{CurrencyType.BSF}
+								</Text>
+							</div>
+						</>
+					)}
+					<div className="flex justify-between items-center sm:justify-end ">
+						<Text className="mr-8" size="big" variant="bold">
+							Total
+						</Text>
+						<div className="flex flex-col ">
+							<Text size="big" variant="bold" className="text-right ">
+								{moneyFormat(totals.USD)} {CurrencyType.USD}
+							</Text>
+							<Text size="big" variant="bold" className="text-right">
+								{moneyFormat(totals.BSF)} {CurrencyType.BSF}
+							</Text>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			<SavedBills />
 		</PageTemplateLayout>
 	);
 };

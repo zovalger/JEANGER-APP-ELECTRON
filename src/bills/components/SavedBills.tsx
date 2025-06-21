@@ -12,7 +12,7 @@ export default function SavedBills() {
 			{/* <Divider sx={{ my: 3 }} /> */}
 
 			<div >
-				<div className="flex items-center justify-between">
+				<div className="flex items-center justify-between ">
 					<Text variant="bold">Facturas guardadas</Text>
 
 					{/* <IconButton
@@ -31,7 +31,7 @@ export default function SavedBills() {
 					/>
 				</div>
 
-				<div>
+				<div className="flex flex-wrap gap-2">
 					{bills.map((bill) => (
 						<SavedBillsItem key={uuid()} data={bill} />
 					))}

@@ -5,6 +5,7 @@ import { initialValuesBill } from "../config/initialValues";
 
 interface IBillState {
 	currentBill: IBill | null;
+	IVAMode: boolean;
 	bills: IBill[];
 }
 
@@ -19,6 +20,8 @@ interface IBillActions {
 
 	onAddOrUpdateProduct_in_Bill(bill_id: string, billItem: IBillItem): void;
 	onRemoveProduct_in_Bill(bill_id: string, billItemId: string): void;
+
+	onToggleIVAMode(): void;
 }
 
 interface IBillStore extends IBillState, IBillActions {}
@@ -27,6 +30,8 @@ const useBillStore = create<IBillStore>()(
 	persist<IBillStore>(
 		(set, get) => ({
 			bills: [],
+			IVAMode: false,
+
 			currentBill: initialValuesBill,
 
 			onGetBill: (bill_id: string) =>
@@ -67,7 +72,16 @@ const useBillStore = create<IBillStore>()(
 				bill_id: string,
 				billItem: IBillItem
 			) => {},
+
 			onRemoveProduct_in_Bill: (bill_id: string, billItemId: string) => {},
+
+			onToggleIVAMode: () => {
+				set((state) => {
+					const { IVAMode } = state;
+
+					return { ...state, IVAMode: !IVAMode };
+				});
+			},
 		}),
 
 		{ name: "bill-store" }

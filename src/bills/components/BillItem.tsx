@@ -11,6 +11,7 @@ import Input from "../../common/components/Input";
 import IconButton from "../../common/components/IconButton";
 import Button from "../../common/components/Button";
 import useClipboard from "../../common/hooks/useClipboard";
+import moneyFormat from "../../common/helpers/moneyFormat.helper";
 
 interface props {
 	data: IBillItem;
@@ -23,8 +24,11 @@ function BillItem({ data, onDeleteItem }: props) {
 	const { getCostInBSAndCurrency } = useForeignExchange();
 	const { getProduct } = useProduct();
 
-	const { addOrUpdateProduct_To_CurrentBill, deleteProduct_To_CurrentBill } =
-		useBill();
+	const {
+		addOrUpdateProduct_To_CurrentBill,
+		deleteProduct_To_CurrentBill,
+		IVAMode,
+	} = useBill();
 
 	const { quantity, productId } = data;
 	const { name, cost, currencyType } = getProduct(data.productId);
@@ -43,6 +47,8 @@ function BillItem({ data, onDeleteItem }: props) {
 	};
 
 	const { BSF } = getCostInBSAndCurrency({ cost, currencyType });
+
+	const costToView = IVAMode ? BSF / 1.16 : BSF;
 
 	// *******************************************************************
 	// 													modal
@@ -68,7 +74,9 @@ function BillItem({ data, onDeleteItem }: props) {
 	return (
 		<>
 			<div
-				className="flex items-center mb-0.5 px-4 py-1 rounded border border-gray-500 hover:bg-gray-200 "
+				className={`  flex items-center mb-0.5 px-4 py-1 rounded   ${
+					quantity ? "border" : ""
+				} border-gray-500 hover:bg-gray-200 `}
 				onClick={handdleOpendiv}
 				onContextMenu={() => {
 					handdleOpenContext();
@@ -79,11 +87,11 @@ function BillItem({ data, onDeleteItem }: props) {
 				<Text className="flex-1 ml-4">{name}</Text>
 
 				<Text className="min-w-20 text-right">
-					{BSF.toFixed(2)} {CurrencyType.BSF}
+					{moneyFormat(costToView)} {CurrencyType.BSF}
 				</Text>
 
-				<Text className="min-w-20 text-right">
-					{(BSF * quantity).toFixed(2)} {CurrencyType.BSF}
+				<Text className="min-w-20 ml-4 text-right">
+					{moneyFormat(costToView * quantity)} {CurrencyType.BSF}
 				</Text>
 
 				<IconButton
@@ -94,6 +102,7 @@ function BillItem({ data, onDeleteItem }: props) {
 					size="small"
 				/>
 			</div>
+
 			{openContext && (
 				<div className="flex p-2">
 					<Button
@@ -104,7 +113,7 @@ function BillItem({ data, onDeleteItem }: props) {
 								...data,
 								productName: name,
 								cost: BSF,
-								currencyType: CurrencyType.BSF,
+								currencyType: "bs",
 							});
 
 							copyToClipboard(text);

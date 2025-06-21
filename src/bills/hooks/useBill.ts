@@ -40,6 +40,8 @@ const useBill = () => {
 	const onSetBills = useBillStore((state) => state.onSetBills);
 	const onAddOrUpdateBill = useBillStore((state) => state.onAddOrUpdateBill);
 	const onRemoveBill = useBillStore((state) => state.onRemoveBill);
+	const IVAMode = useBillStore((state) => state.IVAMode);
+	const onToggleIVAMode = useBillStore((state) => state.onToggleIVAMode);
 	// const onAddOrUpdateProduct_in_Bill = useBillStore(
 	// 	(state) => state.onAddOrUpdateProduct_in_Bill
 	// );
@@ -210,6 +212,8 @@ const useBill = () => {
 		// comodidades
 		billToText,
 		billItemToText,
+		IVAMode,
+		toggleIVAMode: onToggleIVAMode,
 	};
 };
 
