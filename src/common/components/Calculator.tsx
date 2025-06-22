@@ -8,6 +8,8 @@ import {
 import Text from "./Text";
 import { useEffect, useRef } from "react";
 import { CurrencyType } from "../enums";
+import { Keyboard } from "@capacitor/keyboard";
+import { Capacitor } from "@capacitor/core";
 
 const numbers = [
 	{ title: CurrencyType.EUR, helpText: "F7", action: MathSpecialKey.F7 },
@@ -55,82 +57,91 @@ const Calculator = () => {
 			? "bg-euro-translucent"
 			: "";
 
-	return (
-		<label htmlFor={calculatorState.createAt.toString()}>
-			<div className={`p-4 hover:outline-2 ${calculatorColor}`}>
-				<div ref={historyRef} className="h-20 overflow-y-scroll">
-					{history.map((item) => (
-						<div
-							className="flex justify-end p-1 gap-2 hover:bg-gray-200 "
-							key={new Date(item.createAt).getMilliseconds()}
-							onClick={() => {
-								setHistoryState(item);
-							}}
-						>
-							<Text>
-								{item.a?.toFixed(2)}
-								{item?.mathOperation}
-								{item.b?.toFixed(2)}={item.result?.toFixed(2)}
-							</Text>
-							<Text>{item.currencyType}</Text>
-						</div>
-					))}
-				</div>
-				<div className="gap-4">
-					{a ? (
-						<Text className="text-right" selectable={true}>
-							{a.toFixed(2).replace(".", ",")}
-							{mathOperation}
-							{b?.toFixed(2).replace(".", ",")}
-							{result && "="}
-						</Text>
-					) : (
-						<Text className="text-right"> =</Text>
-					)}
+	const platForm = Capacitor.getPlatform();
 
-					<Input
-						ref={inputRef}
-						inputVariant="border-bottom"
-						id={calculatorState.createAt.toString()}
-						placeholder="calcular"
-						className="text-right"
-						value={textInput}
-						textSize="big"
-						onChange={(event) => onChange(event.target.value)}
-						onKeyDown={(event) => {
-							if (isSpeacialkey(event.key)) {
-								event.preventDefault();
-								onKeyPress(event.key);
-							}
+	const Content = (
+		<div className={`p-4 hover:outline-2 ${calculatorColor}`}>
+			<div ref={historyRef} className="h-20 overflow-y-scroll">
+				{history.map((item) => (
+					<div
+						className="flex justify-end p-1 gap-2 hover:bg-gray-200 "
+						key={new Date(item.createAt).getMilliseconds()}
+						onClick={() => {
+							setHistoryState(item);
 						}}
-					/>
-				</div>
-
-				<div className="flex flex-wrap mt-1">
-					{numbers.map((item) => (
-						<div
-							key={item.title}
-							onClick={() => {
-								if (inputRef?.current) inputRef.current.focus();
-								if (item.action) return onKeyPress(item.action);
-								onChange(textInput + item.title);
-							}}
-							className={`flex-1/4 rounded hover:bg-gray-200 p-1 ${
-								item.title === currencyType && "bg-white"
-							}`}
-						>
-							<Text size="small" className="text-center">
-								{item.title}
-							</Text>
-
-							<Text size="tiny" className="text-center">
-								{item?.helpText}
-							</Text>
-						</div>
-					))}
-				</div>
+					>
+						<Text>
+							{item.a?.toFixed(2)}
+							{item?.mathOperation}
+							{item.b?.toFixed(2)}={item.result?.toFixed(2)}
+						</Text>
+						<Text>{item.currencyType}</Text>
+					</div>
+				))}
 			</div>
-		</label>
+			<div className="gap-4">
+				{a ? (
+					<Text className="text-right" selectable={true}>
+						{a.toFixed(2).replace(".", ",")}
+						{mathOperation}
+						{b?.toFixed(2).replace(".", ",")}
+						{result && "="}
+					</Text>
+				) : (
+					<Text className="text-right"> =</Text>
+				)}
+
+				<Input
+					ref={inputRef}
+					inputVariant="border-bottom"
+					id={calculatorState.createAt.toString()}
+					placeholder="calcular"
+					className="text-right"
+					value={textInput}
+					textSize="big"
+					onChange={(event) => onChange(event.target.value)}
+					onFocus={() => {
+						if (platForm === "android") Keyboard.hide();
+					}}
+					onKeyDown={(event) => {
+						if (isSpeacialkey(event.key)) {
+							event.preventDefault();
+							onKeyPress(event.key);
+						}
+					}}
+				/>
+			</div>
+
+			<div className="flex flex-wrap mt-1">
+				{numbers.map((item) => (
+					<div
+						key={item.title}
+						onClick={() => {
+							if (inputRef?.current) inputRef.current.focus();
+							if (item.action) return onKeyPress(item.action);
+							onChange(textInput + item.title);
+						}}
+						className={`flex-1/4 flex flex-col justify-center min-h-14 sm:min-h-8 rounded hover:bg-gray-200 p-1 ${
+							item.title === currencyType && "bg-white"
+						}`}
+					>
+						<Text size="small" className="text-center">
+							{item.title}
+						</Text>
+
+						<Text size="tiny" className="text-center">
+							{item?.helpText}
+						</Text>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+
+	return platForm === "android" ? (
+		<div>{Content}</div>
+	) : (
+		<label htmlFor={calculatorState.createAt.toString()}>{Content}</label>
 	);
 };
 

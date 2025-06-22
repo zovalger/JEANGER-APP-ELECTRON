@@ -1,12 +1,13 @@
 {
   "name": "jeanger-app-electron",
   "productName": "JEANGER-APP",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Rebuilding the Jeanger app desktop application in Electron.js, using vite, react and tailwindcss.",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "build-vite": "vite build",
+    "android": "vite build && npx cap sync",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -19,6 +20,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@capacitor/cli": "^7.4.0",
     "@electron-forge/cli": "^7.8.1",
     "@electron-forge/maker-deb": "^7.8.1",
     "@electron-forge/maker-rpm": "^7.8.1",
@@ -42,6 +44,9 @@
     "vite": "^5.4.19"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/keyboard": "^7.0.1",
     "animate.css": "^4.1.1",
     "axios": "^1.9.0",
     "dexie": "^4.0.11",

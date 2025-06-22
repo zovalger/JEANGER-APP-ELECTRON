@@ -136,6 +136,7 @@ function BillItem({ data, onDeleteItem }: props) {
 				<div className="flex items-center gap-2">
 					<Input
 						autoFocus
+						type="number"
 						className={`${
 							signo === "-" ? "outline-red-500" : "outline-lime-500"
 						}`}
