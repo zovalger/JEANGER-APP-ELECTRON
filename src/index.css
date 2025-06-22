@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "animate.css";
 
+@theme {
+	--color-dolar: rgb(0, 255, 85);
+	--color-dolar-translucent: rgba(0, 255, 85, 0.133);
+
+	--color-euro: rgb(255, 136, 0);
+	--color-euro-translucent: rgba(255, 136, 0, 0.133);
+}
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
 	-webkit-appearance: none;

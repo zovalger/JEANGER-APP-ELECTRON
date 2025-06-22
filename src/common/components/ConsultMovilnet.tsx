@@ -42,47 +42,43 @@ export default function ConsultMovilnet() {
 	};
 
 	return (
-		<div
-			className="border-t mt-4 p-4"
-			onSubmit={(e) => {
-				e.preventDefault();
-				handdleSubmit();
-			}}
-		>
-			<label htmlFor={id}>
-				<Text>Consulta Movilnet</Text>
-			</label>
+		<label htmlFor={id}>
+			<div
+				className="mt-4 p-4"
+				onSubmit={(e) => {
+					e.preventDefault();
+					handdleSubmit();
+				}}
+			>
+				<Text variant="bold">Consulta Movilnet</Text>
 
-			<div className="flex items-center ">
-				<label htmlFor={id}>
+				<div className="flex items-center ">
 					<Text className="">Tlf.:</Text>
-				</label>
 
-				<Input
-					id={id}
-					inputVariant="without-border"
-					type="tel"
-					placeholder="Número"
-					autoComplete="none"
-					name="tlf"
-					onKeyDown={(event) => {
-						event.stopPropagation();
-						if (event.key === "Escape") handdleClear();
-						if (event.key === "Enter") handdleSubmit();
-					}}
-					value={value || ""}
-					onChange={({ target: { value } }) => handdleChange(value)}
-				/>
+					<Input
+						id={id}
+						inputVariant="without-border"
+						type="tel"
+						placeholder="Número"
+						autoComplete="none"
+						name="tlf"
+						onKeyDown={(event) => {
+							event.stopPropagation();
+							if (event.key === "Escape") handdleClear();
+							if (event.key === "Enter") handdleSubmit();
+						}}
+						value={value || ""}
+						onChange={({ target: { value } }) => handdleChange(value)}
+					/>
 
-				<IconButton
-					icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
-					size="small"
-					onClick={() => copyToClipboard(value.trim().replace(/^0/, ""))}
-				/>
+					<IconButton
+						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
+						size="small"
+						onClick={() => copyToClipboard(value.trim().replace(/^0/, ""))}
+					/>
 
-				<IconButton icon="Search" size="small" onClick={handdleSubmit} />
-			</div>
-			<label htmlFor={id}>
+					<IconButton icon="Search" size="small" onClick={handdleSubmit} />
+				</div>
 				{error ? (
 					<Text>{error}</Text>
 				) : loading ? (
@@ -100,7 +96,7 @@ export default function ConsultMovilnet() {
 						</div>
 					)
 				)}
-			</label>
-		</div>
+			</div>
+		</label>
 	);
 }

@@ -27,9 +27,12 @@ const BillProductSearchItem = (props: props) => {
 		currencyType,
 	});
 
+	const colorCurrency =
+		currencyType == CurrencyType.EUR ? "text-euro" : "text-dolar";
+
 	return (
 		<div
-			className={`flex items-center pr-4 py-1 hover:bg-gray-200 ${
+			className={`flex items-center gap-4 pr-4 py-1 hover:bg-gray-200 ${
 				selected === index && "bg-gray-200"
 			}`}
 			key={_id}
@@ -55,10 +58,14 @@ const BillProductSearchItem = (props: props) => {
 				{Math.round(BSF)} {CurrencyType.BSF}
 			</Text>
 
-			<Text className="min-w-20 text-right">
-				{divisaCost.toFixed(2)}{" "}
-				{currencyType == CurrencyType.EUR ? CurrencyType.EUR : CurrencyType.USD}
-			</Text>
+			<div className="min-w-20 flex gap-1">
+				<Text>{divisaCost.toFixed(2)}</Text>
+				<Text className={colorCurrency}>
+					{currencyType == CurrencyType.EUR
+						? CurrencyType.EUR
+						: CurrencyType.USD}
+				</Text>
+			</div>
 		</div>
 	);
 };

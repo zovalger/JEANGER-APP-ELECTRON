@@ -1,4 +1,4 @@
-import Input, { CustomInputProps } from "./Input";
+import Input from "./Input";
 import useCalculator from "../hooks/useCalculator";
 import {
 	isSpeacialkey,
@@ -8,7 +8,6 @@ import {
 import Text from "./Text";
 import { useEffect, useRef } from "react";
 import { CurrencyType } from "../enums";
-import Button from "./Button";
 
 const numbers = [
 	{ title: CurrencyType.EUR, helpText: "F7", action: MathSpecialKey.F7 },
@@ -49,49 +48,52 @@ const Calculator = () => {
 		historyRef.current.scrollTo({ top: historyRef.current.scrollHeight });
 	}, [history]);
 
-	return (
-		<div className="border-t ">
-			<div ref={historyRef} className="h-20 overflow-y-scroll">
-				{history.map((item) => (
-					<div
-						className="flex justify-end p-1 gap-2 hover:bg-gray-200 "
-						key={new Date(item.createAt).getMilliseconds()}
-						onClick={() => {
-							setHistoryState(item);
-						}}
-					>
-						<Text>
-							{item.a?.toFixed(2)}
-							{item?.mathOperation}
-							{item.b?.toFixed(2)}={item.result?.toFixed(2)}
-						</Text>
-						<Text>{item.currencyType}</Text>
-					</div>
-				))}
-			</div>
+	const calculatorColor =
+		currencyType === CurrencyType.USD
+			? "bg-dolar-translucent"
+			: currencyType === CurrencyType.EUR
+			? "bg-euro-translucent"
+			: "";
 
-			<div className="flex items-center justify-between gap-4 px-4">
-				<Text>{currencyType}</Text>
-				<div className="flex flex-col flex-1">
-					<label htmlFor={calculatorState.createAt.toString()}>
-						{a ? (
-							<Text className="text-right" selectable={true}>
-								{a.toFixed(2).replace(".", ",")}
-								{mathOperation}
-								{b?.toFixed(2).replace(".", ",")}
-								{result && "="}
+	return (
+		<label htmlFor={calculatorState.createAt.toString()}>
+			<div className={`p-4 hover:outline-2 ${calculatorColor}`}>
+				<div ref={historyRef} className="h-20 overflow-y-scroll">
+					{history.map((item) => (
+						<div
+							className="flex justify-end p-1 gap-2 hover:bg-gray-200 "
+							key={new Date(item.createAt).getMilliseconds()}
+							onClick={() => {
+								setHistoryState(item);
+							}}
+						>
+							<Text>
+								{item.a?.toFixed(2)}
+								{item?.mathOperation}
+								{item.b?.toFixed(2)}={item.result?.toFixed(2)}
 							</Text>
-						) : (
-							<Text className="text-right"> =</Text>
-						)}
-					</label>
+							<Text>{item.currencyType}</Text>
+						</div>
+					))}
+				</div>
+				<div className="gap-4">
+					{a ? (
+						<Text className="text-right" selectable={true}>
+							{a.toFixed(2).replace(".", ",")}
+							{mathOperation}
+							{b?.toFixed(2).replace(".", ",")}
+							{result && "="}
+						</Text>
+					) : (
+						<Text className="text-right"> =</Text>
+					)}
 
 					<Input
 						ref={inputRef}
-						inputVariant="without-border"
+						inputVariant="border-bottom"
 						id={calculatorState.createAt.toString()}
 						placeholder="calcular"
-						className="text-right outline-none"
+						className="text-right"
 						value={textInput}
 						textSize="big"
 						onChange={(event) => onChange(event.target.value)}
@@ -103,33 +105,32 @@ const Calculator = () => {
 						}}
 					/>
 				</div>
-			</div>
 
-			<div className="flex flex-wrap mt-1">
-				{numbers.map((item) => (
-					<label
-						key={item.title}
-						htmlFor={calculatorState.createAt.toString()}
-						onClick={() => {
-							if (inputRef?.current) inputRef.current.focus();
-							if (item.action) return onKeyPress(item.action);
-							onChange(textInput + item.title);
-						}}
-						className={`flex-1/4 hover:bg-gray-200 p-1 ${
-							item.title === currencyType && "bg-green-200"
-						}`}
-					>
-						<Text size="small" className="text-center">
-							{item.title}
-						</Text>
+				<div className="flex flex-wrap mt-1">
+					{numbers.map((item) => (
+						<div
+							key={item.title}
+							onClick={() => {
+								if (inputRef?.current) inputRef.current.focus();
+								if (item.action) return onKeyPress(item.action);
+								onChange(textInput + item.title);
+							}}
+							className={`flex-1/4 rounded hover:bg-gray-200 p-1 ${
+								item.title === currencyType && "bg-white"
+							}`}
+						>
+							<Text size="small" className="text-center">
+								{item.title}
+							</Text>
 
-						<Text size="tiny" className="text-center">
-							{item?.helpText}
-						</Text>
-					</label>
-				))}
+							<Text size="tiny" className="text-center">
+								{item?.helpText}
+							</Text>
+						</div>
+					))}
+				</div>
 			</div>
-		</div>
+		</label>
 	);
 };
 
