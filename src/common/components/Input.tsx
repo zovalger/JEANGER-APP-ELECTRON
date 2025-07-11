@@ -10,7 +10,7 @@ export interface CustomInputProps
 }
 
 const Input = forwardRef<HTMLInputElement, CustomInputProps>(
-	(props: CustomInputProps) => {
+	(props: CustomInputProps, ref) => {
 		const {
 			className,
 			textSize,
@@ -36,6 +36,7 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 
 		return (
 			<input
+				ref={ref}
 				{...otherPros}
 				className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
 			/>

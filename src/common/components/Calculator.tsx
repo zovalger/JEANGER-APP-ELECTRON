@@ -50,6 +50,24 @@ const Calculator = () => {
 		historyRef.current.scrollTo({ top: historyRef.current.scrollHeight });
 	}, [history]);
 
+	useEffect(() => {
+		const focusInput = (e: KeyboardEvent) => {
+			if (
+				(e.key === MathSpecialKey.F7 ||
+					e.key === MathSpecialKey.F8 ||
+					e.key === MathSpecialKey.F9) &&
+				inputRef.current
+			) {
+				inputRef.current.focus();
+				onKeyPress(e.key);
+			}
+		};
+
+		document.addEventListener("keydown", focusInput);
+
+		return () => document.removeEventListener("keydown", focusInput);
+	}, []);
+
 	const calculatorColor =
 		currencyType === CurrencyType.USD
 			? "bg-dolar-translucent"
@@ -117,7 +135,10 @@ const Calculator = () => {
 					<div
 						key={item.title}
 						onClick={() => {
-							if (inputRef?.current) inputRef.current.focus();
+							console.log(inputRef);
+							if (inputRef?.current) {
+								inputRef.current.focus();
+							}
 							if (item.action) return onKeyPress(item.action);
 							onChange(textInput + item.title);
 						}}

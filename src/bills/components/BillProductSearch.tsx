@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import Input from "../../common/components/Input";
+import { useEffect, useRef, useState } from "react";
+import Input, { CustomInputProps } from "../../common/components/Input";
 import useBill from "../hooks/useBill";
 import {
 	searchProductsByWord,
@@ -17,6 +17,8 @@ const BillProductSearch = () => {
 	const [inputValue, setInputValue] = useState("");
 	const [productList, setProductList] = useState<string[]>([]);
 	const [selected, setSelected] = useState<number>(-1);
+
+	const inputRef = useRef<HTMLInputElement | null>(null);
 
 	const onChange = (value: string) => setInputValue(value);
 
@@ -83,6 +85,16 @@ const BillProductSearch = () => {
 		refreshShowList(inputValue);
 	}, [inputValue]);
 
+	useEffect(() => {
+		const focusInput = (e: KeyboardEvent) => {
+			if (e.key === "F6" && inputRef.current) inputRef.current.focus();
+		};
+
+		document.addEventListener("keydown", focusInput);
+
+		return () => document.removeEventListener("keydown", focusInput);
+	}, []);
+
 	// *******************************************************************
 	// 													Selector
 	// *******************************************************************
@@ -105,6 +117,7 @@ const BillProductSearch = () => {
 		<div className="sticky top-14 p-4 backdrop-blur-sm bg-[#fff9]">
 			<div className="">
 				<Input
+					ref={inputRef}
 					placeholder="Buscar"
 					value={inputValue}
 					onChange={({ target: { value } }) => onChange(value)}
