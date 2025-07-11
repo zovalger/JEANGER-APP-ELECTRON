@@ -21,6 +21,8 @@ import moneyFormat from "../../common/helpers/moneyFormat.helper";
 
 const BillScreen = () => {
 	const { isCopy, copyToClipboard } = useClipboard();
+	const { isCopy: isCopyBs, copyToClipboard: copyToClipboardBs } =
+		useClipboard();
 	const { products, getAllProductsWithServer } = useProduct();
 	const { currentBill, clear_CurrentBill, billToText, IVAMode, toggleIVAMode } =
 		useBill();
@@ -184,10 +186,30 @@ const BillScreen = () => {
 							Total
 						</Text>
 						<div className="flex flex-col ">
-							<Text size="big" variant="bold" className="text-right ">
+							<Text
+								size="big"
+								variant="bold"
+								className={
+									isCopyBs ? "text-right " : "cursor-pointer text-right"
+								}
+								onClick={() =>
+									copyToClipboardBs(
+										`${moneyFormat(totals.USD)} ${CurrencyType.USD}`
+									)
+								}
+							>
 								{moneyFormat(totals.USD)} {CurrencyType.USD}
 							</Text>
-							<Text size="big" variant="bold" className="text-right">
+							<Text
+								size="big"
+								variant="bold"
+								className={
+									isCopyBs ? "text-right " : "cursor-pointer text-right"
+								}
+								onClick={() =>
+									copyToClipboardBs(`${moneyFormat(totals.BSF)} bs`)
+								}
+							>
 								{moneyFormat(totals.BSF)} {CurrencyType.BSF}
 							</Text>
 						</div>
