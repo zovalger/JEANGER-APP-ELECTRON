@@ -10,6 +10,8 @@ import { useEffect, useRef } from "react";
 import { CurrencyType } from "../enums";
 import { Keyboard } from "@capacitor/keyboard";
 import { Capacitor } from "@capacitor/core";
+import useClipboard from "../hooks/useClipboard";
+import IconButton from "./IconButton";
 
 const numbers = [
 	{ title: CurrencyType.EUR, helpText: "F7", action: MathSpecialKey.F7 },
@@ -35,6 +37,8 @@ const numbers = [
 ];
 
 const Calculator = () => {
+	const { isCopy, copyToClipboard } = useClipboard();
+
 	const { calculatorState, history, setHistoryState, onChange, onKeyPress } =
 		useCalculator();
 
@@ -110,25 +114,32 @@ const Calculator = () => {
 					<Text className="text-right"> =</Text>
 				)}
 
-				<Input
-					ref={inputRef}
-					inputVariant="border-bottom"
-					id={calculatorState.createAt.toString()}
-					placeholder="calcular"
-					className="text-right"
-					value={textInput}
-					textSize="big"
-					onChange={(event) => onChange(event.target.value)}
-					onFocus={() => {
-						if (platForm === "android") Keyboard.hide();
-					}}
-					onKeyDown={(event) => {
-						if (isSpeacialkey(event.key)) {
-							event.preventDefault();
-							onKeyPress(event.key);
-						}
-					}}
-				/>
+				<div className="flex items-center justify-between">
+					<IconButton
+						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
+						size="small"
+						onClick={() => copyToClipboard(textInput)}
+					/>
+					<Input
+						ref={inputRef}
+						inputVariant="border-bottom"
+						id={calculatorState.createAt.toString()}
+						placeholder="calcular"
+						className="text-right"
+						value={textInput}
+						textSize="big"
+						onChange={(event) => onChange(event.target.value)}
+						onFocus={() => {
+							if (platForm === "android") Keyboard.hide();
+						}}
+						onKeyDown={(event) => {
+							if (isSpeacialkey(event.key)) {
+								event.preventDefault();
+								onKeyPress(event.key);
+							}
+						}}
+					/>
+				</div>
 			</div>
 
 			<div className="flex flex-wrap mt-1">
