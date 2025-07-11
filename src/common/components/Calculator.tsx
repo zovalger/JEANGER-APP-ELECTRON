@@ -56,7 +56,8 @@ const Calculator = () => {
 				(e.key === MathSpecialKey.F7 ||
 					e.key === MathSpecialKey.F8 ||
 					e.key === MathSpecialKey.F9) &&
-				inputRef.current
+				inputRef.current &&
+				document.activeElement != inputRef.current
 			) {
 				inputRef.current.focus();
 				onKeyPress(e.key);

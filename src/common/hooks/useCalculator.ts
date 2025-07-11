@@ -79,14 +79,27 @@ const useCalculator = () => {
 		key: string
 		// , altKey: boolean, ctrlKey: boolean
 	) => {
-		const [newCalculatorState, toHistory] = onSpecialKeyDownHanddle({
-			calculatorState,
-			foreignExchange,
-			key,
+		setCalculatorState((prev) => {
+			const [newCalculatorState, toHistory] = onSpecialKeyDownHanddle({
+				calculatorState: prev,
+				foreignExchange,
+				key,
+			});
+
+			if (toHistory) setHistory((prev) => [...prev, toHistory]);
+
+			return newCalculatorState;
 		});
 
-		setCalculatorState(newCalculatorState);
-		if (toHistory) setHistory((prev) => [...prev, toHistory]);
+		// const [newCalculatorState, toHistory] = onSpecialKeyDownHanddle({
+		// 	calculatorState,
+		// 	foreignExchange,
+		// 	key,
+		// });
+		// console.log(calculatorState);
+
+		// setCalculatorState(newCalculatorState);
+		// if (toHistory) setHistory((prev) => [...prev, toHistory]);
 	};
 
 	return { calculatorState, setHistoryState, history, onChange, onKeyPress };
