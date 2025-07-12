@@ -118,7 +118,19 @@ const Calculator = () => {
 					<IconButton
 						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 						size="small"
-						onClick={() => copyToClipboard(textInput)}
+						onClick={() => {
+							const t = textInput
+								? textInput
+								: result
+								? result.toFixed(2).replace(".", ",")
+								: b
+								? b.toFixed(2).replace(".", ",")
+								: a
+								? a.toFixed(2).replace(".", ",")
+								: "0,00";
+
+							copyToClipboard(t);
+						}}
 					/>
 					<Input
 						ref={inputRef}
