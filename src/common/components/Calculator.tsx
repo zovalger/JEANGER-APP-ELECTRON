@@ -73,6 +73,17 @@ const Calculator = () => {
 		return () => document.removeEventListener("keydown", focusInput);
 	}, []);
 
+	const toCopy =
+		textInput && parseFloat(textInput)
+			? textInput
+			: result
+			? result.toFixed(2).replace(".", ",")
+			: b
+			? b.toFixed(2).replace(".", ",")
+			: a
+			? a.toFixed(2).replace(".", ",")
+			: "0,00";
+
 	const calculatorColor =
 		currencyType === CurrencyType.USD
 			? "bg-dolar-translucent"
@@ -119,17 +130,7 @@ const Calculator = () => {
 						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 						size="small"
 						onClick={() => {
-							const t = textInput
-								? textInput
-								: result
-								? result.toFixed(2).replace(".", ",")
-								: b
-								? b.toFixed(2).replace(".", ",")
-								: a
-								? a.toFixed(2).replace(".", ",")
-								: "0,00";
-
-							copyToClipboard(t);
+							copyToClipboard(toCopy);
 						}}
 					/>
 					<Input
@@ -145,6 +146,8 @@ const Calculator = () => {
 							if (platForm === "android") Keyboard.hide();
 						}}
 						onKeyDown={(event) => {
+							if (event.ctrlKey && event.key === "c") copyToClipboard(toCopy);
+
 							if (isSpeacialkey(event.key)) {
 								event.preventDefault();
 								onKeyPress(event.key);
