@@ -36,7 +36,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	const LeftPanel = () => (
 		<div
 			onClick={() => closeLeftPanel()}
-			className={`fixed top-0  w-screen h-full flex flex-col bg-[#0003] sm:w-12 lg:w-48 sm:translate-x-0				${
+			className={`absolute top-0  w-screen h-full flex flex-col bg-[#0003] sm:w-12 lg:w-48 sm:translate-x-0				${
 				leftPanelOpen ? "left-0" : "translate-x-full sm:-left-0"
 			}
 				`}
@@ -83,7 +83,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 
 	const RightPanel = () => (
 		<div
-			className={`fixed top-0 w-screen h-full flex flex-col overflow-y-visible bg-white sm:w-60 sm:translate-x-0 border-l border-gray-500  ${
+			className={`absolute top-0 w-screen h-full flex flex-col overflow-y-visible bg-white sm:w-60 sm:translate-x-0 border-l border-gray-500  ${
 				rightPanelOpen ? "right-0" : "translate-x-full sm:-right-60"
 			}`}
 		>
@@ -93,30 +93,30 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				<ConsultMovilnet />
 			</div>
 
-			<div className="fixed bottom-0 left-0 right-0 flex items-center justify-end pl-4 bg-[#fff1] backdrop-blur-sm ">
+			<div className="absolute bottom-0 left-0 right-0 flex items-center justify-end pl-4 bg-[#fff1] backdrop-blur-sm ">
 				<IconButton icon="Close" onClick={() => closeRightPanel()} />
 			</div>
 		</div>
 	);
 
 	return (
-		<>
+		<div className="relative flex-1 overflow-hidden">
 			<div
-				className={`flex flex-col h-screen overflow-y-auto sm:ml-12 lg:ml-48 ${
+				className={`flex flex-col h-full overflow-y-auto sm:ml-12 lg:ml-48 ${
 					rightPanelOpen && "sm:mr-60"
 				}`}
 			>
 				{children || <Outlet />}
 			</div>
 
-			<div className="fixed bottom-0 right-0">
+			<div className="absolute bottom-2 right-2">
 				<IconButton icon="Tools" onClick={toogleRightPanel} />
 			</div>
 
 			<LeftPanel />
 
 			<RightPanel />
-		</>
+		</div>
 	);
 };
 
