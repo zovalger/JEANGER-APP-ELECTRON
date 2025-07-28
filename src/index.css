@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @import "animate.css";
 
+body {
+	padding-top: env(safe-area-inset-top);
+	padding-right: env(safe-area-inset-right);
+	padding-bottom: env(safe-area-inset-bottom);
+	padding-left: env(safe-area-inset-left);
+}
+
 @theme {
 	--color-dolar: rgb(0, 255, 85);
 	--color-dolar-translucent: rgba(0, 255, 85, 0.133);
