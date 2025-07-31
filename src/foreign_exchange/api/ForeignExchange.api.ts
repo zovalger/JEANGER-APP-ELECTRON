@@ -2,7 +2,7 @@ import axios from "axios";
 import { IForeignExchange } from "../interfaces/ForeignExchange.interface";
 import jeangerApp_API from "../../common/config/AxiosInstance";
 
-const url = `/foreign_exchange`;
+const url = `/foreign-exchange`;
 
 // ***************** consultas	*****************
 
