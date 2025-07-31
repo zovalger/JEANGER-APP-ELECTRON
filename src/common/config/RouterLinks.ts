@@ -6,7 +6,7 @@ const RouterLinks = {
 	Products: "/products",
 	// ForeignExchange: "/foreign-exchange",
 	// NotFound: "*",
-	// Login: "/login",
+	Login: "auth/login",
 	// Register: "/register",
 	// Profile: "/profile",
 	// Settings: "/settings",
