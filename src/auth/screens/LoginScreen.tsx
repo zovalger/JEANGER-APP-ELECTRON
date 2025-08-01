@@ -4,8 +4,8 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import Button from "../../common/components/Button";
 import Input from "../../common/components/Input";
-import { LoginUserDto } from "../dto/login-user.dto";
-import { loginRequest } from "../api/Auth.api";
+import useUser from "../hooks/useUser";
+import { LoginUserDto } from "../dto";
 
 const schema = yup
 	.object({
@@ -21,11 +21,13 @@ const schema = yup
 	.required();
 
 const LoginScreen = () => {
+	const { login, logout, user, sessionToken, users } = useUser();
+
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({
+	} = useForm<LoginUserDto>({
 		defaultValues: {
 			email: "",
 			password: "",
@@ -34,9 +36,7 @@ const LoginScreen = () => {
 	});
 
 	const onSubmit = async (data: LoginUserDto) => {
-		const sesion = await loginRequest(data);
-
-		console.log(sesion);
+		await login(data);
 	};
 
 	return (
@@ -53,7 +53,17 @@ const LoginScreen = () => {
 			/>
 			{errors.password && errors.password.message}
 
-			<Button className="w-full">Login</Button>
+			<Button className="w-full" type="submit">
+				Login
+			</Button>
+			
+			<Button className="w-full" type="button" onClick={logout}>
+				logout
+			</Button>
+
+			{user && user.email}
+			{sessionToken && sessionToken.token}
+
 			{/* <Link className="p-4" to={RouterLinks.Bills}>bill</Link> */}
 		</form>
 	);

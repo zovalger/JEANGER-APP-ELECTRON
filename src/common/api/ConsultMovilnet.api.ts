@@ -1,5 +1,5 @@
 import { ISaldoMovilnet } from "../interfaces/SaldoMovilnet.interface";
-import jeangerApp_API from "../config/AxiosInstance";
+import jeangerApp_API from "../config/HttpClient";
 
 const url = `utility`;
 

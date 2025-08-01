@@ -1,4 +1,4 @@
-import jeangerApp_API from "../../common/config/AxiosInstance";
+import jeangerApp_API from "../../common/config/HttpClient";
 import { LoginUserDto } from "../dto/login-user.dto";
 import { ISessionToken } from "../interfaces";
 

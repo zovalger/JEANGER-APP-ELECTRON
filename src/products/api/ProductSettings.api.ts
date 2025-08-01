@@ -1,4 +1,4 @@
-import jeangerApp_API from "../../common/config/AxiosInstance";
+import jeangerApp_API from "../../common/config/HttpClient";
 import { IProductSettings } from "../interfaces/product_settings.interface";
 
 const url = `/product_settings`;

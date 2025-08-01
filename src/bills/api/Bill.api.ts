@@ -1,4 +1,4 @@
-import jeangerApp_API from "../../common/config/AxiosInstance";
+import jeangerApp_API from "../../common/config/HttpClient";
 import { IBill } from "../interfaces/bill.interface";
 
 const url = `/bill`;

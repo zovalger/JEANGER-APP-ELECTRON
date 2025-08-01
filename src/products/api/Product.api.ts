@@ -1,5 +1,5 @@
 import { IProduct } from "../interfaces/product.interface";
-import jeangerApp_API from "../../common/config/AxiosInstance";
+import jeangerApp_API from "../../common/config/HttpClient";
 
 const url = `/product`;
 

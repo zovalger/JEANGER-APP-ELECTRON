@@ -6,6 +6,7 @@ import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange"
 import { SoundPlayer } from "../components/SoundPlayer";
 import { SocketContextProvider } from "../context/Socket.context";
 import { BillContextProvider } from "../../bills/context/Bill.context";
+import { AuthContextProvider } from "../../auth/context/Auth.context";
 
 interface BackgroundProcessesLayoutProps {
 	children?: React.ReactNode;
@@ -22,14 +23,16 @@ const BackgroundProcessesLayout = (
 	}, []);
 
 	return (
-		<SocketContextProvider>
-			<BillContextProvider>
-				<StopwatchContextProvider>
-					<SoundPlayer />
-					{children || <Outlet />}
-				</StopwatchContextProvider>
-			</BillContextProvider>
-		</SocketContextProvider>
+		<AuthContextProvider>
+			<SocketContextProvider>
+				<BillContextProvider>
+					<StopwatchContextProvider>
+						<SoundPlayer />
+						{children || <Outlet />}
+					</StopwatchContextProvider>
+				</BillContextProvider>
+			</SocketContextProvider>
+		</AuthContextProvider>
 	);
 };
 

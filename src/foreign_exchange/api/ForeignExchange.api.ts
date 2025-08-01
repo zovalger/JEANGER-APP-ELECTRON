@@ -1,6 +1,6 @@
 import axios from "axios";
 import { IForeignExchange } from "../interfaces/ForeignExchange.interface";
-import jeangerApp_API from "../../common/config/AxiosInstance";
+import jeangerApp_API from "../../common/config/HttpClient";
 
 const url = `/foreign-exchange`;
 
