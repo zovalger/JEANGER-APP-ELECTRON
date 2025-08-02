@@ -20,7 +20,9 @@ const useUser = () => {
 			const { data: user } = await jeangerApp_API.get<IUser>(
 				id ? UserUrls.userById(id) : UserUrls.user()
 			);
-			console.log(user);
+
+			if (!id) onSetUserProfile(user);
+
 			return user;
 		} catch (error) {
 			console.log(error);
@@ -35,30 +37,22 @@ const useUser = () => {
 			);
 
 			onSetSessionToken(sesion);
-
-			const user = await getProfile();
-
-			onSetUserProfile(user);
-
-			console.log(sesion);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error?.message || "login error");
 		}
 	};
 
 	const logout = async () => {
 		try {
-			const res = await jeangerApp_API.post<ISessionToken>(UserUrls.logout());
-
-			console.log(res);
-
+			await jeangerApp_API.post<ISessionToken>(UserUrls.logout());
 			onLogout();
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	return { login, logout, user, sessionToken, users };
+	return { login, logout, getProfile, user, sessionToken, users };
 };
 
 export default useUser;

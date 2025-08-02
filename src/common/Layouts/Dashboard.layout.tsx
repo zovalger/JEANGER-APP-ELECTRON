@@ -9,6 +9,7 @@ import Calculator from "../components/Calculator";
 import ConsultMovilnet from "../components/ConsultMovilnet";
 import Button from "../components/Button";
 import { Icons } from "../interfaces/icons";
+import useUser from "../../auth/hooks/useUser";
 
 interface DashboardLayoutProps {
 	children?: React.ReactNode;
@@ -32,6 +33,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 		closeRightPanel,
 		toogleRightPanel,
 	} = useUI();
+	const { logout, user } = useUser();
 
 	const LeftPanel = () => (
 		<div
@@ -42,7 +44,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				`}
 		>
 			<div
-				className="bg-white h-full w-[80%] sm:w-full border-r border-gray-500"
+				className="flex flex-col flex-1 w-[80%] sm:w-full border-r bg-white border-gray-500"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex min-h-14 items-center justify-start sm:justify-center  bg-gray-100 ">
@@ -55,7 +57,8 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 						JEANGER APP
 					</Text>
 				</div>
-				<div className="h-full overflow-y-auto overflow-x-hidden">
+
+				<div className="flex-1 overflow-y-auto overflow-x-hidden">
 					{a.map((item) => (
 						<div key={item.text}>
 							<Button
@@ -77,6 +80,12 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 						</div>
 					))}
 				</div>
+				{user && (
+					<div className="flex items-center justify-between border-t border-gray-500">
+						<Text className="hidden md:block md:ml-4">{user.name}</Text>
+						<IconButton className="" icon="Close" onClick={logout} />
+					</div>
+				)}
 			</div>
 		</div>
 	);

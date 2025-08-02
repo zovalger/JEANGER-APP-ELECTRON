@@ -4,6 +4,7 @@ import { useLocation } from "react-router";
 import Text from "../components/Text";
 import RouterLinks from "../config/RouterLinks";
 import useUI from "../hooks/useUI";
+import useUser from "../../auth/hooks/useUser";
 
 interface PageTemplateLayoutProps {
 	children?: React.ReactNode;
@@ -14,6 +15,7 @@ interface PageTemplateLayoutProps {
 }
 
 const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
+	const { user } = useUser();
 	const { openLeftPanel } = useUI();
 	const { children, rightButtons, name, nameHelp, backButtonURL } = props;
 
@@ -23,7 +25,10 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 
 	return (
 		<>
-			<div className="sticky top-0 flex min-h-14 items-center bg-gray-100">
+			<div
+				style={{ backgroundColor: user?.identityColor || "#E5E7EB" }}
+				className={`sticky top-0 flex min-h-14 items-center`}
+			>
 				{backButtonURL ? (
 					<IconButton
 						href={backButtonURL}

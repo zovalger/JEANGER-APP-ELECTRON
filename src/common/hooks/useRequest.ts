@@ -15,10 +15,6 @@ const useRequest = () => {
 		setJeangerApp_API(
 			new HttpClient(mainServer, { token: sessionToken?.token || null })
 		);
-
-		return () => {
-			setJeangerApp_API(null);
-		};
 	}, [sessionToken]);
 
 	return { jeangerApp_API };

@@ -6,6 +6,10 @@ import Button from "../../common/components/Button";
 import Input from "../../common/components/Input";
 import useUser from "../hooks/useUser";
 import { LoginUserDto } from "../dto";
+import { Link, useNavigate } from "react-router-dom";
+import RouterLinks from "../../common/config/RouterLinks";
+import useRequest from "../../common/hooks/useRequest";
+import { useEffect } from "react";
 
 const schema = yup
 	.object({
@@ -21,7 +25,8 @@ const schema = yup
 	.required();
 
 const LoginScreen = () => {
-	const { login, logout, user, sessionToken, users } = useUser();
+	const router = useNavigate();
+	const { login, logout } = useUser();
 
 	const {
 		register,
@@ -29,14 +34,19 @@ const LoginScreen = () => {
 		formState: { errors },
 	} = useForm<LoginUserDto>({
 		defaultValues: {
-			email: "",
-			password: "",
+			email: "test1@gmail.com",
+			password: "Vv12345678.",
 		},
 		resolver: yupResolver(schema),
 	});
 
 	const onSubmit = async (data: LoginUserDto) => {
-		await login(data);
+		try {
+			await login(data);
+			router(RouterLinks.Bills);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	return (
@@ -56,15 +66,10 @@ const LoginScreen = () => {
 			<Button className="w-full" type="submit">
 				Login
 			</Button>
-			
+
 			<Button className="w-full" type="button" onClick={logout}>
 				logout
 			</Button>
-
-			{user && user.email}
-			{sessionToken && sessionToken.token}
-
-			{/* <Link className="p-4" to={RouterLinks.Bills}>bill</Link> */}
 		</form>
 	);
 };
