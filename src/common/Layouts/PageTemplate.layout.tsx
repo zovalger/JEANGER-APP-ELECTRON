@@ -43,9 +43,9 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 					/>
 				)}
 
-				<div className="absolute left-[50%] translate-x-[-50%] sm:static sm:translate-x-0 sm:ml-4">
+				<div className="flex flex-col items-center sm:items-start absolute left-[50%] translate-x-[-50%] sm:static sm:translate-x-0 sm:ml-4">
 					<Text>{nameTap}</Text>
-					<Text>{nameHelp}</Text>
+					<Text size="tiny">{nameHelp}</Text>
 				</div>
 				<div className="flex ml-auto">{rightButtons}</div>
 			</div>

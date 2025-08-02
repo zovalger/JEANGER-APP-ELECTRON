@@ -3,7 +3,7 @@ const RouterLinks = {
 	Dashboard: "/dashboard",
 	Bills: "/dashboard/bills",
 	Stopwatchs: "/dashboard/stopwatchs",
-	Products: "/products",
+	Products: "/dashboard/products",
 	// ForeignExchange: "/foreign-exchange",
 	// NotFound: "*",
 	Login: "auth/login",

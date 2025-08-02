@@ -7,6 +7,7 @@ import { SoundPlayer } from "../components/SoundPlayer";
 import { SocketContextProvider } from "../context/Socket.context";
 import { BillContextProvider } from "../../bills/context/Bill.context";
 import { AuthContextProvider } from "../../auth/context/Auth.context";
+import useRequest from "../hooks/useRequest";
 
 interface BackgroundProcessesLayoutProps {
 	children?: React.ReactNode;
@@ -16,11 +17,16 @@ const BackgroundProcessesLayout = (
 	backgroundProcessesLayoutProps: BackgroundProcessesLayoutProps
 ) => {
 	const { children } = backgroundProcessesLayoutProps;
+
+	const { jeangerApp_API, sessionToken } = useRequest();
+
 	const { getForeignExchange } = useForeignExchange();
 
 	useEffect(() => {
+		if (!sessionToken) return;
+
 		getForeignExchange().catch((err) => console.log(err));
-	}, []);
+	}, [jeangerApp_API]);
 
 	return (
 		<AuthContextProvider>

@@ -17,7 +17,7 @@ const useRequest = () => {
 		);
 	}, [sessionToken]);
 
-	return { jeangerApp_API };
+	return { jeangerApp_API, sessionToken };
 };
 
 export default useRequest;

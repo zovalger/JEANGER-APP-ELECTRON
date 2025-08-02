@@ -15,13 +15,14 @@ interface DashboardLayoutProps {
 	children?: React.ReactNode;
 }
 
-const a: {
+const ModulesApp: {
 	icon: Icons;
 	href: string;
 	text: string;
 }[] = [
 	{ icon: "ShoppingCart", href: RouterLinks.Bills, text: "Facturas" },
 	{ icon: "Clock", href: RouterLinks.Stopwatchs, text: "Cronometros" },
+	{ icon: "Clock", href: RouterLinks.Products, text: "Productos" },
 ];
 
 const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
@@ -59,7 +60,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				</div>
 
 				<div className="flex-1 overflow-y-auto overflow-x-hidden">
-					{a.map((item) => (
+					{ModulesApp.map((item) => (
 						<div key={item.text}>
 							<Button
 								textJustify="left"
@@ -82,7 +83,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				</div>
 				{user && (
 					<div className="flex items-center justify-between border-t border-gray-500">
-						<Text className="hidden md:block md:ml-4">{user.name}</Text>
+						<Text className="block sm:hidden lg:block ml-4">{user.name}</Text>
 						<IconButton className="" icon="Close" onClick={logout} />
 					</div>
 				)}
