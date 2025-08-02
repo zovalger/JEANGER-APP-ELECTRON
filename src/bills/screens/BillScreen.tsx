@@ -18,8 +18,10 @@ import Button from "../../common/components/Button";
 import BillProductSearch from "../components/BillProductSearch";
 import useClipboard from "../../common/hooks/useClipboard";
 import moneyFormat from "../../common/helpers/moneyFormat.helper";
+import useRequest from "../../common/hooks/useRequest";
 
 const BillScreen = () => {
+	const { jeangerApp_API } = useRequest();
 	const { isCopy, copyToClipboard } = useClipboard();
 	const { isCopy: isCopyBs, copyToClipboard: copyToClipboardBs } =
 		useClipboard();
@@ -28,8 +30,10 @@ const BillScreen = () => {
 		useBill();
 
 	useEffect(() => {
-		getAllProductsWithServer();
-	}, []);
+		getAllProductsWithServer()
+			.then()
+			.catch((err) => console.log(err));
+	}, [jeangerApp_API]);
 
 	// *******************************************************************
 	// 													Visor

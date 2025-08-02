@@ -1,6 +1,6 @@
 import useRequest from "../../common/hooks/useRequest";
 import useUserStore from "../../common/store/useUserStore";
-import { UserUrls } from "../config/user-url";
+import { UserUrls } from "../api/user-url";
 import { LoginUserDto } from "../dto";
 import { ISessionToken, IUser } from "../interfaces";
 
