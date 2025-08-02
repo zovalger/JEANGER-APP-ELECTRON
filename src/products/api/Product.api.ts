@@ -10,25 +10,6 @@ const url = `/product`;
 // ***************** consultas	*****************
 
 
-export const getIProductRequest = async (id: string): Promise<IProduct> =>
-	(await jeangerApp_API.get(`${url}/${id}`)).data;
-	
-export const getAllIProductsRequest = async (): Promise<IProduct[]> =>
-	(await jeangerApp_API.get(`${url}`)).data;
-
-// ***************** modificaciones	*****************
-
-export const createIProductRequest = async (data: IProduct): Promise<IProduct> =>
-	(await jeangerApp_API.post(url, data)).data;
-
-export const updateIProductRequest = async (
-	id: string,
-	data: IProduct
-): Promise<IProduct> => (await jeangerApp_API.put(`${url}/${id}`, data)).data;
-
-export const deleteIProductRequest = async (id: string): Promise<boolean> =>
-	(await jeangerApp_API.delete(`${url}/${id}`)).data;
-
 // *******************************************************************
 // 													Referencias
 // *******************************************************************

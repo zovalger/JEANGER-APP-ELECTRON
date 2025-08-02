@@ -8,6 +8,7 @@ import StopwatchRoutes from "./stopwatch/routes";
 import BackgroundProcessesLayout from "./common/Layouts/BackgroundProcesses.layout";
 import PublicRoutes from "./public/routes";
 import AuthRoutes from "./auth/routes";
+import ProductRoutes from "./products/routes";
 
 const root = createRoot(document.body);
 
@@ -20,6 +21,7 @@ const App = () => (
 			<Route path="/dashboard" element={<DashboardLayout />}>
 				{BillRoutes()}
 				{StopwatchRoutes()}
+				{ProductRoutes()}
 			</Route>
 		</Route>
 	</Routes>
