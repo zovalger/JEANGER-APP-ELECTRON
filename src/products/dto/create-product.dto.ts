@@ -1,17 +1,11 @@
 import { CurrencyType } from "../../common/enums";
 
-export interface IProduct {
-	_id: string;
+export interface CreateProductDto {
 	name: string;
 	cost: number;
 	currencyType: CurrencyType;
 	keywords: string[];
-	autoKeywords: string[];
-	allKeywords: string[];
 	priority: number;
 	favorite: boolean;
 	instructions: string;
-	createdBy: string;
-	createdAt: string;
-	updatedAt: string;
 }
