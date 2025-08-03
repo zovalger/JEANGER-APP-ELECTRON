@@ -35,7 +35,7 @@ const useProduct = (productId?: string) => {
 	const getAllProductsWithServer = async () => {
 		try {
 			const { data } = await jeangerApp_API.get<IProduct[]>(
-				ProductUrls.product()
+				ProductUrls.base()
 			);
 
 			onSetProducts(data);

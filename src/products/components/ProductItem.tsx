@@ -6,6 +6,7 @@ import Modal from "../../common/components/Modal";
 import Text from "../../common/components/Text";
 import moneyFormat from "../../common/helpers/moneyFormat.helper";
 import { IProduct } from "../interfaces/product.interface";
+import ProductForm from "./ProductForm";
 
 interface props {
 	data: IProduct;
@@ -55,7 +56,7 @@ function ProductItem({ data }: props) {
 
 			{/* modal */}
 			<Modal onClose={handdleCloseModal} visible={openModal}>
-				{/* formulario para modificar el producto */}
+				<ProductForm initialData={data} />
 			</Modal>
 		</>
 	);
