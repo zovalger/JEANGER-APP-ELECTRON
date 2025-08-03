@@ -1,24 +1,23 @@
-import { forwardRef, InputHTMLAttributes } from "react";
+import { forwardRef, TextareaHTMLAttributes } from "react";
 import { UI_Sizes } from "../interfaces/UI_Sizes";
 import Text from "./Text";
 
-type InputVariants = "standar" | "without-border" | "border-bottom";
+type TextAreaVariants = "standar" | "without-border" | "border-bottom";
 
-export interface CustomInputProps
-	extends InputHTMLAttributes<HTMLInputElement> {
+export interface CustomTextAreaProps
+	extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 	textSize?: UI_Sizes;
-	inputVariant?: InputVariants;
+	textAreaVariant?: TextAreaVariants;
 	label?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, CustomInputProps>(
-	(props: CustomInputProps, ref) => {
+const TextArea = forwardRef<HTMLTextAreaElement, CustomTextAreaProps>(
+	(props: CustomTextAreaProps, ref) => {
 		const {
 			className,
 			textSize,
-			inputVariant = "standar",
+			textAreaVariant = "standar",
 			label,
-			type = "text",
 			...otherPros
 		} = props;
 
@@ -32,27 +31,22 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 				: "text-sm";
 
 		const variantClass =
-			inputVariant == "standar"
+			textAreaVariant == "standar"
 				? "border rounded"
-				: inputVariant == "border-bottom"
+				: textAreaVariant == "border-bottom"
 				? "border-b"
 				: "outline-none";
 
 		const content = (
-			<input
+			<textarea
 				ref={ref}
 				{...otherPros}
-				type={type}
 				className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
-			/>
+			></textarea>
 		);
 
 		return label ? (
-			<label
-				className={`flex justify-between w-full  ${
-					type == "checkbox" || "flex-col "
-				}  gap-1 my-2`}
-			>
+			<label className={`flex justify-between flex-col gap-1 my-2`}>
 				<Text>{label}</Text>
 				<div>{content}</div>
 			</label>
@@ -62,4 +56,4 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 	}
 );
 
-export default Input;
+export default TextArea;

@@ -12,7 +12,7 @@ const Modal = (props: props) => {
 
 	return (
 		<div
-			className="fixed top-0 bottom-0 left-0 right-0 flex bg-[#0003] justify-center items-center z-50"
+			className="fixed top-0 bottom-0 left-0 right-0 flex bg-[#0003] justify-center items-center z-50 "
 			onKeyDown={(e) => {
 				if (e.key === "Escape") {
 					e.stopPropagation();
@@ -26,7 +26,7 @@ const Modal = (props: props) => {
 			{...otherPros}
 		>
 			<div
-				className="flex-col bg-white mx-4 px-4 py-3 rounded shadowlg shadow-neutral-500"
+				className="flex-col bg-white mx-4 px-4 py-3 max-h-[90vh] overflow-y-auto rounded shadowlg shadow-neutral-500"
 				onClick={(e) => {
 					e.stopPropagation();
 				}}

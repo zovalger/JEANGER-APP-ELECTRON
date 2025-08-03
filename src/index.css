@@ -14,10 +14,10 @@ body {
 }
 
 @theme {
-	--color-dolar: rgb(0, 255, 85);
+	--color-dolar: #00aa66;
 	--color-dolar-translucent: rgba(0, 255, 85, 0.133);
 
-	--color-euro: rgb(255, 136, 0);
+	--color-euro: #ff8800;
 	--color-euro-translucent: rgba(255, 136, 0, 0.133);
 }
 
