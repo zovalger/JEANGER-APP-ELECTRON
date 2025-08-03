@@ -8,7 +8,7 @@ const useRequest = () => {
 	const mainServer = useRequestStore((state) => state.mainServer);
 
 	const [jeangerApp_API, setJeangerApp_API] = useState<HttpClient>(
-		new HttpClient(mainServer)
+		new HttpClient(mainServer, { token: sessionToken?.token || null })
 	);
 
 	useEffect(() => {
