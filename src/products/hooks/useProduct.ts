@@ -80,7 +80,7 @@ const useProduct = (productId?: string) => {
 		updateProductDto: UpdateProductDto
 	) => {
 		try {
-			const { data } = await jeangerApp_API.post<IProduct>(
+			const { data } = await jeangerApp_API.patch<IProduct>(
 				ProductUrls.byId(id),
 				updateProductDto
 			);
@@ -133,7 +133,7 @@ const useProduct = (productId?: string) => {
 		updateProductReferenceDto: UpdateProductReferenceDto
 	) => {
 		try {
-			const { data } = await jeangerApp_API.post<IProductReference>(
+			const { data } = await jeangerApp_API.patch<IProductReference>(
 				ProductUrls.referenceById(id),
 				updateProductReferenceDto
 			);

@@ -56,7 +56,7 @@ function ProductItem({ data }: props) {
 
 			{/* modal */}
 			<Modal onClose={handdleCloseModal} visible={openModal}>
-				<ProductForm initialData={data} />
+				<ProductForm initialData={data} successCallback={handdleCloseModal} />
 			</Modal>
 		</>
 	);

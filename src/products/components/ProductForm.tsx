@@ -6,11 +6,13 @@ import { IProduct } from "../interfaces/product.interface";
 import { useForm } from "react-hook-form";
 import { CreateProductDto, UpdateProductDto } from "../dto";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../common/components/Input";
 import TextArea from "../../common/components/TextArea";
 import Select from "../../common/components/Select";
 import Button from "../../common/components/Button";
+import InputTagStack from "../../common/components/InputTagStack";
+import useProduct from "../hooks/useProduct";
 
 const schema = yup
 	.object({
@@ -29,16 +31,29 @@ const schema = yup
 			.min(0, "La prioridad debe ser un número positivo")
 			.required("Prioridad es requerida"),
 		favorite: yup.boolean().required("Favorito es requerido"),
-		instructions: yup.string().required("Instrucciones son requeridas"),
+		instructions: yup.string(),
 	})
 	.required();
 
 interface props {
 	initialData?: IProduct;
+	callback?: () => void;
+	successCallback?: () => void;
+	errorCallback?: () => void;
 }
 
-function ProductForm({ initialData }: props) {
+function ProductForm({
+	initialData,
+	callback,
+	successCallback,
+	errorCallback,
+}: props) {
 	const { getCostInBSAndCurrency } = useForeignExchange();
+	const { createProduct, updateProduct, removeProduct } = useProduct();
+
+	const [keywords, setKeywords] = useState<string[]>(
+		initialData?.keywords || []
+	);
 
 	const {
 		register,
@@ -46,28 +61,41 @@ function ProductForm({ initialData }: props) {
 		formState: { errors, dirtyFields },
 		reset,
 	} = useForm<CreateProductDto>({
-		defaultValues: {},
+		defaultValues: { keywords: [] },
 		resolver: yupResolver(schema),
 		mode: "onChange",
 	});
 
 	const onSubmit = async (data: CreateProductDto | UpdateProductDto) => {
 		try {
-			console.log(data);
+			const keywordsEquals =
+				initialData?.keywords.sort().join(",").toLowerCase() ==
+				keywords.sort().join(",").toLowerCase();
 
-			// const modifiedData = {};
-			// for (const key in dirtyFields) {
-			// 	if (dirtyFields[key])
-			// 		modifiedData[key] = data[key];
-			//
-			// }
+			const modifiedData = !keywordsEquals ? { keywords } : {};
+
+			for (const key in dirtyFields) {
+				if (dirtyFields[key]) modifiedData[key] = data[key];
+			}
+
+			console.log(modifiedData);
+
+			if (!initialData) await createProduct(modifiedData as CreateProductDto);
+			else
+				await updateProduct(initialData._id, modifiedData as UpdateProductDto);
+
+			if (successCallback) successCallback();
 		} catch (error) {
 			console.log(error);
+			if (errorCallback) errorCallback();
 		}
+
+		if (callback) callback();
 	};
 
 	useEffect(() => {
 		reset(initialData);
+		setKeywords(initialData?.keywords || []);
 	}, [initialData, reset]);
 
 	return (
@@ -83,8 +111,8 @@ function ProductForm({ initialData }: props) {
 			{errors.cost && errors.cost.message}
 
 			<Select
-				label="Tipo de moneda"
 				{...register("currencyType")}
+				label="Tipo de moneda"
 				options={Object.values(CurrencyType).map((currency) => ({
 					value: currency,
 					label: currency,
@@ -92,7 +120,11 @@ function ProductForm({ initialData }: props) {
 			/>
 			{errors.currencyType && errors.currencyType.message}
 
-			<Input {...register("keywords")} label="Palabras para busqueda" />
+			<InputTagStack
+				label="Palabras para busqueda"
+				data={keywords}
+				setData={setKeywords}
+			/>
 			{errors.keywords && errors.keywords.message}
 
 			<Input
@@ -107,8 +139,14 @@ function ProductForm({ initialData }: props) {
 
 			<TextArea {...register("instructions")} label="Instrucciones" />
 			{errors.instructions && errors.instructions.message}
+
 			<div className="flex justify-between items-center mt-4">
-				<Button variant="danger" type="button">
+				<Button
+					variant="danger"
+					type="button"
+					onClick={() => removeProduct(initialData?._id || "")}
+					disabled={!initialData}
+				>
 					Eliminar
 				</Button>
 
