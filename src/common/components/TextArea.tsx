@@ -40,6 +40,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, CustomTextAreaProps>(
 		const content = (
 			<textarea
 				ref={ref}
+				rows={5}
 				{...otherPros}
 				className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
 			></textarea>
