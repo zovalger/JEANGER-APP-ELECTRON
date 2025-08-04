@@ -23,6 +23,11 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 
 	const nameTap = name || router.pathname.split("/").pop();
 
+	const right =
+		rightButtons instanceof Array
+			? rightButtons.map((item, index) => ({ ...item, key: index }))
+			: rightButtons;
+
 	return (
 		<>
 			<div
@@ -47,7 +52,7 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 					<Text>{nameTap}</Text>
 					<Text size="tiny">{nameHelp}</Text>
 				</div>
-				<div className="flex ml-auto">{rightButtons}</div>
+				<div className="flex ml-auto">{right}</div>
 			</div>
 
 			<div className="pb-16 flex flex-col flex-1">{children}</div>

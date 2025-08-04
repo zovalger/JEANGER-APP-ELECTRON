@@ -23,12 +23,12 @@ const BillScreen = () => {
 	const { isCopy, copyToClipboard } = useClipboard();
 	const { isCopy: isCopyBs, copyToClipboard: copyToClipboardBs } =
 		useClipboard();
-	const { products, getAllProductsWithServer } = useProduct();
+	const { products, getProductsFromServer } = useProduct();
 	const { currentBill, clear_CurrentBill, billToText, IVAMode, toggleIVAMode } =
 		useBill();
 
 	useEffect(() => {
-		getAllProductsWithServer()
+		getProductsFromServer()
 			.then()
 			.catch((err) => console.log(err));
 	}, []);
