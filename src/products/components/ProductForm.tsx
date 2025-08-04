@@ -13,6 +13,10 @@ import Select from "../../common/components/Select";
 import Button from "../../common/components/Button";
 import InputTagStack from "../../common/components/InputTagStack";
 import useProduct from "../hooks/useProduct";
+import toast from "react-hot-toast";
+import ProductRefForm from "./ProductRefForm";
+import Text from "../../common/components/Text";
+import IconButton from "../../common/components/IconButton";
 
 const schema = yup
 	.object({
@@ -61,7 +65,12 @@ function ProductForm({
 		formState: { errors, dirtyFields },
 		reset,
 	} = useForm<CreateProductDto>({
-		defaultValues: { keywords: [] },
+		defaultValues: {
+			keywords: [],
+			favorite: false,
+			priority: 0,
+			currencyType: CurrencyType.USD,
+		},
 		resolver: yupResolver(schema),
 		mode: "onChange",
 	});
@@ -72,21 +81,24 @@ function ProductForm({
 				initialData?.keywords.sort().join(",").toLowerCase() ==
 				keywords.sort().join(",").toLowerCase();
 
-			const modifiedData = !keywordsEquals ? { keywords } : {};
+			let toSend: CreateProductDto | UpdateProductDto = { ...data, keywords };
 
-			for (const key in dirtyFields) {
-				if (dirtyFields[key]) modifiedData[key] = data[key];
+			if (initialData) {
+				const modifiedData = !keywordsEquals ? { keywords } : {};
+
+				for (const key in dirtyFields) {
+					if (dirtyFields[key]) modifiedData[key] = data[key];
+				}
+
+				toSend = modifiedData;
 			}
 
-			console.log(modifiedData);
-
-			if (!initialData) await createProduct(modifiedData as CreateProductDto);
-			else
-				await updateProduct(initialData._id, modifiedData as UpdateProductDto);
+			if (!initialData) await createProduct(toSend as CreateProductDto);
+			else await updateProduct(initialData._id, toSend as UpdateProductDto);
 
 			if (successCallback) successCallback();
 		} catch (error) {
-			console.log(error);
+			toast.error(error.message || "Error al guardar el producto");
 			if (errorCallback) errorCallback();
 		}
 
@@ -98,63 +110,86 @@ function ProductForm({
 		setKeywords(initialData?.keywords || []);
 	}, [initialData, reset]);
 
+	const handdleDelete = async () => {
+		try {
+			await removeProduct(initialData?._id || "");
+			if (successCallback) successCallback();
+		} catch (error) {
+			toast.error(error.message || "Error al eliminar el producto");
+			if (errorCallback) errorCallback();
+		}
+		if (callback) callback();
+	};
+
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="w-[80vw] max-w-3xl">
-			<Input
-				{...register("name")}
-				label="Nombre del producto"
-				// placeholder="nombre del producto"
-			/>
-			{errors.name && errors.name.message}
+		<>
+			<div className="w-[80vw] max-w-3xl">
+				<div className="flex justify-between items-center">
+					<Text size="big" variant="bold">
+						Producto
+					</Text>
 
-			<Input {...register("cost")} label="Costo" type="number" />
-			{errors.cost && errors.cost.message}
+					<div className="flex ">
+						<Button
+							icon="Trash"
+							variant="danger"
+							type="button"
+							onClick={handdleDelete}
+							disabled={!initialData}
+						>
+							Eliminar
+						</Button>
 
-			<Select
-				{...register("currencyType")}
-				label="Tipo de moneda"
-				options={Object.values(CurrencyType).map((currency) => ({
-					value: currency,
-					label: currency,
-				}))}
-			/>
-			{errors.currencyType && errors.currencyType.message}
+						<Button form="form" icon="Play" variant="success" type="submit">
+							Guardar
+						</Button>
+					</div>
+				</div>
+				<form onSubmit={handleSubmit(onSubmit)} id="form">
+					<Input
+						{...register("name")}
+						label="Nombre del producto"
+						// placeholder="nombre del producto"
+					/>
+					{errors.name && errors.name.message}
 
-			<InputTagStack
-				label="Palabras para busqueda"
-				data={keywords}
-				setData={setKeywords}
-			/>
-			{errors.keywords && errors.keywords.message}
+					<Input {...register("cost")} label="Costo" type="number" />
+					{errors.cost && errors.cost.message}
 
-			<Input
-				{...register("priority")}
-				label="Orden de prioridad"
-				type="number"
-			/>
-			{errors.priority && errors.priority.message}
+					<Select
+						{...register("currencyType")}
+						label="Tipo de moneda"
+						options={Object.values(CurrencyType).map((currency) => ({
+							value: currency,
+							label: currency,
+						}))}
+					/>
+					{errors.currencyType && errors.currencyType.message}
 
-			<Input {...register("favorite")} label="Favorito" type="checkbox" />
-			{errors.favorite && errors.favorite.message}
+					<InputTagStack
+						label="Palabras para busqueda"
+						data={keywords}
+						setData={setKeywords}
+					/>
+					{errors.keywords && errors.keywords.message}
 
-			<TextArea {...register("instructions")} label="Instrucciones" />
-			{errors.instructions && errors.instructions.message}
+					<Input
+						{...register("priority")}
+						label="Orden de prioridad"
+						type="number"
+					/>
+					{errors.priority && errors.priority.message}
 
-			<div className="flex justify-between items-center mt-4">
-				<Button
-					variant="danger"
-					type="button"
-					onClick={() => removeProduct(initialData?._id || "")}
-					disabled={!initialData}
-				>
-					Eliminar
-				</Button>
+					<Input {...register("favorite")} label="Favorito" type="checkbox" />
+					{errors.favorite && errors.favorite.message}
 
-				<Button variant="success" type="submit">
-					Guardar
-				</Button>
+					<TextArea {...register("instructions")} label="Instrucciones" />
+					{errors.instructions && errors.instructions.message}
+				</form>
 			</div>
-		</form>
+
+			{initialData && <ProductRefForm productId={initialData._id} />}
+		</>
 	);
 }
 

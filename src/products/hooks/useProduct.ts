@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { CurrencyType } from "../../common/enums";
 import useRequest from "../../common/hooks/useRequest";
 import useProductStore from "../../common/store/useProductStore";
 import { ProductUrls } from "../api/product-url";
@@ -9,9 +11,15 @@ import {
 } from "../dto";
 import { IProduct, IProductReference } from "../interfaces";
 
-const useProduct = (productId?: string) => {
-	const { jeangerApp_API } = useRequest();
+interface Options {
+	productId?: string;
+	childId?: string;
+}
 
+const useProduct = (options?: Options) => {
+	const { jeangerApp_API } = useRequest();
+	const [first, setFirst] = useState(true);
+	const [product, setProduct] = useState<IProduct | null>(null);
 	const products = useProductStore((state) => state.products);
 	const currentReferences = useProductStore((state) => state.currentReferences);
 	const productReferences = useProductStore((state) => state.productReferences);
@@ -50,6 +58,7 @@ const useProduct = (productId?: string) => {
 			onAddProduct(data);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -60,10 +69,11 @@ const useProduct = (productId?: string) => {
 			onSetProducts(data);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
-	const getProduct = (id: string) => {
+	const getProduct = async (id: string) => {
 		try {
 			const p = products.find((item) => item._id === id);
 
@@ -72,6 +82,7 @@ const useProduct = (productId?: string) => {
 			return p;
 		} catch (error) {
 			console.log(error);
+			throw new Error("producto no encontrado");
 		}
 	};
 
@@ -88,6 +99,7 @@ const useProduct = (productId?: string) => {
 			onUpdateProduct(data);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -98,6 +110,7 @@ const useProduct = (productId?: string) => {
 			onRemoveProduct(id);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -110,6 +123,34 @@ const useProduct = (productId?: string) => {
 			onSetProductRefs(data);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
+		}
+	};
+
+	const getParentRefs = async (childId: string) => {
+		try {
+			const { data } = await jeangerApp_API.get<IProductReference[]>(
+				ProductUrls.references(),
+				{ params: { childId } }
+			);
+
+			onSetProductRefs(data);
+		} catch (error) {
+			console.log(error);
+			throw new Error(error.message);
+		}
+	};
+
+	const getPosibleParents = async (childId: string) => {
+		try {
+			const { data } = await jeangerApp_API.get<string[]>(
+				ProductUrls.posibleParents(childId)
+			);
+
+			return data;
+		} catch (error) {
+			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -125,6 +166,7 @@ const useProduct = (productId?: string) => {
 			onAddProductRef(data);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -141,6 +183,7 @@ const useProduct = (productId?: string) => {
 			onUpdateProductRef(data);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -151,6 +194,7 @@ const useProduct = (productId?: string) => {
 			onRemoveProductRef(id);
 		} catch (error) {
 			console.log(error);
+			throw new Error(error.message);
 		}
 	};
 
@@ -164,7 +208,24 @@ const useProduct = (productId?: string) => {
 	// 	}
 	// };
 
+	useEffect(() => {
+		if (!first) return;
+		setFirst(false);
+
+		if (!options) return;
+
+		if (options.childId) onSetCurrentRefByChild(options.childId);
+		if (options.productId) {
+			try {
+				getProduct(options.childId).then((item) => setProduct(item));
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	}, []);
+
 	return {
+		product,
 		products,
 		productSettings,
 		currentReferences,
@@ -178,6 +239,8 @@ const useProduct = (productId?: string) => {
 		updateProduct,
 		removeProduct,
 
+		getPosibleParents,
+		getParentRefs,
 		getProductRefsFromServer,
 		createProductRef,
 		updateProductRef,

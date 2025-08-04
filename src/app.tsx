@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, HashRouter } from "react-router";
+import { Toaster } from "react-hot-toast";
 
 import "./index.css";
 import BillRoutes from "./bills/routes";
@@ -13,18 +14,22 @@ import ProductRoutes from "./products/routes";
 const root = createRoot(document.body);
 
 const App = () => (
-	<Routes>
-		{PublicRoutes()}
-		{AuthRoutes()}
+	<>
+		<Routes>
+			{PublicRoutes()}
+			{AuthRoutes()}
 
-		<Route element={<BackgroundProcessesLayout />}>
-			<Route path="/dashboard" element={<DashboardLayout />}>
-				{BillRoutes()}
-				{StopwatchRoutes()}
-				{ProductRoutes()}
+			<Route element={<BackgroundProcessesLayout />}>
+				<Route path="/dashboard" element={<DashboardLayout />}>
+					{BillRoutes()}
+					{StopwatchRoutes()}
+					{ProductRoutes()}
+				</Route>
 			</Route>
-		</Route>
-	</Routes>
+		</Routes>
+
+		<Toaster position="top-center" reverseOrder={false} />
+	</>
 );
 
 root.render(
