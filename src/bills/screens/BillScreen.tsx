@@ -97,7 +97,7 @@ const BillScreen = () => {
 		<PageTemplateLayout
 			rightButtons={
 				<>
-					<IconButton icon="Refresh" onClick={getAllProductsWithServer} />
+					<IconButton icon="Refresh" onClick={getProductsFromServer} />
 				</>
 			}
 		>
