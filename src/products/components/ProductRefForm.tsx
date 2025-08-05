@@ -1,19 +1,22 @@
 import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import { CurrencyType } from "../../common/enums";
-import { useForm } from "react-hook-form";
-import { CreateProductReferenceDto, UpdateProductReferenceDto } from "../dto";
+import {
+	CreateProductReferenceDto,
+	PosibleParentDto,
+	UpdateProductReferenceDto,
+} from "../dto";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
 import Input from "../../common/components/Input";
-import TextArea from "../../common/components/TextArea";
 import Select from "../../common/components/Select";
 import Button from "../../common/components/Button";
-import InputTagStack from "../../common/components/InputTagStack";
 import useProduct from "../hooks/useProduct";
-import toast from "react-hot-toast";
 import Text from "../../common/components/Text";
+import ProductRefItem from "./ProductRefItem";
+import { useEffect, useState } from "react";
 
 const schema = yup
 	.object({
@@ -37,22 +40,18 @@ function ProductRefForm({
 	successCallback,
 	errorCallback,
 }: props) {
-	const {
-		currentReferences,
-		getProductRefsFromServer,
-		getParentRefs,
-		getPosibleParents,
-		createProductRef,
-		updateProductRef,
-		removeProductRef,
-	} = useProduct({ childId: productId });
+	const { currentReferences, getPosibleParents, createProductRef } = useProduct(
+		{ childId: productId }
+	);
+
+	const [posibleParents, setPosibleParents] = useState<PosibleParentDto[]>([]);
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 	} = useForm<CreateProductReferenceDto>({
-		defaultValues: { childId: productId },
+		defaultValues: { childId: productId, amount: 1, percentage: 1 },
 		resolver: yupResolver(schema),
 		mode: "onChange",
 	});
@@ -81,19 +80,29 @@ function ProductRefForm({
 	};
 
 	useEffect(() => {
-		getProductRefsFromServer();
+		getPosibleParents(productId).then((data) => setPosibleParents(data));
 	}, []);
 
 	return (
 		<>
+			<Text size="big" variant="bold">
+				Referencias
+			</Text>
 			<div>
-				<Text>Referencias</Text>
-				{currentReferences.map((ref) => (
-					<div>{ref.parentId}</div>
-				))}
+				{currentReferences &&
+					currentReferences.map((ref) => (
+						<ProductRefItem key={ref._id} data={ref} />
+					))}
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className="w-[80vw] max-w-3xl">
-				<Select {...register("parentId")} label="Padre" options={[]} />
+				<Select
+					{...register("parentId")}
+					label="Padre"
+					options={posibleParents.map((item) => ({
+						label: `${item.name} ${item.cost}`,
+						value: item._id,
+					}))}
+				/>
 				{errors.parentId && errors.parentId.message}
 
 				<Input {...register("amount")} label="Cantidad" type="number" />

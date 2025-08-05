@@ -1,3 +1,4 @@
+export { PosibleParentDto } from "./posible-parent.dto";
 export { QueryProductsDto } from "./query-product.dto";
 export { QueryProductReferencesDto } from "./query-product-references.dto";
 export { CreateProductReferenceDto } from "./create-product-reference.dto";

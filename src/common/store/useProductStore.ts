@@ -25,8 +25,10 @@ interface IProductActions {
 
 	onSetProductsSettings: (products: IProductSetting) => void;
 
+	onSetCurrentRef: (productRefs: IProductReference[]) => void;
 	onSetCurrentRefByChild: (childId: string) => void;
 	onClearCurrentRef: () => void;
+
 	onSetProductRefs: (products: IProductReference[]) => void;
 	onAddProductRef: (product: IProductReference) => void;
 	onUpdateProductRef: (products: IProductReference) => void;
@@ -78,6 +80,12 @@ const useProductStore = create<IProductStore>()(
 					),
 				})),
 
+			onSetCurrentRef: (productRefs) =>
+				set((state) => ({
+					...state,
+					currentReferences: productRefs,
+				})),
+
 			onClearCurrentRef: () =>
 				set((state) => ({ ...state, currentReferences: [] })),
 
@@ -102,6 +110,9 @@ const useProductStore = create<IProductStore>()(
 				set((state) => ({
 					...state,
 					productReferences: state.productReferences.filter(
+						(item) => item._id !== id
+					),
+					currentReferences: state.currentReferences.filter(
 						(item) => item._id !== id
 					),
 				})),

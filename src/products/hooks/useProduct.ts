@@ -6,6 +6,7 @@ import { ProductUrls } from "../api/product-url";
 import {
 	CreateProductDto,
 	CreateProductReferenceDto,
+	PosibleParentDto,
 	UpdateProductDto,
 	UpdateProductReferenceDto,
 } from "../dto";
@@ -19,6 +20,7 @@ interface Options {
 const useProduct = (options?: Options) => {
 	const { jeangerApp_API } = useRequest();
 	const [first, setFirst] = useState(true);
+
 	const [product, setProduct] = useState<IProduct | null>(null);
 	const products = useProductStore((state) => state.products);
 	const currentReferences = useProductStore((state) => state.currentReferences);
@@ -31,6 +33,7 @@ const useProduct = (options?: Options) => {
 	const onRemoveProduct = useProductStore((state) => state.onRemoveProduct);
 	const onClearProducts = useProductStore((state) => state.onClearProducts);
 
+	const onSetCurrentRef = useProductStore((state) => state.onSetCurrentRef);
 	const onSetCurrentRefByChild = useProductStore(
 		(state) => state.onSetCurrentRefByChild
 	);
@@ -133,8 +136,7 @@ const useProduct = (options?: Options) => {
 				ProductUrls.references(),
 				{ params: { childId } }
 			);
-
-			onSetProductRefs(data);
+			return data;
 		} catch (error) {
 			console.log(error);
 			throw new Error(error.message);
@@ -143,7 +145,7 @@ const useProduct = (options?: Options) => {
 
 	const getPosibleParents = async (childId: string) => {
 		try {
-			const { data } = await jeangerApp_API.get<string[]>(
+			const { data } = await jeangerApp_API.get<PosibleParentDto[]>(
 				ProductUrls.posibleParents(childId)
 			);
 
@@ -214,10 +216,16 @@ const useProduct = (options?: Options) => {
 
 		if (!options) return;
 
-		if (options.childId) onSetCurrentRefByChild(options.childId);
+		if (options.childId)
+			try {
+				getParentRefs(options.childId).then((refs) => onSetCurrentRef(refs));
+			} catch (error) {
+				console.log(error);
+			}
+
 		if (options.productId) {
 			try {
-				getProduct(options.childId).then((item) => setProduct(item));
+				getProduct(options.productId).then((item) => setProduct(item));
 			} catch (error) {
 				console.log(error);
 			}
