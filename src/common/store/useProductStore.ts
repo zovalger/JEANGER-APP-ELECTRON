@@ -96,12 +96,16 @@ const useProductStore = create<IProductStore>()(
 				set((state) => ({
 					...state,
 					productReferences: [...state.productReferences, productReference],
+					currentReferences: [...state.currentReferences, productReference],
 				})),
 
 			onUpdateProductRef: (productReference) =>
 				set((state) => ({
 					...state,
 					productReferences: state.productReferences.map((item) =>
+						item._id == productReference._id ? productReference : item
+					),
+					currentReferences: state.currentReferences.map((item) =>
 						item._id == productReference._id ? productReference : item
 					),
 				})),

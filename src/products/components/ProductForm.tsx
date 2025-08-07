@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import ProductRefForm from "./ProductRefForm";
 import Text from "../../common/components/Text";
 import IconButton from "../../common/components/IconButton";
+import Accordion from "../../common/components/Accordion";
 
 const schema = yup
 	.object({
@@ -53,19 +54,30 @@ function ProductForm({
 	errorCallback,
 }: props) {
 	const { getCostInBSAndCurrency } = useForeignExchange();
-	const { createProduct, updateProduct, removeProduct } = useProduct();
+	const {
+		currentReferences,
+		createProduct,
+		updateProduct,
+		removeProduct,
+		clearCurrentRef,
+	} = useProduct(initialData && { childId: initialData._id });
 
 	const [keywords, setKeywords] = useState<string[]>(
 		initialData?.keywords || []
 	);
 
+	const [openReferences, setOpenReferences] = useState(false);
+	const [isSubmit, setIsSubmit] = useState(false);
+
 	const {
 		register,
 		handleSubmit,
+		watch,
 		formState: { errors, dirtyFields },
 		reset,
 	} = useForm<CreateProductDto>({
 		defaultValues: {
+			cost: 0,
 			keywords: [],
 			favorite: false,
 			priority: 0,
@@ -76,6 +88,9 @@ function ProductForm({
 	});
 
 	const onSubmit = async (data: CreateProductDto | UpdateProductDto) => {
+		if (isSubmit) return;
+		setIsSubmit(true);
+
 		try {
 			const keywordsEquals =
 				initialData?.keywords.sort().join(",").toLowerCase() ==
@@ -95,17 +110,15 @@ function ProductForm({
 
 			if (!initialData) await createProduct(toSend as CreateProductDto);
 			else await updateProduct(initialData._id, toSend as UpdateProductDto);
-
-			if (successCallback) successCallback();
 		} catch (error) {
 			toast.error(error.message || "Error al guardar el producto");
-			if (errorCallback) errorCallback();
 		}
 
-		if (callback) callback();
+		setIsSubmit(false);
 	};
 
 	useEffect(() => {
+		clearCurrentRef();
 		reset(initialData);
 		setKeywords(initialData?.keywords || []);
 	}, [initialData, reset]);
@@ -140,57 +153,102 @@ function ProductForm({
 							Eliminar
 						</Button>
 
-						<Button form="form" icon="Play" variant="success" type="submit">
+						<Button
+							form={
+								initialData ? `product-form-${initialData._id}` : "product-form"
+							}
+							icon="Play"
+							variant="success"
+							type="submit"
+						>
 							Guardar
 						</Button>
 					</div>
 				</div>
-				<form onSubmit={handleSubmit(onSubmit)} id="form">
-					<Input
-						{...register("name")}
-						label="Nombre del producto"
-						// placeholder="nombre del producto"
-					/>
-					{errors.name && errors.name.message}
 
-					<Input {...register("cost")} label="Costo" type="number" />
-					{errors.cost && errors.cost.message}
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					id={initialData ? `product-form-${initialData._id}` : "product-form"}
+				>
+					<div className="flex gap-x-2 flex-wrap">
+						<Input
+							className="flex-none md:flex-1/2"
+							{...register("name")}
+							label="Nombre del producto"
+							errorText={errors.name && errors.name.message}
+							autoFocus
+						/>
 
-					<Select
-						{...register("currencyType")}
-						label="Tipo de moneda"
-						options={Object.values(CurrencyType).map((currency) => ({
-							value: currency,
-							label: currency,
-						}))}
-					/>
-					{errors.currencyType && errors.currencyType.message}
+						<Input
+							className="flex-none sm:flex-1 md:flex-1/6"
+							{...register("cost")}
+							label="Costo"
+							type="number"
+							disabled={currentReferences?.length > 0}
+							helperText={`	Costo en Bs: ${
+								getCostInBSAndCurrency({
+									cost: watch().cost || initialData?.cost || 0,
+									currencyType:
+										watch().currencyType ||
+										initialData?.currencyType ||
+										CurrencyType.USD,
+								}).BSF
+							}`}
+							errorText={errors.cost && errors.cost.message}
+						/>
 
-					<InputTagStack
-						label="Palabras para busqueda"
-						data={keywords}
-						setData={setKeywords}
-					/>
-					{errors.keywords && errors.keywords.message}
+						<Select
+							className="min-w-[150px] flex-1 sm:flex-1 md:flex-1/6"
+							{...register("currencyType")}
+							label="Tipo de moneda"
+							options={Object.values(CurrencyType).map((currency) => ({
+								value: currency,
+								label: currency,
+							}))}
+							errorText={errors.currencyType && errors.currencyType.message}
+						/>
+					</div>
+				</form>
+			</div>
 
+			<Accordion
+				label="Configuraciones de referencias"
+				setOpen={async (boolean) => {
+					if (!initialData) await handleSubmit(onSubmit)();
+					setOpenReferences(boolean);
+				}}
+				open={openReferences}
+			>
+				{initialData && <ProductRefForm productId={initialData._id} />}
+			</Accordion>
+
+			<Accordion label="Configuraciones avanzadas">
+				<InputTagStack
+					label="Palabras para busqueda"
+					data={keywords}
+					setData={setKeywords}
+					errorText={errors.keywords && errors.keywords.message}
+				/>
+
+				<Input
+					{...register("favorite")}
+					label="Favorito"
+					type="checkbox"
+					errorText={errors.favorite && errors.favorite.message}
+				/>
+
+				{watch().favorite && (
 					<Input
 						{...register("priority")}
 						label="Orden de prioridad"
 						type="number"
+						errorText={errors.priority && errors.priority.message}
 					/>
-					{errors.priority && errors.priority.message}
+				)}
 
-					<Input {...register("favorite")} label="Favorito" type="checkbox" />
-					{errors.favorite && errors.favorite.message}
-
-					<TextArea {...register("instructions")} label="Instrucciones" />
-					{errors.instructions && errors.instructions.message}
-				</form>
-			</div>
-
-
-
-			{initialData && <ProductRefForm productId={initialData._id} />}
+				<TextArea {...register("instructions")} label="Instrucciones" />
+				{errors.instructions && errors.instructions.message}
+			</Accordion>
 		</>
 	);
 }

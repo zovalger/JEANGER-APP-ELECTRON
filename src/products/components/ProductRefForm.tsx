@@ -17,6 +17,7 @@ import useProduct from "../hooks/useProduct";
 import Text from "../../common/components/Text";
 import ProductRefItem from "./ProductRefItem";
 import { useEffect, useState } from "react";
+import IconButton from "../../common/components/IconButton";
 
 const schema = yup
 	.object({
@@ -40,15 +41,19 @@ function ProductRefForm({
 	successCallback,
 	errorCallback,
 }: props) {
-	const { currentReferences, getPosibleParents, createProductRef } = useProduct(
-		{ childId: productId }
-	);
+	const {
+		currentReferences,
+		getPosibleParents,
+		createProductRef,
+		clearCurrentRef,
+	} = useProduct({ childId: productId });
 
 	const [posibleParents, setPosibleParents] = useState<PosibleParentDto[]>([]);
 
 	const {
 		register,
 		handleSubmit,
+		reset,
 		formState: { errors },
 	} = useForm<CreateProductReferenceDto>({
 		defaultValues: { childId: productId, amount: 1, percentage: 1 },
@@ -56,23 +61,15 @@ function ProductRefForm({
 		mode: "onChange",
 	});
 
-	const onSubmit = async (
-		data: CreateProductReferenceDto | UpdateProductReferenceDto
-	) => {
+	const onSubmit = async (data: CreateProductReferenceDto) => {
 		try {
-			// const modifiedData = !keywordsEquals ? { keywords } : {};
-
-			// for (const key in dirtyFields) {
-			// 	if (dirtyFields[key]) modifiedData[key] = data[key];
-			// }
-
-			// if (!initialData) await createProduct(modifiedData as CreateProductDto);
-			// else
-			// 	await updateProduct(initialData._id, modifiedData as UpdateProductDto);
+			await createProductRef(data);
+			reset();
+			setPosibleParents(await getPosibleParents(productId));
 
 			if (successCallback) successCallback();
 		} catch (error) {
-			toast.error(error.message || "Error al guardar el producto");
+			toast.error(error.message || "Error al guardar la referencia");
 			if (errorCallback) errorCallback();
 		}
 
@@ -88,33 +85,51 @@ function ProductRefForm({
 			<Text size="big" variant="bold">
 				Referencias
 			</Text>
+
 			<div>
 				{currentReferences &&
 					currentReferences.map((ref) => (
-						<ProductRefItem key={ref._id} data={ref} />
+						<ProductRefItem
+							key={ref._id}
+							data={ref}
+							callback={() =>
+								getPosibleParents(productId).then((data) =>
+									setPosibleParents(data)
+								)
+							}
+						/>
 					))}
 			</div>
+
 			<form onSubmit={handleSubmit(onSubmit)} className="w-[80vw] max-w-3xl">
-				<Select
-					{...register("parentId")}
-					label="Padre"
-					options={posibleParents.map((item) => ({
-						label: `${item.name} ${item.cost}`,
-						value: item._id,
-					}))}
-				/>
-				{errors.parentId && errors.parentId.message}
+				<div className="flex gap-x-2 flex-wrap ">
+					<Select
+						className="w-full flex-none md:flex-1/2"
+						{...register("parentId")}
+						label="Padre"
+						options={posibleParents.map((item) => ({
+							label: `${item.name} ${item.cost} ${item.currencyType}`,
+							value: item._id,
+						}))}
+						errorText={errors.parentId && errors.parentId.message}
+					/>
 
-				<Input {...register("amount")} label="Cantidad" type="number" />
-				{errors.amount && errors.amount.message}
+					<Input
+						className="flex-1 md:flex-1/6"
+						{...register("amount")}
+						label="Cantidad"
+						type="number"
+						errorText={errors.amount && errors.amount.message}
+					/>
 
-				<Input {...register("percentage")} label="Porcentaje" type="number" />
-				{errors.percentage && errors.percentage.message}
-
-				<div className="flex justify-between items-center mt-4">
-					<Button variant="success" type="submit">
-						Guardar
-					</Button>
+					<Input
+						className="flex-1 md:flex-1/6"
+						{...register("percentage")}
+						label="Porcentaje"
+						type="number"
+						errorText={errors.percentage && errors.percentage.message}
+					/>
+					<IconButton variant="success" type="submit" icon="Plus" size="tiny" />
 				</div>
 			</form>
 		</>

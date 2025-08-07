@@ -35,7 +35,7 @@ function ProductItem({ data }: props) {
 	return (
 		<>
 			<div
-				className={`  flex items-center gap-4 pr-4 py-1 hover:bg-gray-200 `}
+				className={`  flex items-center gap-4 pr-4 py-2 hover:bg-gray-200 `}
 				onClick={handdleOpendiv}
 			>
 				<Text className="flex-1 ml-4">{name}</Text>

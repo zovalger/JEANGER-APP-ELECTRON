@@ -23,9 +23,12 @@ const ProductsScreen = () => {
 		<PageTemplateLayout
 			name="Productos"
 			nameHelp="Todos los productos creados"
-			rightButtons={[<IconButton icon="Plus" onClick={handdleOpenModal} />]}
+			rightButtons={[
+				<IconButton icon="Refresh" onClick={getProductsFromServer} />,
+				<IconButton icon="Plus" onClick={handdleOpenModal} />,
+			]}
 		>
-			<div className="flex flex-col flex-wrap gap-4">
+			<div className="flex flex-col flex-wrap gap-2">
 				{products.map((item) => (
 					<ProductItem key={item._id} data={item} />
 				))}
