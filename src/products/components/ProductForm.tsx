@@ -18,6 +18,7 @@ import ProductRefForm from "./ProductRefForm";
 import Text from "../../common/components/Text";
 import IconButton from "../../common/components/IconButton";
 import Accordion from "../../common/components/Accordion";
+import Modal from "../../common/components/Modal";
 
 const schema = yup
 	.object({
@@ -54,19 +55,15 @@ function ProductForm({
 	errorCallback,
 }: props) {
 	const { getCostInBSAndCurrency } = useForeignExchange();
-	const {
-		currentReferences,
-		createProduct,
-		updateProduct,
-		removeProduct,
-		clearCurrentRef,
-	} = useProduct(initialData && { childId: initialData._id });
+	const { currentReferences, createProduct, updateProduct, removeProduct } =
+		useProduct(initialData && { childId: initialData._id });
 
 	const [keywords, setKeywords] = useState<string[]>(
 		initialData?.keywords || []
 	);
 
 	const [openReferences, setOpenReferences] = useState(false);
+	const [openConfirm, setOpenConfirm] = useState(false);
 	const [isSubmit, setIsSubmit] = useState(false);
 
 	const {
@@ -156,7 +153,7 @@ function ProductForm({
 						icon="Trash"
 						variant="danger"
 						type="button"
-						onClick={handdleDelete}
+						onClick={() => setOpenConfirm(true)}
 						disabled={!initialData}
 						className="ml-4 mr-auto"
 						size="small"
@@ -210,10 +207,16 @@ function ProductForm({
 							className="min-w-[150px] flex-1 sm:flex-1 md:flex-1/6"
 							{...register("currencyType")}
 							label="Tipo de moneda"
-							options={Object.values(CurrencyType).map((currency) => ({
-								value: currency,
-								label: currency,
-							}))}
+							options={Object.values(CurrencyType)
+								.map((currency) => ({
+									value: currency,
+									label: currency,
+								}))
+								.filter((item) =>
+									currentReferences.length && item.label == CurrencyType.BSF
+										? false
+										: true
+								)}
 							errorText={errors.currencyType && errors.currencyType.message}
 						/>
 					</div>
@@ -229,10 +232,18 @@ function ProductForm({
 					<ProductRefForm productId={initialData._id} />
 				</Accordion>
 			) : (
-				<Text className="mb-4">
-					Para insertar las referencias primero debe nombrar el producto, elegir
-					el tipo de moneda y guardarlo (el costo lo puede dejar por defecto)
-				</Text>
+				<div className="mb-4">
+					<Text>
+						Para insertar las referencias primero debe nombrar el producto,
+						elegir el tipo de moneda y guardarlo (el costo lo puede dejar por
+						defecto)
+					</Text>
+
+					<Text>
+						Al asignar referencias el producto solo puede tener asinado el monto
+						en divisas y no en BS
+					</Text>
+				</div>
 			)}
 
 			<Accordion label="Configuraciones avanzadas">
@@ -265,6 +276,37 @@ function ProductForm({
 					errorText={errors.instructions && errors.instructions.message}
 				/>
 			</Accordion>
+
+			<Modal
+				visible={openConfirm}
+				onClose={() => {
+					setOpenConfirm(false);
+				}}
+			>
+				<Text className="mb-4" size="big" variant="bold">
+					Seguro que quiere eliminar el producto?
+				</Text>
+
+				<div className="flex gap-2">
+					<Button
+						className="flex-1"
+						icon="Trash"
+						variant="danger"
+						onClick={handdleDelete}
+						type="button"
+					>
+						Eliminar
+					</Button>
+
+					<Button
+						className="flex-1"
+						onClick={() => setOpenConfirm(false)}
+						type="button"
+					>
+						cancelar
+					</Button>
+				</div>
+			</Modal>
 		</>
 	);
 }
