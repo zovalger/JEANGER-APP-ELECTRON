@@ -22,7 +22,7 @@ const ModulesApp: {
 }[] = [
 	{ icon: "ShoppingCart", href: RouterLinks.Bills, text: "Facturas" },
 	{ icon: "Clock", href: RouterLinks.Stopwatchs, text: "Cronometros" },
-	{ icon: "Clock", href: RouterLinks.Products, text: "Productos" },
+	{ icon: "Package", href: RouterLinks.Products, text: "Productos" },
 ];
 
 const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {

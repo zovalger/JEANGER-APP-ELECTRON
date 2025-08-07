@@ -24,6 +24,8 @@ import IconNotFound from "./IconNotFound";
 import ClockIcon from "./ClockIcon";
 import EyeIcon from "./EyeIcon";
 import EyeOffIcon from "./EyeOffIcon";
+import SaveIcon from "./SaveIcon";
+import PackageIcon from "./PackageIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	icon_not_found: IconNotFound,
@@ -51,6 +53,8 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	Clock: ClockIcon,
 	Eye: EyeIcon,
 	EyeOff: EyeOffIcon,
+	Save: SaveIcon,
+	Package: PackageIcon,
 };
 
 export default IconMap;

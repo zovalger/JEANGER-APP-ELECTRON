@@ -23,4 +23,6 @@ export type Icons =
 	| "Search"
 	| "Clock"
 	| "Eye"
-	| "EyeOff";
+	| "EyeOff"
+	| "Save"
+	| "Package";

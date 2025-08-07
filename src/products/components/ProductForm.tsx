@@ -127,7 +127,7 @@ function ProductForm({
 	}, [initialData, reset]);
 
 	useEffect(() => {
-		if (currentReferences.length) setOpenReferences(true);
+		if (currentReferences?.length) setOpenReferences(true);
 	}, [currentReferences]);
 
 	const handdleDelete = async () => {
@@ -163,7 +163,7 @@ function ProductForm({
 						form={
 							initialData ? `product-form-${initialData._id}` : "product-form"
 						}
-						icon="Play"
+						icon="Save"
 						variant="success"
 						type="submit"
 						size="small"
@@ -213,7 +213,7 @@ function ProductForm({
 									label: currency,
 								}))
 								.filter((item) =>
-									currentReferences.length && item.label == CurrencyType.BSF
+									currentReferences?.length && item.label == CurrencyType.BSF
 										? false
 										: true
 								)}
