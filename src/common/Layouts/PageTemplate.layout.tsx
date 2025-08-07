@@ -38,7 +38,7 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 					<IconButton
 						href={backButtonURL}
 						className="mr-4"
-						icon="ChevronDown"
+						icon="ChevronLeft"
 					/>
 				) : (
 					<IconButton
