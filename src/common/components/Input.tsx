@@ -9,6 +9,8 @@ export interface CustomInputProps
 	textSize?: UI_Sizes;
 	inputVariant?: InputVariants;
 	label?: string;
+	helperText?: string;
+	errorText?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, CustomInputProps>(
@@ -19,6 +21,8 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 			inputVariant = "standar",
 			label,
 			type = "text",
+			helperText,
+			errorText,
 			...otherPros
 		} = props;
 
@@ -39,21 +43,28 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 				: "outline-none";
 
 		const content = (
-			<input
-				ref={ref}
-				{...otherPros}
-				type={type}
-				className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
-			/>
+			<>
+				<input
+					step="any"
+					ref={ref}
+					{...otherPros}
+					type={type}
+					className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
+				/>
+
+				<Text size="small" className="mb-2 min-h-4">
+					{errorText || helperText}
+				</Text>
+			</>
 		);
 
 		return label ? (
 			<label
-				className={`flex justify-between w-full  ${
+				className={`flex w-full  ${
 					type == "checkbox" || "flex-col "
-				}  gap-1 my-2`}
+				}  gap-1 ${className}`}
 			>
-				<Text>{label}</Text>
+				<Text variant="bold">{label}</Text>
 				<div>{content}</div>
 			</label>
 		) : (

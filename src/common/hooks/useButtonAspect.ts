@@ -46,7 +46,7 @@ const useButtonAspect = (props: ButtonProps): ButtonPropsToReturn => {
 						? "justify-start"
 						: "justify-end"
 			  }`
-			: "";
+			: "rounded-full";
 
 	const sizeClass =
 		size === "small"

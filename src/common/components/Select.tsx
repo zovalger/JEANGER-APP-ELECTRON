@@ -10,6 +10,8 @@ export interface CustomSelectProps
 	selectVariant?: SelectVariants;
 	options?: { value: string; label: string }[];
 	label?: string;
+	helperText?: string;
+	errorText?: string;
 }
 
 const Select = forwardRef<HTMLSelectElement, CustomSelectProps>(
@@ -20,6 +22,8 @@ const Select = forwardRef<HTMLSelectElement, CustomSelectProps>(
 			selectVariant = "standar",
 			options,
 			label,
+			helperText,
+			errorText,
 			...otherPros
 		} = props;
 
@@ -40,25 +44,30 @@ const Select = forwardRef<HTMLSelectElement, CustomSelectProps>(
 				: "outline-none";
 
 		const content = (
-			<select
-				ref={ref}
-				{...otherPros}
-				className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
-			>
-				<option value="">Seleccione una opción</option>
+			<>
+				<select
+					ref={ref}
+					{...otherPros}
+					className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
+				>
+					<option value="">Seleccione una opción</option>
 
-				{options &&
-					options.map((option) => (
-						<option key={option.value} value={option.value}>
-							{option.label}
-						</option>
-					))}
-			</select>
+					{options &&
+						options.map((option) => (
+							<option key={option.value} value={option.value}>
+								{option.label}
+							</option>
+						))}
+				</select>
+				<Text size="small" className="mb-2 min-h-4">
+					{errorText || helperText}
+				</Text>
+			</>
 		);
 
 		return label ? (
-			<label className={`flex justify-between flex-col gap-1 my-2`}>
-				<Text>{label}</Text>
+			<label className={`flex flex-col gap-1 ${className}`}>
+				<Text variant="bold">{label}</Text>
 				<div>{content}</div>
 			</label>
 		) : (

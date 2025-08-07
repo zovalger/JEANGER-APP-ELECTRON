@@ -9,6 +9,8 @@ export interface CustomTextAreaProps
 	textSize?: UI_Sizes;
 	textAreaVariant?: TextAreaVariants;
 	label?: string;
+	helperText?: string;
+	errorText?: string;
 }
 
 const TextArea = forwardRef<HTMLTextAreaElement, CustomTextAreaProps>(
@@ -18,6 +20,8 @@ const TextArea = forwardRef<HTMLTextAreaElement, CustomTextAreaProps>(
 			textSize,
 			textAreaVariant = "standar",
 			label,
+			helperText,
+			errorText,
 			...otherPros
 		} = props;
 
@@ -38,17 +42,22 @@ const TextArea = forwardRef<HTMLTextAreaElement, CustomTextAreaProps>(
 				: "outline-none";
 
 		const content = (
-			<textarea
-				ref={ref}
-				rows={5}
-				{...otherPros}
-				className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
-			></textarea>
+			<>
+				<textarea
+					ref={ref}
+					rows={5}
+					{...otherPros}
+					className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
+				></textarea>
+				<Text size="small" className="mb-2 min-h-4">
+					{errorText || helperText}
+				</Text>
+			</>
 		);
 
 		return label ? (
-			<label className={`flex justify-between flex-col gap-1 my-2`}>
-				<Text>{label}</Text>
+			<label className={`flex flex-col gap-1 ${className}`}>
+				<Text variant="bold">{label}</Text>
 				<div>{content}</div>
 			</label>
 		) : (

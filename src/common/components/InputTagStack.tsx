@@ -14,11 +14,21 @@ export interface InputTagStackProps
 	label: string;
 	data: string[];
 	setData: (data: string[]) => void;
+	helperText?: string;
+	errorText?: string;
 }
 
 const InputTagStack = forwardRef<HTMLInputElement, InputTagStackProps>(
 	(props: InputTagStackProps, ref) => {
-		const { label, data, setData, ...otherPros } = props;
+		const {
+			label,
+			data,
+			setData,
+			helperText,
+			errorText,
+			className,
+			...otherPros
+		} = props;
 
 		const [keywordInput, setKeywordInput] = useState("");
 
@@ -44,8 +54,8 @@ const InputTagStack = forwardRef<HTMLInputElement, InputTagStackProps>(
 		};
 
 		return (
-			<div className={`flex justify-between w-full flex-col gap-1 my-2`}>
-				<Text>{label}</Text>
+			<div className={`flex w-full flex-col gap-1 ${className}`}>
+				<Text variant="bold">{label}</Text>
 
 				<div className="flex flex-wrap gap-2">
 					{data.map((keyword) => (
@@ -59,6 +69,7 @@ const InputTagStack = forwardRef<HTMLInputElement, InputTagStackProps>(
 
 				<div>
 					<Input
+						className={className}
 						{...otherPros}
 						ref={ref}
 						type="text"
