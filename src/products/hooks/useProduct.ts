@@ -59,6 +59,8 @@ const useProduct = (options?: Options) => {
 			);
 
 			onAddProduct(data);
+
+			return data;
 		} catch (error) {
 			console.log(error);
 			throw new Error(error.message);
@@ -100,6 +102,7 @@ const useProduct = (options?: Options) => {
 			);
 
 			onUpdateProduct(data);
+			return data;
 		} catch (error) {
 			console.log(error);
 			throw new Error(error.message);

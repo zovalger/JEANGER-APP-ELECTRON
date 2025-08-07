@@ -78,6 +78,10 @@ function ProductRefForm({
 
 	useEffect(() => {
 		getPosibleParents(productId).then((data) => setPosibleParents(data));
+
+		return () => {
+			clearCurrentRef();
+		};
 	}, []);
 
 	return (

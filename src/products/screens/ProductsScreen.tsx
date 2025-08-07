@@ -5,13 +5,10 @@ import ProductItem from "../components/ProductItem";
 import ProductForm from "../components/ProductForm";
 import IconButton from "../../common/components/IconButton";
 import Modal from "../../common/components/Modal";
+import RouterLinks from "../../common/config/RouterLinks";
 
 const ProductsScreen = () => {
 	const { products, getProductsFromServer } = useProduct();
-
-	const [openModal, setOpenModal] = useState(false);
-	const handdleOpenModal = () => setOpenModal(true);
-	const handdleCloseModal = () => setOpenModal(false);
 
 	useEffect(() => {
 		getProductsFromServer()
@@ -25,7 +22,7 @@ const ProductsScreen = () => {
 			nameHelp="Todos los productos creados"
 			rightButtons={[
 				<IconButton icon="Refresh" onClick={getProductsFromServer} />,
-				<IconButton icon="Plus" onClick={handdleOpenModal} />,
+				<IconButton icon="Plus" href={RouterLinks.NewProduct} />,
 			]}
 		>
 			<div className="flex flex-col flex-wrap gap-2">
@@ -33,10 +30,6 @@ const ProductsScreen = () => {
 					<ProductItem key={item._id} data={item} />
 				))}
 			</div>
-
-			<Modal onClose={handdleCloseModal} visible={openModal}>
-				<ProductForm callback={handdleCloseModal} />
-			</Modal>
 		</PageTemplateLayout>
 	);
 };

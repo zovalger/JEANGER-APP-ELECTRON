@@ -43,7 +43,7 @@ const schema = yup
 interface props {
 	initialData?: IProduct;
 	callback?: () => void;
-	successCallback?: () => void;
+	successCallback?: (data: IProduct) => void;
 	errorCallback?: () => void;
 }
 
@@ -108,25 +108,35 @@ function ProductForm({
 				toSend = modifiedData;
 			}
 
-			if (!initialData) await createProduct(toSend as CreateProductDto);
-			else await updateProduct(initialData._id, toSend as UpdateProductDto);
+			const t = !initialData
+				? await createProduct(toSend as CreateProductDto)
+				: await updateProduct(initialData._id, toSend as UpdateProductDto);
+
+			console.log(t);
+
+			if (successCallback) successCallback(t);
 		} catch (error) {
 			toast.error(error.message || "Error al guardar el producto");
+			if (errorCallback) errorCallback();
 		}
 
 		setIsSubmit(false);
+		if (callback) callback();
 	};
 
 	useEffect(() => {
-		clearCurrentRef();
 		reset(initialData);
 		setKeywords(initialData?.keywords || []);
 	}, [initialData, reset]);
 
+	useEffect(() => {
+		if (currentReferences.length) setOpenReferences(true);
+	}, [currentReferences]);
+
 	const handdleDelete = async () => {
 		try {
 			await removeProduct(initialData?._id || "");
-			if (successCallback) successCallback();
+			if (successCallback) successCallback(initialData);
 		} catch (error) {
 			toast.error(error.message || "Error al eliminar el producto");
 			if (errorCallback) errorCallback();
@@ -136,34 +146,33 @@ function ProductForm({
 
 	return (
 		<>
-			<div className="w-[80vw] max-w-3xl">
-				<div className="flex justify-between items-center">
+			<div className="w-full">
+				<div className="flex justify-between items-center mb-4">
 					<Text size="big" variant="bold">
 						Producto
 					</Text>
 
-					<div className="flex ">
-						<Button
-							icon="Trash"
-							variant="danger"
-							type="button"
-							onClick={handdleDelete}
-							disabled={!initialData}
-						>
-							Eliminar
-						</Button>
+					<IconButton
+						icon="Trash"
+						variant="danger"
+						type="button"
+						onClick={handdleDelete}
+						disabled={!initialData}
+						className="ml-4 mr-auto"
+						size="small"
+					/>
 
-						<Button
-							form={
-								initialData ? `product-form-${initialData._id}` : "product-form"
-							}
-							icon="Play"
-							variant="success"
-							type="submit"
-						>
-							Guardar
-						</Button>
-					</div>
+					<Button
+						form={
+							initialData ? `product-form-${initialData._id}` : "product-form"
+						}
+						icon="Play"
+						variant="success"
+						type="submit"
+						size="small"
+					>
+						Guardar
+					</Button>
 				</div>
 
 				<form
@@ -211,16 +220,20 @@ function ProductForm({
 				</form>
 			</div>
 
-			<Accordion
-				label="Configuraciones de referencias"
-				setOpen={async (boolean) => {
-					if (!initialData) await handleSubmit(onSubmit)();
-					setOpenReferences(boolean);
-				}}
-				open={openReferences}
-			>
-				{initialData && <ProductRefForm productId={initialData._id} />}
-			</Accordion>
+			{initialData ? (
+				<Accordion
+					label="Configuraciones de referencias"
+					setOpen={setOpenReferences}
+					open={openReferences}
+				>
+					<ProductRefForm productId={initialData._id} />
+				</Accordion>
+			) : (
+				<Text className="mb-4">
+					Para insertar las referencias primero debe nombrar el producto, elegir
+					el tipo de moneda y guardarlo (el costo lo puede dejar por defecto)
+				</Text>
+			)}
 
 			<Accordion label="Configuraciones avanzadas">
 				<InputTagStack
@@ -246,8 +259,11 @@ function ProductForm({
 					/>
 				)}
 
-				<TextArea {...register("instructions")} label="Instrucciones" />
-				{errors.instructions && errors.instructions.message}
+				<TextArea
+					{...register("instructions")}
+					label="Instrucciones"
+					errorText={errors.instructions && errors.instructions.message}
+				/>
 			</Accordion>
 		</>
 	);
