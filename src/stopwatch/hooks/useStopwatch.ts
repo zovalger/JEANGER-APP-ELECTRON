@@ -1,5 +1,4 @@
 import useStopwatchStore from "../../common/store/useStopwatchStore";
-import { getAllStopwatchRequest } from "../api/Stopwatch.api";
 import {
 	getTime,
 	pauseStopwatch,
@@ -7,10 +6,14 @@ import {
 	startStopwatch,
 	startTimer,
 } from "../helpers/Stopwatch.helper";
-import { Stopwatch } from "../interfaces/Stopwatch.interface";
 import { useStopwatchContext } from "../context/Stopwatch.context";
+import useRequest from "../../common/hooks/useRequest";
+import { StopwatchUrls } from "../api/stopwatch-url";
+import { IStopwatch } from "../interfaces";
+import { CreateStopwatchDto, UpdateStopwatchDto } from "../dto";
 
 const useStopwatch = () => {
+	const { jeangerApp_API } = useRequest();
 	const stopwatchContext = useStopwatchContext();
 
 	const stopwatches = useStopwatchStore((state) => state.stopwatches);
@@ -30,22 +33,39 @@ const useStopwatch = () => {
 	// 										functions
 	// ************************************************************
 
-	const setStopwatch = (stopwatch: Stopwatch) =>
+	const setStopwatch = (stopwatch: IStopwatch) => {
+		// todo: ver si el que viene es mas nuevo que el que esta actualmente
 		onSetStopwatch(stopwatch._id, stopwatch);
+	};
 
-	const removeStopwatch = (id: string) => onRemoveStopwatch(id);
+	const createStopwatch = (data: CreateStopwatchDto) => {
+		setStopwatch;
+		if (stopwatchContext) stopwatchContext.sendCreateStopwatch(data);
+	};
+
+	const removeStopwatch = (id: string) => {
+		// todo: ver si el que viene es mas nuevo que el que esta actualmente
+
+		onRemoveStopwatch(id);
+
+		if (stopwatchContext) stopwatchContext.sendDeleteStopwatch(id);
+	};
 
 	const getAllStopwatch = async () => {
 		try {
-			const data = await getAllStopwatchRequest();
+			const { data } = await jeangerApp_API.get<IStopwatch[]>(
+				StopwatchUrls.base()
+			);
 
 			onSetAllStopwatches(data);
+
+			return data;
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	const start = (stopwatch: Stopwatch) => {
+	const start = (stopwatch: IStopwatch) => {
 		const { timeSeted } = stopwatch;
 
 		const newStopwatch =
@@ -55,7 +75,7 @@ const useStopwatch = () => {
 		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
-	const pause = (stopwatch: Stopwatch) => {
+	const pause = (stopwatch: IStopwatch) => {
 		const { timeSeted, timeDate } = stopwatch;
 
 		if (!timeDate) return;
@@ -67,14 +87,14 @@ const useStopwatch = () => {
 		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
-	const switchClock = (stopwatch: Stopwatch) => {
+	const switchClock = (stopwatch: IStopwatch) => {
 		const { timeSeted, timeDate } = stopwatch;
 
 		if (timeDate) return;
 
 		const newSeted = timeSeted !== null ? null : 600000;
 
-		const newStopwatch: Stopwatch = {
+		const newStopwatch: IStopwatch = {
 			...stopwatch,
 			timeSeted: newSeted,
 			accumulatedTime: 0,
@@ -85,8 +105,8 @@ const useStopwatch = () => {
 		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
-	const restart = (stopwatch: Stopwatch) => {
-		const newStopwatch: Stopwatch = {
+	const restart = (stopwatch: IStopwatch) => {
+		const newStopwatch: IStopwatch = {
 			...stopwatch,
 			accumulatedTime: 0,
 			timeDate: null,
@@ -96,7 +116,7 @@ const useStopwatch = () => {
 		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
 	};
 
-	const setTimeTo = (stopwatch: Stopwatch, minutes: string | number) => {
+	const setTimeTo = (stopwatch: IStopwatch, minutes: string | number) => {
 		const newTimeSeted = minutes
 			? (typeof minutes == "string" ? parseInt(minutes) : minutes) * 60000
 			: 0;
@@ -105,11 +125,6 @@ const useStopwatch = () => {
 
 		setStopwatch(newT);
 		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newT);
-	};
-
-	const remove = (id: string) => {
-		removeStopwatch(id);
-		if (stopwatchContext) stopwatchContext.sendDeleteStopwatch(id);
 	};
 
 	const getExpiredTimers = (referenceTime: number) =>
@@ -127,10 +142,9 @@ const useStopwatch = () => {
 		pause,
 		switchClock,
 		restart,
-		remove,
-		setTimeTo,
 
-		// without socket
+		setTimeTo,
+		createStopwatch,
 		setStopwatch,
 		removeStopwatch,
 		getExpiredTimers,

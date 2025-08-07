@@ -1,6 +1,6 @@
-import { Stopwatch } from "../interfaces/Stopwatch.interface";
+import { IStopwatch } from "../interfaces/Stopwatch.interface";
 
-export const startStopwatch = (data: Stopwatch): Stopwatch => {
+export const startStopwatch = (data: IStopwatch): IStopwatch => {
 	const { accumulatedTime: at, timeDate: td } = data;
 
 	const timeDate = td ? td : at ? Date.now() - at : Date.now();
@@ -9,7 +9,7 @@ export const startStopwatch = (data: Stopwatch): Stopwatch => {
 	return { ...data, accumulatedTime, timeDate, timeSeted: null };
 };
 
-export const pauseStopwatch = (data: Stopwatch): Stopwatch => {
+export const pauseStopwatch = (data: IStopwatch): IStopwatch => {
 	const { accumulatedTime: at, timeDate: td } = data;
 
 	if (!td) return data;
@@ -19,7 +19,7 @@ export const pauseStopwatch = (data: Stopwatch): Stopwatch => {
 	return { ...data, accumulatedTime, timeDate: null, timeSeted: null };
 };
 
-export const getTimeStopwatch = (data: Stopwatch, referenceTime: number) => {
+export const getTimeStopwatch = (data: IStopwatch, referenceTime: number) => {
 	const { timeDate, accumulatedTime } = data;
 
 	return timeDate ? referenceTime - timeDate : accumulatedTime;
@@ -61,7 +61,7 @@ export function milisecondsToTime(
 	};
 }
 
-export const startTimer = (data: Stopwatch): Stopwatch => {
+export const startTimer = (data: IStopwatch): IStopwatch => {
 	const { timeDate: td, accumulatedTime: at, timeSeted: ts } = data;
 
 	if (ts == null) return data;
@@ -74,7 +74,7 @@ export const startTimer = (data: Stopwatch): Stopwatch => {
 	return { ...data, accumulatedTime, timeDate };
 };
 
-export const pauseTimer = (data: Stopwatch): Stopwatch => {
+export const pauseTimer = (data: IStopwatch): IStopwatch => {
 	// arreglar cuando el tiempo esta negativo
 
 	const { accumulatedTime: at, timeDate: td } = data;
@@ -86,14 +86,14 @@ export const pauseTimer = (data: Stopwatch): Stopwatch => {
 	return { ...data, accumulatedTime, timeDate: null };
 };
 
-export const getTimeTimer = (data: Stopwatch, referenceTime: number) => {
+export const getTimeTimer = (data: IStopwatch, referenceTime: number) => {
 	const { timeDate, accumulatedTime } = data;
 
 	return timeDate ? timeDate - referenceTime : accumulatedTime;
 };
 
 export const getTime = (
-	clock: Stopwatch,
+	clock: IStopwatch,
 	referenceTime: number
 ): {
 	format: { time: string; ms: string };

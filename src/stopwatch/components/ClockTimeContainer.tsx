@@ -1,10 +1,10 @@
 import Input from "../../common/components/Input";
 import Text from "../../common/components/Text";
 import { milisecondsToTime } from "../helpers/Stopwatch.helper";
-import { Stopwatch } from "../interfaces/Stopwatch.interface";
+import { IStopwatch } from "../interfaces/Stopwatch.interface";
 
 interface props {
-	data: Stopwatch;
+	data: IStopwatch;
 	time: string;
 	onChangeMinuteInput(minute: string): void;
 	onStart(): void;

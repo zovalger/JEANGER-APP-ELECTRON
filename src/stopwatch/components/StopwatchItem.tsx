@@ -1,4 +1,4 @@
-import { Stopwatch } from "../interfaces/Stopwatch.interface";
+import { IStopwatch } from "../interfaces/Stopwatch.interface";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import Button from "../../common/components/Button";
@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import RouterLinks from "../../common/config/RouterLinks";
 
 interface props {
-	data: Stopwatch;
+	data: IStopwatch;
 }
 export default function StopwatchItem({ data }: props) {
 	const navigate = useNavigate();

@@ -1,16 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Stopwatch } from "../../stopwatch/interfaces/Stopwatch.interface";
+import { IStopwatch } from "../../stopwatch/interfaces";
 
 interface IStopwatchState {
-	stopwatches: Stopwatch[];
+	stopwatches: IStopwatch[];
 }
 
 interface IStopwatchActions {
-	onSetAllStopwatches: (stopwatches: Stopwatch[]) => void;
-	onSetStopwatch: (id: string, stopwatches: Stopwatch) => void;
+	onSetAllStopwatches: (stopwatches: IStopwatch[]) => void;
+	onSetStopwatch: (id: string, stopwatches: IStopwatch) => void;
 	onRemoveStopwatch: (id: string) => void;
-	onGetExpiredTimers: (referenceTime: number) => Stopwatch[];
+	onGetExpiredTimers: (referenceTime: number) => IStopwatch[];
 }
 
 interface IStopwatchStore extends IStopwatchState, IStopwatchActions {}
@@ -22,7 +22,7 @@ const useStopwatchStore = create<IStopwatchStore>()(
 			onSetAllStopwatches: (stopwatches) =>
 				set((state) => ({ ...state, stopwatches })),
 
-			onSetStopwatch: (id: string, stopwatch: Stopwatch) =>
+			onSetStopwatch: (id: string, stopwatch: IStopwatch) =>
 				set((state) => {
 					const { stopwatches } = state;
 
