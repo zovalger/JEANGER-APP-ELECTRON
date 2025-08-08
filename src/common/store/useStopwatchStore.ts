@@ -26,20 +26,26 @@ const useStopwatchStore = create<IStopwatchStore>()(
 				set((state) => {
 					const { stopwatches } = state;
 
-					const finded = stopwatches.find((item) => item._id === id);
+					const finded = stopwatches.find(
+						(item) => item._id === id || item.tempId === id
+					);
 
-					const newStopwatches = finded
-						? stopwatches.map((item) => (item._id === id ? stopwatch : item))
+					const newData = finded
+						? stopwatches.map((item) =>
+								item._id === id || item.tempId === id ? stopwatch : item
+						  )
 						: [...stopwatches, stopwatch];
 
-					return { ...state, stopwatches: newStopwatches };
+					return { ...state, stopwatches: newData };
 				}),
 
 			onRemoveStopwatch: (id: string) => {
 				set((state) => {
 					const { stopwatches } = state;
 
-					const newStopwatches = stopwatches.filter((item) => item._id != id);
+					const newStopwatches = stopwatches.filter(
+						(item) => item._id != id && item.tempId != id
+					);
 
 					return {
 						...state,

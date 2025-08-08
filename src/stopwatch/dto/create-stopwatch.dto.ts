@@ -8,3 +8,4 @@ export interface CreateStopwatchDto {
   createdAt: string;
   updatedAt: string;
 }
+

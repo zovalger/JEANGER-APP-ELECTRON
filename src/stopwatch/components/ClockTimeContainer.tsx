@@ -1,7 +1,7 @@
 import Input from "../../common/components/Input";
 import Text from "../../common/components/Text";
 import { milisecondsToTime } from "../helpers/Stopwatch.helper";
-import { IStopwatch } from "../interfaces/Stopwatch.interface";
+import { IStopwatch } from "../interfaces";
 
 interface props {
 	data: IStopwatch;

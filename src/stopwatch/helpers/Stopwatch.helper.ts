@@ -1,4 +1,4 @@
-import { IStopwatch } from "../interfaces/Stopwatch.interface";
+import { IStopwatch } from "../interfaces";
 
 export const startStopwatch = (data: IStopwatch): IStopwatch => {
 	const { accumulatedTime: at, timeDate: td } = data;

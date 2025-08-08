@@ -1,4 +1,16 @@
+import { v4 as uuid } from "uuid";
+
 import useStopwatchStore from "../../common/store/useStopwatchStore";
+
+import { useStopwatchContext } from "../context/Stopwatch.context";
+import useRequest from "../../common/hooks/useRequest";
+import { StopwatchUrls } from "../api/stopwatch-url";
+import { IStopwatch } from "../interfaces";
+import {
+	CreateStopwatchDto,
+	RemoveStopwatchDto,
+	UpdateStopwatchDto,
+} from "../dto";
 import {
 	getTime,
 	pauseStopwatch,
@@ -6,13 +18,12 @@ import {
 	startStopwatch,
 	startTimer,
 } from "../helpers/Stopwatch.helper";
-import { useStopwatchContext } from "../context/Stopwatch.context";
-import useRequest from "../../common/hooks/useRequest";
-import { StopwatchUrls } from "../api/stopwatch-url";
-import { IStopwatch } from "../interfaces";
-import { CreateStopwatchDto, UpdateStopwatchDto } from "../dto";
 
-const useStopwatch = () => {
+interface Options {
+	stopwatchId?: string;
+}
+
+const useStopwatch = (options?: Options) => {
 	const { jeangerApp_API } = useRequest();
 	const stopwatchContext = useStopwatchContext();
 
@@ -21,7 +32,6 @@ const useStopwatch = () => {
 		(state) => state.onSetAllStopwatches
 	);
 	const onSetStopwatch = useStopwatchStore((state) => state.onSetStopwatch);
-
 	const onRemoveStopwatch = useStopwatchStore(
 		(state) => state.onRemoveStopwatch
 	);
@@ -32,25 +42,6 @@ const useStopwatch = () => {
 	// ************************************************************
 	// 										functions
 	// ************************************************************
-
-	const setStopwatch = (stopwatch: IStopwatch) => {
-		// todo: ver si el que viene es mas nuevo que el que esta actualmente
-		onSetStopwatch(stopwatch._id, stopwatch);
-	};
-
-	const createStopwatch = (data: CreateStopwatchDto) => {
-		setStopwatch;
-		if (stopwatchContext) stopwatchContext.sendCreateStopwatch(data);
-	};
-
-	const removeStopwatch = (id: string) => {
-		// todo: ver si el que viene es mas nuevo que el que esta actualmente
-
-		onRemoveStopwatch(id);
-
-		if (stopwatchContext) stopwatchContext.sendDeleteStopwatch(id);
-	};
-
 	const getAllStopwatch = async () => {
 		try {
 			const { data } = await jeangerApp_API.get<IStopwatch[]>(
@@ -65,66 +56,139 @@ const useStopwatch = () => {
 		}
 	};
 
-	const start = (stopwatch: IStopwatch) => {
-		const { timeSeted } = stopwatch;
+	const getStopwatch = async (id: string) => {
+		try {
+			const data = stopwatches.find((item) =>
+				item._id ? item._id === id : item.tempId == id
+			);
 
-		const newStopwatch =
-			timeSeted !== null ? startTimer(stopwatch) : startStopwatch(stopwatch);
+			if (!data) throw new Error("no encontrado");
 
-		setStopwatch(newStopwatch);
-		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
+			return data;
+		} catch (error) {
+			console.log(error);
+			throw new Error(error);
+		}
 	};
 
-	const pause = (stopwatch: IStopwatch) => {
-		const { timeSeted, timeDate } = stopwatch;
+	const setStopwatch = async (stopwatch: IStopwatch, disableSync = false) => {
+		const { _id, tempId, updatedAt } = stopwatch;
+
+		const t = await getStopwatch(_id || tempId);
+		if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime()) return;
+
+		const newStopwatch = { ...t, ...stopwatch };
+
+		onSetStopwatch(_id || tempId, newStopwatch);
+
+		if (!disableSync && stopwatchContext) {
+			if (newStopwatch._id) stopwatchContext.sendUpdateStopwatch(newStopwatch);
+			else stopwatchContext.sendCreateStopwatch(newStopwatch);
+		}
+
+		return newStopwatch;
+	};
+
+	const removeStopwatch = async (
+		removeStopwatchDto: RemoveStopwatchDto,
+		disableSync = false
+	) => {
+		const { _id, updatedAt } = removeStopwatchDto;
+
+		const t = await getStopwatch(removeStopwatchDto._id);
+		if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime()) return;
+
+		onRemoveStopwatch(_id);
+
+		if (stopwatchContext && !disableSync)
+			stopwatchContext.sendDeleteStopwatch(removeStopwatchDto);
+	};
+
+	const createStopwatch = async (data: CreateStopwatchDto) => {
+		const id = uuid();
+
+		const n = new Date().toString();
+
+		const toSave = {
+			...data,
+			tempId: uuid(),
+			createdAt: n,
+			updatedAt: n,
+		};
+
+		onSetStopwatch(id, { ...toSave, _id: "" });
+
+		if (stopwatchContext) stopwatchContext.sendCreateStopwatch(toSave);
+
+		return toSave;
+	};
+
+	const updateStopwatch = async (data: UpdateStopwatchDto) => {
+		const t = await getStopwatch(data._id || data.tempId);
+
+		return await setStopwatch({ ...t, ...data });
+	};
+
+	const start = async (id: string) => {
+		const t = await getStopwatch(id);
+
+		const { timeSeted } = t;
+		const newStopwatch = timeSeted !== null ? startTimer(t) : startStopwatch(t);
+
+		return await setStopwatch(newStopwatch);
+	};
+
+	const pause = async (id: string) => {
+		const t = await getStopwatch(id);
+		const { timeSeted, timeDate } = t;
 
 		if (!timeDate) return;
 
-		const newStopwatch =
-			timeSeted !== null ? pauseTimer(stopwatch) : pauseStopwatch(stopwatch);
+		const newStopwatch = timeSeted !== null ? pauseTimer(t) : pauseStopwatch(t);
 
-		setStopwatch(newStopwatch);
-		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
+		return await setStopwatch(newStopwatch);
 	};
 
-	const switchClock = (stopwatch: IStopwatch) => {
-		const { timeSeted, timeDate } = stopwatch;
+	const switchClock = async (id: string) => {
+		const t = await getStopwatch(id);
+		const { timeSeted, timeDate } = t;
 
 		if (timeDate) return;
 
 		const newSeted = timeSeted !== null ? null : 600000;
 
 		const newStopwatch: IStopwatch = {
-			...stopwatch,
+			...t,
 			timeSeted: newSeted,
 			accumulatedTime: 0,
 			timeDate: null,
 		};
 
-		setStopwatch(newStopwatch);
-		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
+		return await setStopwatch(newStopwatch);
 	};
 
-	const restart = (stopwatch: IStopwatch) => {
+	const restart = async (id: string) => {
+		const t = await getStopwatch(id);
+
 		const newStopwatch: IStopwatch = {
-			...stopwatch,
+			...t,
 			accumulatedTime: 0,
 			timeDate: null,
 		};
 
-		setStopwatch(newStopwatch);
-		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newStopwatch);
+		return await setStopwatch(newStopwatch);
 	};
 
-	const setTimeTo = (stopwatch: IStopwatch, minutes: string | number) => {
+	const setTimeTo = async (id: string, minutes: string | number) => {
+		const t = await getStopwatch(id);
+
 		const newTimeSeted = minutes
 			? (typeof minutes == "string" ? parseInt(minutes) : minutes) * 60000
 			: 0;
 
-		const newT = { ...stopwatch, timeSeted: newTimeSeted };
+		const newT = { ...t, timeSeted: newTimeSeted };
 
-		setStopwatch(newT);
-		if (stopwatchContext) stopwatchContext.sendUpdateStopwatch(newT);
+		return await setStopwatch(newT);
 	};
 
 	const getExpiredTimers = (referenceTime: number) =>
@@ -137,16 +201,19 @@ const useStopwatch = () => {
 			: Date.now(),
 
 		getAllStopwatch,
+		getStopwatch,
+
+		createStopwatch,
+		updateStopwatch,
+		removeStopwatch,
+		setStopwatch,
+
 		getTime,
 		start,
 		pause,
 		switchClock,
 		restart,
-
 		setTimeTo,
-		createStopwatch,
-		setStopwatch,
-		removeStopwatch,
 		getExpiredTimers,
 	};
 };

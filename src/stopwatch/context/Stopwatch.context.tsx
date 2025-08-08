@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import useStopwatch from "../hooks/useStopwatch";
 import useSound from "../../common/hooks/useSound";
 import { useSocketContext } from "../../common/context/Socket.context";
@@ -21,7 +21,7 @@ interface ContextProps {
 const StopwatchContext = createContext<ContextProps>({
 	sendCreateStopwatch: (data: IStopwatch): void =>
 		console.log("sending stopwatch by socket", data),
-	sendUpdateStopwatch: (data: IStopwatch): void =>
+	sendUpdateStopwatch: (data: UpdateStopwatchDto): void =>
 		console.log("sending stopwatch by socket", data),
 	sendDeleteStopwatch: (data: RemoveStopwatchDto): void =>
 		console.log("sending stopwatch by socket", data),
@@ -61,8 +61,8 @@ export const StopwatchContextProvider = ({ children }: props) => {
 	}, []);
 
 	const setListeners = async (s: Socket) => {
-		s.on(StopwatchSocketEvents.set, setStopwatch);
-		s.on(StopwatchSocketEvents.remove, removeStopwatch);
+		s.on(StopwatchSocketEvents.set, (data) => setStopwatch(data, true));
+		s.on(StopwatchSocketEvents.remove, (data) => removeStopwatch(data, true));
 	};
 
 	useEffect(() => {
@@ -71,7 +71,7 @@ export const StopwatchContextProvider = ({ children }: props) => {
 
 	const sendCreateStopwatch = (data: CreateStopwatchDto) => {
 		if (!socket) return;
-		socket.emit(StopwatchSocketEvents.set, data);
+		socket.emit(StopwatchSocketEvents.create, data);
 	};
 
 	const sendUpdateStopwatch = (data: UpdateStopwatchDto) => {

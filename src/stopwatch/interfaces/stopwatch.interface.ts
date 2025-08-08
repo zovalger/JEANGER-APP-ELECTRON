@@ -5,7 +5,7 @@ export interface IStopwatch {
 	timeDate: number | null;
 	accumulatedTime: number;
 	timeSeted: number | null;
-	createdBy: string;
+	createdBy?: string;
 	createdAt: string;
 	updatedAt: string;
 }

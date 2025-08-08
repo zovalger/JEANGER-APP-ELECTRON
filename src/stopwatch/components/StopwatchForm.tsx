@@ -1,15 +1,14 @@
 import * as yup from "yup";
 import { useEffect, useState } from "react";
-import { v4 as uuid } from "uuid";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import useStopwatch from "../hooks/useStopwatch";
 import { IStopwatch } from "../interfaces";
 import { CreateStopwatchDto, UpdateStopwatchDto } from "../dto";
-import Modal from "../../common/components/Modal";
 import Input from "../../common/components/Input";
 import Button from "../../common/components/Button";
+import toast from "react-hot-toast";
 
 const schema = yup
 	.object({
@@ -31,11 +30,7 @@ export default function StopwatchForm({
 	successCallback,
 	errorCallback,
 }: props) {
-	const { createStopwatch } = useStopwatch();
-
-	// *******************************************************************
-	// 													productos
-	// *******************************************************************
+	const { createStopwatch, updateStopwatch, removeStopwatch } = useStopwatch();
 
 	const {
 		register,
@@ -45,7 +40,7 @@ export default function StopwatchForm({
 		reset,
 	} = useForm<CreateStopwatchDto | UpdateStopwatchDto>({
 		defaultValues: {
-			tempId: uuid(),
+			tempId: "",
 			name: "",
 			timeDate: null,
 			accumulatedTime: 0,
@@ -62,50 +57,66 @@ export default function StopwatchForm({
 	const [isSubmit, setIsSubmit] = useState(false);
 
 	const onSubmit = async (data: CreateStopwatchDto | UpdateStopwatchDto) => {
-		// if (isSubmit) return;
-		// setIsSubmit(true);
+		if (isSubmit) return;
 
-		// try {
-		// 	let toSend = data;
+		setIsSubmit(true);
 
-		// 	const t = !initialData
-		// 		? await createProduct(toSend as CreateStopwatchDto)
-		// 		: await updateProduct(initialData._id, toSend as UpdateStopwatchDto);
+		try {
+			const t = !initialData
+				? await createStopwatch(data as CreateStopwatchDto)
+				: await updateStopwatch(data as UpdateStopwatchDto);
 
-		// 	console.log(t);
+			if (successCallback) successCallback(t);
 
-		// 	if (successCallback) successCallback(t);
-		// } catch (error) {
-		// 	toast.error(error.message || "Error al guardar el producto");
-		// 	if (errorCallback) errorCallback();
-		// }
+			reset();
+		} catch (error) {
+			toast.error(error.message || "Error al guardar el cronometro");
+			if (errorCallback) errorCallback();
+		}
 
-		// setIsSubmit(false);
-		// if (callback) callback();
+		setIsSubmit(false);
+		if (callback) callback();
 	};
 
-	// const onDelete = async () => {
-	// 	try {
-	// 		if (!formik.values._id) return;
+	const onDelete = async () => {
+		if (!initialData) return;
 
-	// 		setOnSubmited(true);
+		try {
+			await removeStopwatch({
+				_id: initialData._id || initialData.tempId,
+				updatedAt: new Date().toString(),
+			});
 
-	// 		sendDeleteStopwatch(formik.values._id);
-
-	// 		handleClose();
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-
-	// 	setOnSubmited(false);
-	// };
+			successCallback(initialData);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	return (
-		<form>
-			<Input label="Nombre del Cronometro" name="name" autoComplete="none" />
-			<div>
-				<Button color="error">Eliminar</Button>
-				<Button>Guardar</Button>
+		<form onSubmit={handleSubmit(onSubmit)}>
+			<Input
+				{...register("name")}
+				label="Nombre del Cronometro"
+				name="name"
+				autoComplete="none"
+				autoFocus
+			/>
+
+			<div className="flex ">
+				<Button
+					className="flex-1"
+					variant="danger"
+					disabled={!initialData}
+					type="button"
+					onClick={onDelete}
+				>
+					Eliminar
+				</Button>
+
+				<Button className="flex-1" type="submit">
+					Guardar
+				</Button>
 			</div>
 		</form>
 	);
