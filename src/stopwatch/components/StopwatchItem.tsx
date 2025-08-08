@@ -1,4 +1,6 @@
+import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
+import { yupResolver } from "@hookform/resolvers/yup";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import Button from "../../common/components/Button";
@@ -8,6 +10,11 @@ import useProduct from "../../products/hooks/useProduct";
 import useBill from "../../bills/hooks/useBill";
 import RouterLinks from "../../common/config/RouterLinks";
 import { IStopwatch } from "../interfaces";
+
+import { useState } from "react";
+import Input from "../../common/components/Input";
+import { useForm } from "react-hook-form";
+import { UpdateStopwatchDto } from "../dto";
 
 interface props {
 	data: IStopwatch;
@@ -28,11 +35,22 @@ export default function StopwatchItem({ data }: props) {
 		switchClock,
 		setTimeTo,
 		referenceTime,
+		updateStopwatch,
 	} = useStopwatch();
 
-	// ****************************************************************************
-	// 										          funciones
-	// ****************************************************************************
+	const [rename, setRename] = useState(false);
+
+	const {
+		register,
+		handleSubmit,
+		watch,
+		formState: { errors },
+		reset,
+	} = useForm<UpdateStopwatchDto>({
+		defaultValues: {
+			name: data.name,
+		},
+	});
 
 	// const addToBill = async () => {
 	// 	// todo: remover y colocar en una parte mas general
@@ -71,18 +89,23 @@ export default function StopwatchItem({ data }: props) {
 					: ""
 			}`}
 		>
-			<div className="flex justify-between items-center pl-4">
-				<Text>{data.name}</Text>
+			<div className="flex items-center mb-2 ">
+				{/* <Text className="pl-4 flex-1">{data.name}</Text> */}
 
-				<div>
-					{/* <IconButton onClick={addToBill} icon="ShoppingCart" /> */}
+				<form className="flex flex-1">
+					<Input {...register("name")} placeholder="Nombre" />
 
-					<IconButton
-						onClick={() => switchClock(currentId)}
-						icon="SwitchHorizontal"
-						disabled={!!data.timeDate}
-					/>
-				</div>
+					<IconButton icon="Save" size="small" />
+				</form>
+
+				{/* <IconButton onClick={addToBill} icon="ShoppingCart"  size="small" /> */}
+
+				<IconButton
+					onClick={() => switchClock(currentId)}
+					icon="SwitchHorizontal"
+					disabled={!!data.timeDate}
+					size="small"
+				/>
 			</div>
 
 			<ClockTimeContainer

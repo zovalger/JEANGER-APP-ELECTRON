@@ -74,10 +74,17 @@ const useStopwatch = (options?: Options) => {
 	const setStopwatch = async (stopwatch: IStopwatch, disableSync = false) => {
 		const { _id, tempId, updatedAt } = stopwatch;
 
-		const t = await getStopwatch(_id || tempId);
-		if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime()) return;
+		try {
+			const t = await getStopwatch(_id || tempId);
 
-		const newStopwatch = { ...t, ...stopwatch };
+			if (disableSync)
+				if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime())
+					return;
+		} catch (error) {
+			console.log(error);
+		}
+
+		const newStopwatch = { ...stopwatch };
 
 		onSetStopwatch(_id || tempId, newStopwatch);
 
@@ -126,7 +133,11 @@ const useStopwatch = (options?: Options) => {
 	const updateStopwatch = async (data: UpdateStopwatchDto) => {
 		const t = await getStopwatch(data._id || data.tempId);
 
-		return await setStopwatch({ ...t, ...data });
+		return await setStopwatch({
+			...t,
+			...data,
+			updatedAt: new Date().toString(),
+		});
 	};
 
 	const start = async (id: string) => {
@@ -135,7 +146,10 @@ const useStopwatch = (options?: Options) => {
 		const { timeSeted } = t;
 		const newStopwatch = timeSeted !== null ? startTimer(t) : startStopwatch(t);
 
-		return await setStopwatch(newStopwatch);
+		return await setStopwatch({
+			...newStopwatch,
+			updatedAt: new Date().toString(),
+		});
 	};
 
 	const pause = async (id: string) => {
@@ -146,7 +160,10 @@ const useStopwatch = (options?: Options) => {
 
 		const newStopwatch = timeSeted !== null ? pauseTimer(t) : pauseStopwatch(t);
 
-		return await setStopwatch(newStopwatch);
+		return await setStopwatch({
+			...newStopwatch,
+			updatedAt: new Date().toString(),
+		});
 	};
 
 	const switchClock = async (id: string) => {
@@ -162,6 +179,7 @@ const useStopwatch = (options?: Options) => {
 			timeSeted: newSeted,
 			accumulatedTime: 0,
 			timeDate: null,
+			updatedAt: new Date().toString(),
 		};
 
 		return await setStopwatch(newStopwatch);
@@ -174,6 +192,7 @@ const useStopwatch = (options?: Options) => {
 			...t,
 			accumulatedTime: 0,
 			timeDate: null,
+			updatedAt: new Date().toString(),
 		};
 
 		return await setStopwatch(newStopwatch);
@@ -186,7 +205,11 @@ const useStopwatch = (options?: Options) => {
 			? (typeof minutes == "string" ? parseInt(minutes) : minutes) * 60000
 			: 0;
 
-		const newT = { ...t, timeSeted: newTimeSeted };
+		const newT = {
+			...t,
+			timeSeted: newTimeSeted,
+			updatedAt: new Date().toString(),
+		};
 
 		return await setStopwatch(newT);
 	};

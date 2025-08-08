@@ -61,8 +61,10 @@ export const StopwatchContextProvider = ({ children }: props) => {
 	}, []);
 
 	const setListeners = async (s: Socket) => {
-		s.on(StopwatchSocketEvents.set, (data) => setStopwatch(data, true));
-		s.on(StopwatchSocketEvents.remove, (data) => removeStopwatch(data, true));
+		s.on(StopwatchSocketEvents.set, (res) => setStopwatch(res.data, true));
+		s.on(StopwatchSocketEvents.remove, (res) =>
+			removeStopwatch(res.data, true)
+		);
 	};
 
 	useEffect(() => {
