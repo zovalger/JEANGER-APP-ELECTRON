@@ -38,6 +38,7 @@ const useStopwatch = (options?: Options) => {
 	const onGetExpiredTimers = useStopwatchStore(
 		(state) => state.onGetExpiredTimers
 	);
+	const onGetStopwatch = useStopwatchStore((state) => state.onGetStopwatch);
 
 	// ************************************************************
 	// 										functions
@@ -58,9 +59,7 @@ const useStopwatch = (options?: Options) => {
 
 	const getStopwatch = async (id: string) => {
 		try {
-			const data = stopwatches.find((item) =>
-				item._id ? item._id === id : item.tempId == id
-			);
+			const data = onGetStopwatch(id);
 
 			if (!data) throw new Error("no encontrado");
 
@@ -75,7 +74,7 @@ const useStopwatch = (options?: Options) => {
 		const { _id, tempId, updatedAt } = stopwatch;
 
 		try {
-			const t = await getStopwatch(_id || tempId);
+			const t = await getStopwatch(tempId || _id);
 
 			if (disableSync)
 				if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime())
@@ -86,7 +85,7 @@ const useStopwatch = (options?: Options) => {
 
 		const newStopwatch = { ...stopwatch };
 
-		onSetStopwatch(_id || tempId, newStopwatch);
+		onSetStopwatch(tempId || _id, newStopwatch);
 
 		if (!disableSync && stopwatchContext) {
 			if (newStopwatch._id) stopwatchContext.sendUpdateStopwatch(newStopwatch);
@@ -102,7 +101,8 @@ const useStopwatch = (options?: Options) => {
 	) => {
 		const { _id, updatedAt } = removeStopwatchDto;
 
-		const t = await getStopwatch(removeStopwatchDto._id);
+		const t = await getStopwatch(_id);
+
 		if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime()) return;
 
 		onRemoveStopwatch(_id);

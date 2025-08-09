@@ -43,7 +43,7 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 				: "outline-none";
 
 		const content = (
-			<>
+			<div>
 				<input
 					step="any"
 					ref={ref}
@@ -55,7 +55,7 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 				<Text size="small" className="mb-2 min-h-4">
 					{errorText || helperText}
 				</Text>
-			</>
+			</div>
 		);
 
 		return label ? (
@@ -65,7 +65,7 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 				}  gap-1 ${className}`}
 			>
 				<Text variant="bold">{label}</Text>
-				<div>{content}</div>
+				{content}
 			</label>
 		) : (
 			content

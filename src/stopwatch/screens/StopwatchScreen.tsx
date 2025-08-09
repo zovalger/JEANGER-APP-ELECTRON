@@ -10,7 +10,6 @@ export default function StopwatchScreen() {
 	const { stopwatches, getAllStopwatch } = useStopwatch();
 
 	const [openStopwatchForm, setOpenStopwatchForm] = useState(false);
-	// const [editing, setEditing] = useState(false);
 
 	useEffect(() => {
 		getAllStopwatch()
@@ -22,12 +21,10 @@ export default function StopwatchScreen() {
 		<PageTemplateLayout
 			name="Cronometros"
 			rightButtons={[
-				// <IconButton
-				// 	icon="Edit"
-				// 	onClick={() => {
-				// 		setEditing(!editing);
-				// 	}}
-				// />,
+				<IconButton
+					icon="Refresh"
+					onClick={() => getAllStopwatch().catch((err) => console.log(err))}
+				/>,
 				<IconButton
 					icon="Plus"
 					onClick={() => {
@@ -38,7 +35,7 @@ export default function StopwatchScreen() {
 		>
 			<div className="flex flex-wrap gap-4 p-4">
 				{stopwatches.map((t) => (
-					<StopwatchItem key={t._id} data={t} />
+					<StopwatchItem key={t.tempId} initialData={t} />
 				))}
 			</div>
 
