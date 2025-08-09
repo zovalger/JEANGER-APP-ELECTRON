@@ -10,7 +10,7 @@ import {
 	UpdateProductDto,
 	UpdateProductReferenceDto,
 } from "../dto";
-import { IProduct, IProductReference } from "../interfaces";
+import { IProduct, IProductReference, IProductSetting } from "../interfaces";
 
 interface Options {
 	productId?: string;
@@ -203,15 +203,17 @@ const useProduct = (options?: Options) => {
 		}
 	};
 
-	// const getProductSettings = async () => {
-	// 	try {
-	// 		const s = await getProductSettingRequest();
+	const getProductSettings = async () => {
+		try {
+			const { data } = await jeangerApp_API.get<IProductSetting>(
+				ProductUrls.settings()
+			);
 
-	// 		onSetProductsSettings(s);
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// };
+			onSetProductsSettings(data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	useEffect(() => {
 		if (!first) return;
@@ -260,7 +262,7 @@ const useProduct = (options?: Options) => {
 		setCurrentRefByChild: onSetCurrentRefByChild,
 		clearCurrentRef: onClearCurrentRef,
 
-		// getProductSettings,
+		getProductSettings,
 	};
 };
 

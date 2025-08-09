@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
 import { StopwatchContextProvider } from "../../stopwatch/context/Stopwatch.context";
@@ -8,6 +8,7 @@ import { SocketContextProvider } from "../context/Socket.context";
 import { BillContextProvider } from "../../bills/context/Bill.context";
 import { AuthContextProvider } from "../../auth/context/Auth.context";
 import useRequest from "../hooks/useRequest";
+import useProduct from "../../products/hooks/useProduct";
 
 interface BackgroundProcessesLayoutProps {
 	children?: React.ReactNode;
@@ -21,11 +22,13 @@ const BackgroundProcessesLayout = (
 	const { jeangerApp_API, sessionToken } = useRequest();
 
 	const { getForeignExchange } = useForeignExchange();
+	const { getProductSettings } = useProduct();
 
 	useEffect(() => {
 		if (!sessionToken) return;
 
 		getForeignExchange().catch((err) => console.log(err));
+		getProductSettings().catch((err) => console.log(err));
 	}, [jeangerApp_API]);
 
 	return (

@@ -211,7 +211,7 @@ const useStopwatch = (options?: Options) => {
 			updatedAt: new Date().toString(),
 		};
 
-		return await setStopwatch(newT);
+		return await setStopwatch(newT, true);
 	};
 
 	const getExpiredTimers = (referenceTime: number) =>

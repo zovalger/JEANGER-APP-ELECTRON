@@ -15,6 +15,7 @@ import { useState } from "react";
 import Input from "../../common/components/Input";
 import { useForm } from "react-hook-form";
 import { UpdateStopwatchDto } from "../dto";
+import toast from "react-hot-toast";
 
 interface props {
 	data: IStopwatch;
@@ -39,18 +40,40 @@ export default function StopwatchItem({ data }: props) {
 	} = useStopwatch();
 
 	const [rename, setRename] = useState(false);
-
+	const [isSubmit, setIsSubmit] = useState(false);
 	const {
 		register,
 		handleSubmit,
-		watch,
+
 		formState: { errors },
 		reset,
 	} = useForm<UpdateStopwatchDto>({
 		defaultValues: {
+			_id,
+			tempId,
 			name: data.name,
+			updatedAt: new Date().toString(),
 		},
 	});
+
+	const onSubmit = async (data: UpdateStopwatchDto) => {
+		if (isSubmit) return;
+		setIsSubmit(true);
+
+		try {
+			const t = await updateStopwatch({
+				...data,
+				updatedAt: new Date().toString(),
+			});
+
+			setRename(false);
+			reset();
+		} catch (error) {
+			toast.error(error.message || "Error al actualizar el cronometro");
+		}
+
+		setIsSubmit(false);
+	};
 
 	// const addToBill = async () => {
 	// 	// todo: remover y colocar en una parte mas general
@@ -90,13 +113,28 @@ export default function StopwatchItem({ data }: props) {
 			}`}
 		>
 			<div className="flex items-center mb-2 ">
-				{/* <Text className="pl-4 flex-1">{data.name}</Text> */}
+				{rename ? (
+					<form className="flex flex-1" onSubmit={handleSubmit(onSubmit)}>
+						<Input
+							{...register("name")}
+							placeholder="Nombre"
+							autoFocus
+							errorText={errors.name && errors.name.message}
+							onBlur={() => {
+								handleSubmit(onSubmit)();
+							}}
+						/>
 
-				<form className="flex flex-1">
-					<Input {...register("name")} placeholder="Nombre" />
-
-					<IconButton icon="Save" size="small" />
-				</form>
+						{/* <IconButton icon="Save" size="small" /> */}
+					</form>
+				) : (
+					<Text
+						className="pl-4 flex-1 cursor-text"
+						onClick={() => setRename(true)}
+					>
+						{data.name}
+					</Text>
+				)}
 
 				{/* <IconButton onClick={addToBill} icon="ShoppingCart"  size="small" /> */}
 

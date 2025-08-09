@@ -36,7 +36,7 @@ export default function StopwatchScreen() {
 				/>,
 			]}
 		>
-			<div className="flex flex-wrap gap-4">
+			<div className="flex flex-wrap gap-4 p-4">
 				{stopwatches.map((t) => (
 					<StopwatchItem key={t._id} data={t} />
 				))}
