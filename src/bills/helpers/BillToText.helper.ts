@@ -1,5 +1,5 @@
 import moneyFormat from "../../common/helpers/moneyFormat.helper";
-import { IForeignExchange } from "../../foreign_exchange/interfaces/ForeignExchange.interface";
+import { IForeignExchange } from "../../foreign_exchange/interfaces";
 import { IBill, IBillItem } from "../interfaces/bill.interface";
 
 export interface IBillItem_CopyToClipboard

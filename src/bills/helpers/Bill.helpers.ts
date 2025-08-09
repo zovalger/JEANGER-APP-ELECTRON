@@ -1,17 +1,76 @@
-import {
-	initialValuesBill,
-	initialValuesForeignExchange,
-} from "../../common/config/initialValues";
 import { CurrencyType } from "../../common/enums";
-import { IForeignExchange } from "../../foreign_exchange/interfaces/ForeignExchange.interface";
-import { IBill, IBillItem } from "../interfaces/bill.interface";
+import { IForeignExchange } from "../../foreign_exchange/interfaces";
+import { IBill, IBillItem } from "../interfaces";
+
+interface BillHelperResponse extends Pick<IBill, "items" | "totals"> {
+	updatedItem?: IBillItem;
+}
+
+export const updateBillItem = (
+	items: IBillItem[],
+	billItem: IBillItem,
+	foreignExchange: IForeignExchange,
+	options?: { setQuantity?: boolean }
+): BillHelperResponse => {
+	let newItems = items;
+
+	const oldBillItem = items.find(
+		(item) => item.productId.toString() === billItem.productId.toString()
+	);
+
+	const oldQuantity = oldBillItem ? oldBillItem.quantity : 0;
+
+	const newQuantity = options?.setQuantity
+		? billItem.quantity
+		: oldQuantity + billItem.quantity;
+
+	// error si se coloca directamente 0 o negativo
+	if (newQuantity <= 0)
+		throw new Error(
+			"no se puede colocar en negativo o en 0, use el boton de eliminar si desea eleminar el producto"
+		);
+
+	// anadirlo
+	if (!oldBillItem && newQuantity > 0) {
+		newItems = [...newItems, billItem];
+	} else if (!oldBillItem) {
+		const totals = calculateTotals(newItems, foreignExchange);
+
+		return { items: newItems, totals, updatedItem: billItem };
+	}
+
+	// actualizarlo
+	if (newQuantity > 0) {
+		newItems = newItems.map((item) =>
+			item.productId === billItem.productId
+				? { ...item, quantity: newQuantity }
+				: item
+		);
+	}
+
+	const totals = calculateTotals(newItems, foreignExchange);
+
+	return { items: newItems, totals, updatedItem: billItem };
+};
+
+export const deleteItemInBill = (
+	items: IBillItem[],
+	productId: string,
+	foreignExchange: IForeignExchange
+): BillHelperResponse => {
+	const newItems = items.filter(
+		(item) => item.productId.toString() !== productId.toString()
+	);
+
+	const totals = calculateTotals(newItems, foreignExchange);
+
+	return { items: newItems, totals };
+};
 
 const calculateTotals = (
-	bill: IBill,
-	foreignExchange: IForeignExchange = initialValuesForeignExchange
-): IBill => {
-	const { items } = bill;
-
+	items: IBillItem[],
+	foreignExchange: IForeignExchange
+) => {
 	const USD = items.reduce((total: number, item: IBillItem) => {
 		const { cost, currencyType, quantity } = item;
 
@@ -25,123 +84,24 @@ const calculateTotals = (
 		return total + toSum;
 	}, 0);
 
-	return {
-		...bill,
-		foreignExchange,
-		totals: { USD, BSF: USD * foreignExchange.dolar },
-	};
+	return { USD, BSF: USD * foreignExchange.dolar };
 };
 
-export const updateBillItem = (
-	bill: IBill | null,
-	billItem: IBillItem,
-	foreignExchange: IForeignExchange | null,
-	options?: { setQuantity?: boolean }
-): IBill => {
-	const currentBill = bill || initialValuesBill;
-	const foreignExchangeCurrent =
-		foreignExchange || initialValuesForeignExchange;
+export const isIncomingItemMoreRecent = (
+	old: string | Date | undefined,
+	current: string | Date | undefined
+): boolean => {
+	if (!old) return true;
+	if (!current) return false;
 
-	let newItems: IBillItem[] = currentBill.items;
+	const o = typeof old === "string" ? new Date(old) : old;
+	const n = typeof current === "string" ? new Date(current) : current;
 
-	const oldBillItem = currentBill.items.find(
-		(item) => item.productId === billItem.productId
-	);
-
-	const oldQuantity = oldBillItem ? oldBillItem.quantity : 0;
-
-	const newQuantity = options?.setQuantity
-		? billItem.quantity
-		: oldQuantity + billItem.quantity;
-
-	// anadirlo
-	if (!oldBillItem && newQuantity > 0) {
-		newItems = [...newItems, billItem];
-	} else if (!oldBillItem) return currentBill;
-
-	// quitarlo
-	if (newQuantity <= 0) {
-		newItems = newItems.filter((item) => item.productId !== billItem.productId);
-	}
-
-	// actualizarlo
-	if (newQuantity > 0) {
-		newItems = newItems.map((item) =>
-			item.productId === billItem.productId
-				? { ...item, quantity: newQuantity }
-				: item
-		);
-	}
-
-	const newBillWithTotals = calculateTotals(
-		{
-			...currentBill,
-			items: newItems,
-		},
-		foreignExchangeCurrent
-	);
-
-	return newBillWithTotals;
+	return n.getTime() > o.getTime();
 };
 
-// todo: comentar paso
-export const setOneBillItem = (
-	bill: IBill | null,
-	billItem: IBillItem,
-	foreignExchange: IForeignExchange | null
-): IBill => {
-	const currentBill = bill || initialValuesBill;
-	const foreignExchangeCurrent =
-		foreignExchange || initialValuesForeignExchange;
-
-	let newItems: IBillItem[] = currentBill.items;
-
-	const oldBillItem = currentBill.items.find(
-		(item) => item.productId === billItem.productId
-	);
-
-	const newQuantity = billItem.quantity;
-
-	// todo: anadirlo
-
-	if (!oldBillItem && newQuantity > 0) {
-		newItems = [...newItems, billItem];
-	} else if (!oldBillItem) return currentBill;
-
-	// todo actualizarlo
-	if (newQuantity > 0) {
-		newItems = newItems.map((item) =>
-			item.productId === billItem.productId
-				? { ...item, quantity: newQuantity }
-				: item
-		);
-	}
-
-	const newBillWithTotals = calculateTotals(
-		{
-			...currentBill,
-			items: newItems,
-		},
-		foreignExchangeCurrent
-	);
-
-	return newBillWithTotals;
-};
-
-export const deleteItemInBill = (
-	bill: IBill | null,
-	foreignExchange: IForeignExchange | null,
-	productId: string
-): IBill => {
-	const currentBill = bill || initialValuesBill;
-
-	const { items } = currentBill;
-
-	currentBill.items = items.filter((item) => item.productId !== productId);
-
-	return calculateTotals(currentBill, foreignExchange || undefined);
-};
-
-export const clearBill = (): IBill => {
-	return initialValuesBill;
-};
+export const getItemInBillList = (
+	productId: string,
+	items: IBillItem[]
+): IBillItem | undefined =>
+	items.find((item) => item.productId.toString() === productId);
