@@ -1,6 +1,8 @@
 export interface IForeignExchange {
-  euro: number;
-  dolar: number;
-  date: string;
-  bankBusinessDate: string;
+	dolar: number;
+	euro: number;
+	bankBusinessDate: string;
+	createdBy?: string;
+	createdAt: string;
+	updatedAt: string;
 }

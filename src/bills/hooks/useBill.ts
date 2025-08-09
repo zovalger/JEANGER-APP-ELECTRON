@@ -3,14 +3,9 @@ import useBillStore from "../../common/store/useBillStore";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import useProduct from "../../products/hooks/useProduct";
 
-import {
-	clearBill,
-	deleteItemInBill,
-	updateBillItem,
-} from "../helpers/Bill.helpers";
+import { deleteItemInBill, updateBillItem } from "../helpers/Bill.helpers";
 
 import { IBill, IBillItem } from "../interfaces/bill.interface";
-import { getAllBillsRequest } from "../api/Bill.api";
 import { useBillContext } from "../context/Bill.context";
 import {
 	BillItemToText_helper,
@@ -18,7 +13,18 @@ import {
 	IBill_CopyToClipboard,
 	IBillItem_CopyToClipboard,
 } from "../helpers/BillToText.helper";
-import { CurrencyType } from "../../common/enums";
+
+export const initialValuesBill: IBill = {
+	_id: "",
+	tempId: "",
+	name: "",
+	items: [],
+	// foreignExchange: ForeignExchangeDocument,
+	totals: { BSF: 0, USD: 0 },
+	createdBy: "",
+	createdAt: new Date().toString(),
+	updatedAt: new Date().toString(),
+};
 
 interface ComunicationOption {
 	resend?: boolean;
@@ -32,22 +38,17 @@ const useBill = () => {
 	const { getProduct } = useProduct();
 	const { foreignExchange, getCostInBSAndCurrency } = useForeignExchange();
 
-	const bills = useBillStore((state) => state.bills);
 	const currentBill = useBillStore((state) => state.currentBill);
-
-	const onGetBill = useBillStore((state) => state.onGetBill);
-	const onSetCurrentBill = useBillStore((state) => state.onSetCurrentBill);
-	const onSetBills = useBillStore((state) => state.onSetBills);
-	const onAddOrUpdateBill = useBillStore((state) => state.onAddOrUpdateBill);
-	const onRemoveBill = useBillStore((state) => state.onRemoveBill);
+	const bills = useBillStore((state) => state.bills);
 	const IVAMode = useBillStore((state) => state.IVAMode);
 	const onToggleIVAMode = useBillStore((state) => state.onToggleIVAMode);
-	// const onAddOrUpdateProduct_in_Bill = useBillStore(
-	// 	(state) => state.onAddOrUpdateProduct_in_Bill
-	// );
-	// const onRemoveProduct_in_Bill = useBillStore(
-	// 	(state) => state.onRemoveProduct_in_Bill
-	// );
+	const onSetBills = useBillStore((state) => state.onSetBills);
+	const onSetCurrentBill = useBillStore((state) => state.onSetCurrentBill);
+	const onGetBill = useBillStore((state) => state.onGetBill);
+	const onSetBill = useBillStore((state) => state.onSetBill);
+	const onRemoveBill = useBillStore((state) => state.onRemoveBill);
+
+	
 
 	// ************************************************************
 	// 										functions

@@ -1,27 +1,23 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { IBill, IBillItem } from "../../bills/interfaces/bill.interface";
-import { initialValuesBill } from "../config/initialValues";
 
 interface IBillState {
 	currentBill: IBill | null;
-	IVAMode: boolean;
 	bills: IBill[];
+	IVAMode: boolean;
 }
 
 interface IBillActions {
-	onSetCurrentBill(bill: IBill): void;
-
+	onToggleIVAMode(): void;
 	onSetBills(bills: IBill[]): void;
-
+	onSetCurrentBill(bill: IBill): void;
 	onGetBill(bill_id: string): IBill;
-	onAddOrUpdateBill(bill_id: string, bill: IBill): void;
+	onSetBill(bill_id: string, bill: IBill): void;
 	onRemoveBill(bill_id: string): void;
 
-	onAddOrUpdateProduct_in_Bill(bill_id: string, billItem: IBillItem): void;
-	onRemoveProduct_in_Bill(bill_id: string, billItemId: string): void;
-
-	onToggleIVAMode(): void;
+	// onSetBillItem(bill_id: string, billItem: IBillItem): void;
+	// onRemoveBillItem(bill_id: string, productId: string): void;
 }
 
 interface IBillStore extends IBillState, IBillActions {}
@@ -29,59 +25,103 @@ interface IBillStore extends IBillState, IBillActions {}
 const useBillStore = create<IBillStore>()(
 	persist<IBillStore>(
 		(set, get) => ({
+			currentBill: null,
 			bills: [],
 			IVAMode: false,
 
-			currentBill: initialValuesBill,
+			onToggleIVAMode: () =>
+				set((state) => ({ ...state, IVAMode: !state.IVAMode })),
 
-			onGetBill: (bill_id: string) =>
-				get().bills.find((item) => item._id === bill_id) || initialValuesBill,
+			onSetBills: (newBills) =>
+				set((state) => {
+					const { bills } = state;
 
-			onSetCurrentBill: (bill: IBill) => {
+					const notSync = bills.filter((item) => !item._id);
+
+					return { ...state, bills: [...notSync, ...newBills] };
+				}),
+
+			onSetCurrentBill: (bill) => {
 				set((state) => ({ ...state, currentBill: bill }));
 			},
 
-			onSetBills: (bills: IBill[]) => set((state) => ({ ...state, bills })),
+			onGetBill: (id) =>
+				get().bills.find((item) =>
+					item._id ? item._id == id : item.tempId == id
+				),
 
-			onAddOrUpdateBill: (bill_id: string, bill: IBill) =>
+			onSetBill: (id, bill) =>
 				set((state) => {
-					const { bills } = state;
-					const b = bills.find((item) => item._id == bill_id);
+					const { bills, currentBill } = state;
+
+					const b = bills.find((item) =>
+						item._id ? item._id == id : item.tempId == id
+					);
 
 					if (!b) return { ...state, bills: [...bills, bill] };
 
 					return {
 						...state,
-						bills: bills.map((item) => (item._id === bill_id ? bill : item)),
+						bills: bills.map((item) =>
+							item._id == id || item.tempId == id ? bill : item
+						),
+						currentBill:
+							currentBill._id == id || currentBill.tempId == id
+								? bill
+								: currentBill,
 					};
 				}),
 
-			onRemoveBill: (bill_id: string) => {
+			onRemoveBill: (id) =>
 				set((state) => {
 					const { bills, currentBill } = state;
 
-					const newBills = bills.filter((item) => item._id !== bill_id);
+					const newBills = bills.filter(
+						(item) => !(item._id == id || item.tempId == id)
+					);
 
 					const newCurrentBill =
-						currentBill._id == bill_id ? initialValuesBill : currentBill;
+						currentBill._id == id || currentBill.tempId == id
+							? null
+							: currentBill;
 
 					return { ...state, bills: newBills, currentBill: newCurrentBill };
-				});
-			},
-			onAddOrUpdateProduct_in_Bill: (
-				bill_id: string,
-				billItem: IBillItem
-			) => {},
+				}),
 
-			onRemoveProduct_in_Bill: (bill_id: string, billItemId: string) => {},
+			// onSetBillItem: (id, billItem) =>
+			// 	set((state) => {
+			// 		const { bills, currentBill } = state;
 
-			onToggleIVAMode: () => {
-				set((state) => {
-					const { IVAMode } = state;
+			// 		const b = bills.find((item) =>
+			// 			item._id ? item._id == id : item.tempId == id
+			// 		);
 
-					return { ...state, IVAMode: !IVAMode };
-				});
-			},
+			// 		if (!b) return state;
+
+			// 		const { items } = b;
+			// 		const newItems = items.find(
+			// 			(item) => billItem.productId == item.productId
+			// 		)
+			// 			? items.map((item) =>
+			// 					billItem.productId == item.productId ? billItem : item
+			// 			  )
+			// 			: [...items, billItem];
+
+			// 		b.items = newItems;
+
+			// 		return {
+			// 			...state,
+			// 			bills: bills.map((item) =>
+			// 				item._id == id || item.tempId == id ? b : item
+			// 			),
+			// 			currentBill:
+			// 				currentBill._id == id || currentBill.tempId == id
+			// 					? { ...currentBill, items: newItems }
+			// 					: currentBill,
+			// 		};
+			// 	}),
+
+			// onRemoveBillItem: (bill_id, productId) => {},
 		}),
 
 		{ name: "bill-store" }

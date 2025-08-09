@@ -5,6 +5,15 @@ import { ForeignExchangeUrls } from "../api/foreign-exchange-url";
 import { getCostInBSAndCurrency_helper } from "../helpers/foreingEnchange.helper";
 import { IForeignExchange } from "../interfaces/ForeignExchange.interface";
 
+export const initialValuesForeignExchange: IForeignExchange = {
+	dolar: 0,
+	euro: 0,
+	bankBusinessDate: "",
+	createdBy: "",
+	createdAt: "",
+	updatedAt: "",
+};
+
 const useForeignExchange = () => {
 	const { jeangerApp_API } = useRequest();
 
