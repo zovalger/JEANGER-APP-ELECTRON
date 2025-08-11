@@ -1,37 +1,30 @@
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
-
-import BillItem from "../components/BillItem";
-import useBill from "../hooks/useBill";
+import useClipboard from "../../common/hooks/useClipboard";
 import useProduct from "../../products/hooks/useProduct";
+import useBill, { initialValuesBill } from "../hooks/useBill";
+import BillItem from "../components/BillItem";
+import Text from "../../common/components/Text";
 import {
 	getOnlyFavoriteProduct,
 	sortProductByPriority,
 } from "../../products/helpers/Product.helpers";
-import { initialValuesBill } from "../../common/config/initialValues";
-import { CurrencyType } from "../../common/enums";
-import Text from "../../common/components/Text";
+import moneyFormat from "../../common/helpers/moneyFormat.helper";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import IconButton from "../../common/components/IconButton";
-import SavedBills from "../components/SavedBills";
-import Button from "../../common/components/Button";
 import BillProductSearch from "../components/BillProductSearch";
-import useClipboard from "../../common/hooks/useClipboard";
-import moneyFormat from "../../common/helpers/moneyFormat.helper";
+import Button from "../../common/components/Button";
+import SavedBills from "../components/SavedBills";
+import { CurrencyType } from "../../common/enums";
 
 const BillScreen = () => {
 	const { isCopy, copyToClipboard } = useClipboard();
 	const { isCopy: isCopyBs, copyToClipboard: copyToClipboardBs } =
 		useClipboard();
-	const { products, getProductsFromServer } = useProduct();
-	const { currentBill, clear_CurrentBill, billToText, IVAMode, toggleIVAMode } =
-		useBill();
 
-	useEffect(() => {
-		getProductsFromServer()
-			.then()
-			.catch((err) => console.log(err));
-	}, []);
+	const { products, getProductsFromServer } = useProduct();
+
+	const { currentBill, billToText, IVAMode, toggleIVAMode } = useBill();
 
 	// *******************************************************************
 	// 													Visor
@@ -76,7 +69,7 @@ const BillScreen = () => {
 
 	const onDelete = async () => {
 		setDeletedFavorites([]);
-		clear_CurrentBill();
+		// clear_CurrentBill();
 	};
 
 	// *******************************************************************
@@ -118,7 +111,7 @@ const BillScreen = () => {
 
 				{currentBill &&
 					remainingBillItem.map((item) => (
-						<BillItem key={uuid()} data={item} />
+						<BillItem key={uuid()} billId={currentBill._id} data={item} />
 					))}
 			</div>
 
@@ -151,8 +144,8 @@ const BillScreen = () => {
 
 						<Button
 							icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
-							onClick={() => {
-								const text = billToText(currentBill);
+							onClick={async () => {
+								const text = await billToText(currentBill);
 								copyToClipboard(text);
 							}}
 						>

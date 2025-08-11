@@ -14,24 +14,20 @@ import useClipboard from "../../common/hooks/useClipboard";
 import moneyFormat from "../../common/helpers/moneyFormat.helper";
 
 interface props {
+	billId: string;
 	data: IBillItem;
 	onDeleteItem?(productId: string): void;
 }
 
-function BillItem({ data, onDeleteItem }: props) {
+function BillItem({ billId, data, onDeleteItem }: props) {
 	const { isCopy, copyToClipboard } = useClipboard();
-	const { billItemToText } = useBill();
+	const { product } = useProduct({ productId: data.productId });
 	const { getCostInBSAndCurrency } = useForeignExchange();
-	const { getProduct } = useProduct();
+	const { billItemToText, setItem, removeItem } = useBill();
 
-	const {
-		addOrUpdateProduct_To_CurrentBill,
-		deleteProduct_To_CurrentBill,
-		IVAMode,
-	} = useBill();
+	const { IVAMode } = useBill();
 
 	const { quantity, productId } = data;
-	const { name, cost, currencyType } = getProduct(data.productId);
 
 	const [openContext, setOpenContext] = useState(false);
 	const handdleOpenContext = () => setOpenContext(true);
@@ -43,12 +39,12 @@ function BillItem({ data, onDeleteItem }: props) {
 
 	const handdleDelete = async () => {
 		if (onDeleteItem) onDeleteItem(productId);
-		deleteProduct_To_CurrentBill(productId);
+		await removeItem({
+			billId,
+			productId,
+			updatedAt: new Date().toISOString(),
+		});
 	};
-
-	const { BSF } = getCostInBSAndCurrency({ cost, currencyType });
-
-	const costToView = IVAMode ? BSF / 1.16 : BSF;
 
 	// *******************************************************************
 	// 													modal
@@ -62,10 +58,24 @@ function BillItem({ data, onDeleteItem }: props) {
 		setQu(isNaN(n) ? 0 : n);
 	};
 
-	const onSubmit = () => {
-		addOrUpdateProduct_To_CurrentBill(data.productId, qu);
+	const onSubmit = async () => {
+		await setItem({
+			billId,
+			productId,
+			quantity: qu,
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		});
 		handdleCloseModal();
 	};
+
+	if (!product) return <Text>loanding....</Text>;
+
+	const { name, cost, currencyType } = product;
+
+	const { BSF } = getCostInBSAndCurrency({ cost, currencyType });
+
+	const costToView = IVAMode ? BSF / 1.16 : BSF;
 
 	// *******************************************************************
 	// 													Render
@@ -108,8 +118,8 @@ function BillItem({ data, onDeleteItem }: props) {
 					<Button
 						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 						size="small"
-						onClick={() => {
-							const text = billItemToText({
+						onClick={async () => {
+							const text = await billItemToText({
 								...data,
 								productName: name,
 								cost: BSF,
