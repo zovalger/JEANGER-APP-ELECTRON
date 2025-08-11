@@ -81,7 +81,7 @@ const useBillStore = create<IBillStore>()(
 					);
 
 					const newCurrentBill =
-						currentBill._id == id || currentBill.tempId == id
+						currentBill?._id == id || currentBill?.tempId == id
 							? null
 							: currentBill;
 

@@ -1,20 +1,33 @@
-import { createContext, useContext, useEffect } from "react";
+import { Socket } from "socket.io-client";
+import React, { createContext, useContext, useEffect } from "react";
 import { IBill } from "../interfaces/bill.interface";
 import { useSocketContext } from "../../common/context/Socket.context";
-import { BillEvents } from "../enums/BillEvents.enum";
 import useBill from "../hooks/useBill";
-import { Socket } from "socket.io-client";
+import {
+	DeleteBillDto,
+	DeleteBillItemDto,
+	DeleteBillItemFromSocketDto,
+	RenameBillDto,
+	SetBillItemFromSocketDto,
+} from "../dto";
+import { BillSocketEvents } from "../enums";
 
 interface ContextProps {
-	sendBillBroadcast(data: IBill): void;
-	sendDeleteBillBroadcast(_id: string): void;
+	sendRenameBill(data: RenameBillDto): void;
+	sendDeleteBill(data: DeleteBillDto): void;
+	sendSetItem(data: SetBillItemFromSocketDto): void;
+	sendDeleteItem(data: DeleteBillItemFromSocketDto): void;
 }
 
 const BillContext = createContext<ContextProps>({
-	sendBillBroadcast: (data: IBill) =>
+	sendRenameBill: (data: RenameBillDto) =>
 		console.log("sending bill by socket", data),
-	sendDeleteBillBroadcast: (id: string) =>
-		console.log("sending bill by socket", id),
+	sendDeleteBill: (data: DeleteBillDto) =>
+		console.log("sending bill by socket", data),
+	sendSetItem: (data: SetBillItemFromSocketDto) =>
+		console.log("sending bill by socket", data),
+	sendDeleteItem: (data: DeleteBillItemFromSocketDto) =>
+		console.log("sending bill by socket", data),
 });
 
 interface props {
@@ -24,7 +37,8 @@ interface props {
 export const BillContextProvider = ({ children }: props) => {
 	// lista de todos los billos
 	const { socket } = useSocketContext();
-	const { getAllBills, addOrUpdateBill, removeBill } = useBill();
+	const { getAllBills, setBill, renameBill, removeBill, setItem, removeItem } =
+		useBill();
 
 	useEffect(() => {
 		getAllBills();
@@ -34,36 +48,45 @@ export const BillContextProvider = ({ children }: props) => {
 		if (socket) setListeners(socket);
 	}, [socket]);
 
-	const reciveBill = ({ data, oldId }: { data: IBill; oldId: string }) => {
-		console.log(data);
-
-		removeBill(oldId, { resend: false });
-		addOrUpdateBill(data, { resend: false });
-	};
-
-	const reciveDeleteBill = (_id: string) => removeBill(_id, { resend: false });
-
 	const setListeners = async (s: Socket) => {
-		s.on(BillEvents.send, reciveBill);
-		s.on(BillEvents.delete, reciveDeleteBill);
+		s.on(BillSocketEvents.set, ({ data }) => setBill(data, true));
+		s.on(BillSocketEvents.rename, ({ data }) => renameBill(data, true));
+		s.on(BillSocketEvents.remove, ({ data }) => removeBill(data, true));
+		s.on(BillSocketEvents.setItem, ({ data }) =>
+			setItem(data, { disableSync: true, setQuantity: true })
+		);
+		s.on(BillSocketEvents.removeItem, ({ data }) =>
+			removeItem(data, { disableSync: true })
+		);
 	};
 
-	// send methods
-	const sendBillBroadcast = (data: IBill) => {
+	const sendRenameBill = (data: RenameBillDto) => {
 		if (!socket) return;
-		socket.emit(BillEvents.send, data);
+		socket.emit(BillSocketEvents.rename, data);
 	};
 
-	const sendDeleteBillBroadcast = (_id: string) => {
+	const sendDeleteBill = (data: DeleteBillDto) => {
 		if (!socket) return;
-		socket.emit(BillEvents.delete, _id);
+		socket.emit(BillSocketEvents.remove, data);
+	};
+
+	const sendSetItem = (data: SetBillItemFromSocketDto) => {
+		if (!socket) return;
+		socket.emit(BillSocketEvents.setItem, data);
+	};
+
+	const sendDeleteItem = (data: DeleteBillItemFromSocketDto) => {
+		if (!socket) return;
+		socket.emit(BillSocketEvents.removeItem, data);
 	};
 
 	return (
 		<BillContext.Provider
 			value={{
-				sendBillBroadcast,
-				sendDeleteBillBroadcast,
+				sendRenameBill,
+				sendDeleteBill,
+				sendSetItem,
+				sendDeleteItem,
 			}}
 		>
 			{children}

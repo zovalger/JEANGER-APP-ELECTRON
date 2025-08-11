@@ -4,7 +4,7 @@ export interface IBillItem {
 	quantity: number;
 	cost: number;
 	currencyType: CurrencyType;
-	createdBy: string;
+	createdBy?: string;
 	createdAt: string;
 	updatedAt: string;
 }

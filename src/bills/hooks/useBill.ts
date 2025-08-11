@@ -3,16 +3,24 @@ import useBillStore from "../../common/store/useBillStore";
 import useForeignExchange from "../../foreign_exchange/hooks/useForeignExchange";
 import useProduct from "../../products/hooks/useProduct";
 
-import { deleteItemInBill, updateBillItem } from "../helpers/Bill.helpers";
-
 import { IBill, IBillItem } from "../interfaces/bill.interface";
-import { useBillContext } from "../context/Bill.context";
+import {
+	DeleteBillDto,
+	DeleteBillItemFromSocketDto,
+	RenameBillDto,
+	SetBillItemFromSocketDto,
+} from "../dto";
+
 import {
 	BillItemToText_helper,
 	BillToText_helper,
 	IBill_CopyToClipboard,
 	IBillItem_CopyToClipboard,
 } from "../helpers/BillToText.helper";
+import { BillUrls } from "../api/bill-url";
+import { deleteItemInBill, updateBillItem } from "../helpers/Bill.helpers";
+import { useBillContext } from "../context/Bill.context";
+import useRequest from "../../common/hooks/useRequest";
 
 export const initialValuesBill: IBill = {
 	_id: "",
@@ -22,18 +30,12 @@ export const initialValuesBill: IBill = {
 	// foreignExchange: ForeignExchangeDocument,
 	totals: { BSF: 0, USD: 0 },
 	createdBy: "",
-	createdAt: new Date().toString(),
-	updatedAt: new Date().toString(),
+	createdAt: new Date().toISOString(),
+	updatedAt: new Date().toISOString(),
 };
 
-interface ComunicationOption {
-	resend?: boolean;
-}
-
-const defaultOptions: ComunicationOption = {
-	resend: true,
-};
 const useBill = () => {
+	const { jeangerApp_API } = useRequest();
 	const billContext = useBillContext();
 	const { getProduct } = useProduct();
 	const { foreignExchange, getCostInBSAndCurrency } = useForeignExchange();
@@ -41,6 +43,7 @@ const useBill = () => {
 	const currentBill = useBillStore((state) => state.currentBill);
 	const bills = useBillStore((state) => state.bills);
 	const IVAMode = useBillStore((state) => state.IVAMode);
+
 	const onToggleIVAMode = useBillStore((state) => state.onToggleIVAMode);
 	const onSetBills = useBillStore((state) => state.onSetBills);
 	const onSetCurrentBill = useBillStore((state) => state.onSetCurrentBill);
@@ -48,135 +51,189 @@ const useBill = () => {
 	const onSetBill = useBillStore((state) => state.onSetBill);
 	const onRemoveBill = useBillStore((state) => state.onRemoveBill);
 
-	
-
 	// ************************************************************
 	// 										functions
 	// ************************************************************
-
-	const setCurrentBill = (bill: IBill) => onSetCurrentBill(bill);
-
-	const addOrUpdateProduct_To_CurrentBill = async (
-		productId: string,
-		quantity?: number,
-		options?: { setQuantity?: boolean }
-	) => {
+	const getAllBills = async () => {
 		try {
-			const newItemBill: IBillItem = {
-				productId,
-				quantity: quantity ? quantity : 1,
-				cost: getProduct(productId).cost,
-				currencyType: getProduct(productId).currencyType,
-			};
+			const { data } = await jeangerApp_API.get<IBill[]>(BillUrls.base());
 
-			const newBill = updateBillItem(
-				currentBill,
-				newItemBill,
-				foreignExchange,
-				options
-			);
+			onSetBills(data);
 
-			setCurrentBill(newBill);
-			// addOrUpdateBill(newBill);
+			return data;
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	const deleteProduct_To_CurrentBill = (productId: string) => {
-		const newBill = deleteItemInBill(currentBill, foreignExchange, productId);
+	const getBill = async (id: string) => {
+		try {
+			const data = onGetBill(id);
 
-		setCurrentBill(newBill);
+			if (!data) throw new Error("no encontrado");
+
+			return data;
+		} catch (error) {
+			console.log(error);
+			throw new Error(error);
+		}
 	};
 
-	const clear_CurrentBill = () => setCurrentBill(clearBill());
+	const setBill = async (bill: IBill, disableSync = false) => {
+		const { _id, tempId, updatedAt } = bill;
+
+		try {
+			const t = await getBill(tempId || _id);
+
+			if (disableSync)
+				if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime())
+					return;
+		} catch (error) {
+			console.log(error);
+		}
+
+		const newBill = { ...bill };
+
+		onSetBill(tempId || _id, newBill);
+
+		return newBill;
+	};
+
+	const removeBill = async (
+		deleteBillDto: DeleteBillDto,
+		disableSync = false
+	) => {
+		const { _id, updatedAt } = deleteBillDto;
+
+		const t = await getBill(_id);
+
+		if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime()) return;
+
+		onRemoveBill(_id);
+
+		if (billContext && !disableSync) billContext.sendDeleteBill(deleteBillDto);
+	};
+
+	const createBill = async (name?: string) => {
+		const id = uuid();
+
+		const n = new Date().toISOString();
+
+		const toSave: IBill = {
+			...initialValuesBill,
+			name: name || "",
+			tempId: uuid(),
+			createdAt: n,
+			updatedAt: n,
+		};
+
+		// todo: hacer request
+
+		onSetBill(id, toSave);
+
+		return toSave;
+	};
+
+	const renameBill = async (data: RenameBillDto, disableSync = false) => {
+		const bill = await getBill(data._id || data.tempId);
+
+		const newBill = await setBill({
+			...bill,
+			...data,
+			updatedAt: new Date().toISOString(),
+		});
+
+		if (billContext && !disableSync) billContext.sendRenameBill(data);
+
+		return newBill;
+	};
+
+	// *****************************************************
+
+	const setItem = async (
+		data: SetBillItemFromSocketDto,
+		options?: { setQuantity: boolean; disableSync: boolean }
+	) => {
+		const { disableSync = false, setQuantity = false } = options;
+		const { billId, productId, updatedAt } = data;
+
+		try {
+			const bill = await getBill(billId);
+			const { cost, currencyType } = await getProduct(productId);
+
+			const newItemBill: IBillItem = { ...data, cost, currencyType };
+
+			// todo: no permitir actualizaciones viejas
+
+			const { items, totals, updatedItem } = updateBillItem(
+				bill.items,
+				newItemBill,
+				foreignExchange,
+				{ setQuantity }
+			);
+
+			const newBill = { ...bill, items, totals };
+
+			await setBill(newBill, true);
+
+			if (billContext && !disableSync)
+				billContext.sendSetItem({ ...data, quantity: updatedItem.quantity });
+
+			return updatedItem;
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const removeItem = async (
+		data: DeleteBillItemFromSocketDto,
+		options?: { disableSync: boolean }
+	) => {
+		const { disableSync = false } = options;
+
+		const { billId, productId, updatedAt } = data;
+
+		try {
+			const bill = await getBill(billId);
+
+			const { items, totals, updatedItem } = deleteItemInBill(
+				bill.items,
+				productId,
+				foreignExchange
+			);
+
+			await setBill({ ...bill, items, totals });
+
+			if (billContext && !disableSync) billContext.sendDeleteItem(data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	// const clear_CurrentBill = async () => setCurrentBill(clearBill());
 
 	// ************************************************************
 	// 										facturas guardadas
 	// ************************************************************
 
-	const getAllBills = async () => {
-		try {
-			const allBills = await getAllBillsRequest();
+	const selectBill = async (bill_id: string, disableSync = false) => {
+		// if (currentBill.items.length) saveCurrentBill();
 
-			onSetBills(allBills);
-		} catch (error) {
-			console.log(error);
-		}
-	};
+		const selectedBill = await getBill(bill_id);
+		onSetCurrentBill(selectedBill);
 
-	const addOrUpdateBill = (
-		bill: IBill,
-		options: ComunicationOption = defaultOptions
-	) => {
-		onAddOrUpdateBill(bill._id, bill);
-
-		if (billContext && options?.resend) {
-			console.log("envio por socket", bill);
-			billContext.sendBillBroadcast(bill);
-		}
-	};
-
-	const saveCurrentBill = (options: ComunicationOption = defaultOptions) => {
-		const toSave: IBill = currentBill._id
-			? currentBill
-			: { ...currentBill, _id: uuid() };
-
-		addOrUpdateBill(toSave);
-		clear_CurrentBill();
-
-		if (billContext && options?.resend) console.log("envio por socket");
-	};
-
-	const selectBill = (
-		bill_id: string,
-		options: ComunicationOption = defaultOptions
-	) => {
-		if (currentBill.items.length) saveCurrentBill();
-
-		const selectedBill = onGetBill(bill_id);
-		setCurrentBill(selectedBill);
-
-		if (billContext && options?.resend)
+		if (billContext && !disableSync)
 			console.log("envio por socket", "seleccion de bill");
 	};
 
-	const removeBill = (
-		bill_id: string,
-		options: ComunicationOption = defaultOptions
-	) => {
-		onRemoveBill(bill_id);
-
-		if (billContext && options?.resend) {
-			console.log("envio por socket", bill_id);
-			billContext.sendDeleteBillBroadcast(bill_id);
-		}
-	};
-
-	// const addOrUpdateProductBill = (
-	// 	bill_id: string,
-	// 	billItem: IBillItem,
-	// 	options: ComunicationOption = defaultOptions
-	// ) => {
-	// 	onAddOrUpdateProduct_in_Bill(bill_id, billItem);
-	// };
-
-	// const removeProductBill = (
-	// 	bill_id: string,
-	// 	billItemId: string,
-	// 	options: ComunicationOption = defaultOptions
-	// ) => {
-	// 	onRemoveProduct_in_Bill(bill_id, billItemId);
-	// };
-
-	const billItemToText = (item: IBillItem_CopyToClipboard) =>
+	const billItemToText = async (item: IBillItem_CopyToClipboard) =>
 		BillItemToText_helper(item);
 
-	const billToText = (bill: IBill) => {
-		const convertedItems: IBillItem_CopyToClipboard[] = bill.items.map(
-			(item) => {
+	const billToText = async (bill: IBill) => {
+		const convertedItems: IBillItem_CopyToClipboard[] = await Promise.all(
+			bill.items.map(async (item) => {
 				const { productId, cost, currencyType, quantity } = item;
-				const { name } = getProduct(productId);
+				const { name } = await getProduct(productId);
 				const { BSF } = getCostInBSAndCurrency({ currencyType, cost });
 
 				return {
@@ -185,7 +242,7 @@ const useBill = () => {
 					currencyType: "bs",
 					quantity,
 				};
-			}
+			})
 		);
 
 		const b: IBill_CopyToClipboard = { ...bill, items: convertedItems };
@@ -196,24 +253,19 @@ const useBill = () => {
 	return {
 		bills,
 		currentBill,
-		setCurrentBill,
-		addOrUpdateProduct_To_CurrentBill,
-		deleteProduct_To_CurrentBill,
-		clear_CurrentBill,
-
-		// saved bills
+		IVAMode,
 		getAllBills,
-		saveCurrentBill,
-		selectBill,
-		addOrUpdateBill,
+		getBill,
+		setBill,
 		removeBill,
-		// addOrUpdateProductBill,
-		// removeProductBill,
-
+		createBill,
+		renameBill,
+		setItem,
+		removeItem,
+		selectBill,
 		// comodidades
 		billToText,
 		billItemToText,
-		IVAMode,
 		toggleIVAMode: onToggleIVAMode,
 	};
 };
