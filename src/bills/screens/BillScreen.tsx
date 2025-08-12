@@ -111,7 +111,7 @@ const BillScreen = () => {
 
 				{currentBill &&
 					remainingBillItem.map((item) => (
-						<BillItem key={uuid()} billId={currentBill._id} data={item} />
+						<BillItem key={uuid()} data={item} />
 					))}
 			</div>
 

@@ -154,11 +154,21 @@ const useBill = () => {
 		data: SetBillItemFromSocketDto,
 		options?: { setQuantity: boolean; disableSync: boolean }
 	) => {
-		const { disableSync = false, setQuantity = false } = options;
+		const disableSync = options?.disableSync || false;
+		const setQuantity = options?.setQuantity || false;
+
 		const { billId, productId, updatedAt } = data;
 
+		let bill: IBill | null = null;
 		try {
-			const bill = await getBill(billId);
+			bill = await getBill(billId);
+		} catch (error) {
+			bill = await createBill("");
+
+			await selectBill(bill.tempId || bill._id);
+		}
+
+		try {
 			const { cost, currencyType } = await getProduct(productId);
 
 			const newItemBill: IBillItem = { ...data, cost, currencyType };

@@ -13,9 +13,16 @@ import Button from "../../common/components/Button";
 import useClipboard from "../../common/hooks/useClipboard";
 import moneyFormat from "../../common/helpers/moneyFormat.helper";
 
+interface BillItemSimplify extends Partial<IBillItem> {
+	productId: string;
+	quantity: number;
+	cost: number;
+	currencyType: CurrencyType;
+}
+
 interface props {
-	billId: string;
-	data: IBillItem;
+	billId?: string;
+	data: BillItemSimplify;
 	onDeleteItem?(productId: string): void;
 }
 
