@@ -108,7 +108,7 @@ const BillScreen = () => {
 				</div>
 			)}
 
-			<BillProductSearch />
+			<BillProductSearch billId={currentBill?._id} />
 
 			{/* ******************************* visor ************************************ */}
 

@@ -10,8 +10,14 @@ import BillProductSearchItem from "./BillProductSearchItem";
 
 const regExpAdder = /^(\+|-)\d{1,}/i;
 
-const BillProductSearch = () => {
-	const { addOrUpdateProduct_To_CurrentBill } = useBill();
+interface props {
+	billId?: string;
+}
+
+const BillProductSearch = (props: props) => {
+	const { billId } = props;
+
+	const { setItem } = useBill();
 	const { products } = useProduct();
 
 	const [inputValue, setInputValue] = useState("");
@@ -35,7 +41,7 @@ const BillProductSearch = () => {
 		setSelected(newPos);
 	};
 
-	const onEnter = (position?: number) => {
+	const onEnter = async (position?: number) => {
 		const matching = inputValue.match(regExpAdder);
 
 		let newInputText = inputValue;
@@ -50,8 +56,15 @@ const BillProductSearch = () => {
 			const productId =
 				productList[position !== undefined ? position : selected];
 
-			addOrUpdateProduct_To_CurrentBill(productId, quantity);
+			await setItem({
+				billId,
+				productId,
+				quantity,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			});
 
+			
 			quantity = 0;
 			newInputText = "";
 		}
@@ -131,7 +144,7 @@ const BillProductSearch = () => {
 			</div>
 
 			{productList.length > 0 && (
-				<div className="absolute translate-y-1 z-10 left-4 right-4 bg-white rounded shadow-2xl outline">
+				<div className="absolute -translate-y-4 z-10 left-4 right-4 bg-white rounded shadow-2xl outline">
 					{showLimitedProducts(productList)}
 				</div>
 			)}

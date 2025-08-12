@@ -14,6 +14,9 @@ import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import Button from "../../common/components/Button";
 import ClockTimeContainer from "./ClockTimeContainer";
+import useBill from "../../bills/hooks/useBill";
+import useProduct from "../../products/hooks/useProduct";
+import RouterLinks from "../../common/config/RouterLinks";
 
 const schema = yup
 	.object({
@@ -40,8 +43,8 @@ export default function StopwatchItem({ initialData }: props) {
 
 	const navigate = useNavigate();
 
-	// const { productSettings, getProductSettings } = useProduct();
-	// const { addOrUpdateProduct_To_CurrentBill } = useBill();
+	const { productSettings, getProductSettings } = useProduct();
+	const { setItem, currentBill } = useBill();
 	const {
 		getTime,
 		start,
@@ -91,26 +94,35 @@ export default function StopwatchItem({ initialData }: props) {
 		reset(initialValues);
 	}, [initialData, reset]);
 
-	// const addToBill = async () => {
-	// 	// todo: remover y colocar en una parte mas general
-	// 	if (!productSettings) await getProductSettings();
-	// 	if (!productSettings?.stopwatchProductId) return;
+	const addToBill = async () => {
+		// todo: remover y colocar en una parte mas general
+		if (!productSettings) await getProductSettings();
 
-	// 	const productId = productSettings.stopwatchProductId;
+		if (!productSettings.stopwatchProduct) return;
 
-	// 	const { timeSeted } = data;
+		const productId = productSettings.stopwatchProduct;
 
-	// 	pause(data);
+		const { timeSeted } = initialData;
 
-	// 	const time =
-	// 		(timeSeted ? timeSeted : getTime(data, referenceTime).time) / 60000;
+		pause(initialData.tempId);
 
-	// 	await addOrUpdateProduct_To_CurrentBill(productId, time, {
-	// 		setQuantity: true,
-	// 	});
+		const time =
+			(timeSeted ? timeSeted : getTime(initialData, referenceTime).time) /
+			60000;
 
-	// 	navigate(RouterLinks.Bills);
-	// };
+		await setItem(
+			{
+				billId: currentBill?.tempId,
+				productId,
+				quantity: time,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			},
+			{ setQuantity: true }
+		);
+
+		navigate(RouterLinks.Bills);
+	};
 
 	// ****************************************************************************
 	// 										          render
@@ -153,7 +165,7 @@ export default function StopwatchItem({ initialData }: props) {
 					</Text>
 				)}
 
-				{/* <IconButton onClick={addToBill} icon="ShoppingCart"  size="small" /> */}
+				<IconButton onClick={addToBill} icon="ShoppingCart" size="small" />
 				{deleteActive && (
 					<IconButton
 						onClick={() =>

@@ -165,7 +165,7 @@ const useBill = () => {
 
 	const setItem = async (
 		data: SetBillItemFromSocketDto,
-		options?: { setQuantity: boolean; disableSync: boolean }
+		options?: { setQuantity?: boolean; disableSync?: boolean }
 	) => {
 		const disableSync = options?.disableSync || false;
 		const setQuantity = options?.setQuantity || false;

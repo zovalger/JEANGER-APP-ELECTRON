@@ -19,8 +19,11 @@ const BillProductSearchItem = (props: props) => {
 	const { billItemToText } = useBill();
 	const { isCopy, copyToClipboard } = useClipboard();
 	const { getCostInBSAndCurrency } = useForeignExchange();
-	const { getProduct } = useProduct(_id);
-	const { name, cost, currencyType } = getProduct(_id);
+	const { product } = useProduct({ productId: _id });
+
+	if (!product) return <Text>Loanding ...</Text>;
+
+	const { name, cost, currencyType } = product;
 
 	const { BSF, divisaCost } = getCostInBSAndCurrency({
 		cost,
@@ -41,8 +44,8 @@ const BillProductSearchItem = (props: props) => {
 			<IconButton
 				icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 				size="small"
-				onClick={() => {
-					const text = billItemToText({
+				onClick={async () => {
+					const text = await billItemToText({
 						productName: name,
 						quantity: 1,
 						cost: BSF,

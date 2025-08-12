@@ -105,10 +105,10 @@ function ProductRefForm({
 					))}
 			</div>
 
-			<form onSubmit={handleSubmit(onSubmit)} className="w-[80vw] max-w-3xl">
+			<form onSubmit={handleSubmit(onSubmit)} className="w-full">
 				<div className="flex gap-x-2 flex-wrap ">
 					<Select
-						className="w-full flex-none md:flex-1/2"
+						className="w-full flex-none sm:flex-1/2"
 						{...register("parentId")}
 						label="Padre"
 						options={posibleParents.map((item) => ({
@@ -119,7 +119,7 @@ function ProductRefForm({
 					/>
 
 					<Input
-						className="flex-1 md:flex-1/6"
+						className="flex-1 sm:flex-1"
 						{...register("amount")}
 						label="Cantidad"
 						type="number"
@@ -127,7 +127,7 @@ function ProductRefForm({
 					/>
 
 					<Input
-						className="flex-1 md:flex-1/6"
+						className="flex-1 sm:flex-1"
 						{...register("percentage")}
 						label="Porcentaje"
 						type="number"
