@@ -11,6 +11,7 @@ import {
 	SetBillItemFromSocketDto,
 } from "../dto";
 import { BillSocketEvents } from "../enums";
+import useProduct from "../../products/hooks/useProduct";
 
 interface ContextProps {
 	sendRenameBill(data: RenameBillDto): void;
@@ -39,9 +40,11 @@ export const BillContextProvider = ({ children }: props) => {
 	const { socket } = useSocketContext();
 	const { getAllBills, setBill, renameBill, removeBill, setItem, removeItem } =
 		useBill();
+	const { getProductsFromServer } = useProduct();
 
 	useEffect(() => {
 		getAllBills();
+		getProductsFromServer();
 	}, []);
 
 	useEffect(() => {
@@ -52,11 +55,11 @@ export const BillContextProvider = ({ children }: props) => {
 		s.on(BillSocketEvents.set, ({ data }) => setBill(data, true));
 		s.on(BillSocketEvents.rename, ({ data }) => renameBill(data, true));
 		s.on(BillSocketEvents.remove, ({ data }) => removeBill(data, true));
-		s.on(BillSocketEvents.setItem, ({ data }) =>
-			setItem(data, { disableSync: true, setQuantity: true })
+		s.on(BillSocketEvents.setItem, ({ data, billId }) =>
+			setItem({ ...data, billId }, { disableSync: true, setQuantity: true })
 		);
-		s.on(BillSocketEvents.removeItem, ({ data }) =>
-			removeItem(data, { disableSync: true })
+		s.on(BillSocketEvents.removeItem, ({ data, billId }) =>
+			removeItem({ ...data, billId }, { disableSync: true })
 		);
 	};
 

@@ -24,7 +24,15 @@ const BillScreen = () => {
 
 	const { products, getProductsFromServer } = useProduct();
 
-	const { currentBill, billToText, IVAMode, toggleIVAMode } = useBill();
+	const {
+		currentBill,
+		billToText,
+		IVAMode,
+		toggleIVAMode,
+		createBill,
+		selectBill,
+		clear_CurrentBill,
+	} = useBill();
 
 	// *******************************************************************
 	// 													Visor
@@ -69,7 +77,7 @@ const BillScreen = () => {
 
 	const onDelete = async () => {
 		setDeletedFavorites([]);
-		// clear_CurrentBill();
+		await clear_CurrentBill();
 	};
 
 	// *******************************************************************
@@ -105,14 +113,27 @@ const BillScreen = () => {
 			{/* ******************************* visor ************************************ */}
 
 			<div className="px-4 flex-1">
-				{productsBillItemsFavoritesByPriority.map((data) => (
-					<BillItem key={uuid()} data={data} onDeleteItem={onDeleteItem} />
-				))}
+				{currentBill && (
+					<>
+						{productsBillItemsFavoritesByPriority.map((item) => (
+							<BillItem
+								billId={currentBill.tempId}
+								key={item.productId}
+								data={item}
+								onDeleteItem={onDeleteItem}
+							/>
+						))}
 
-				{currentBill &&
-					remainingBillItem.map((item) => (
-						<BillItem key={uuid()} data={item} />
-					))}
+						{currentBill &&
+							remainingBillItem.map((item) => (
+								<BillItem
+									billId={currentBill.tempId}
+									key={item.productId}
+									data={item}
+								/>
+							))}
+					</>
+				)}
 			</div>
 
 			<div className="m-4 flex flex-col sm:flex-row sm:justify-between gap-2">
@@ -150,6 +171,15 @@ const BillScreen = () => {
 							}}
 						>
 							Copiar
+						</Button>
+						<Button
+							icon="Plus"
+							onClick={async () => {
+								const bill = await createBill("");
+								await selectBill(bill.tempId);
+							}}
+						>
+							Nueva
 						</Button>
 					</div>
 

@@ -9,20 +9,23 @@ interface props {
 }
 
 export default function SavedBillsItem({ data }: props) {
-	const { name, totals, _id } = data;
+	const { name, totals, tempId, _id } = data;
 
 	const { currentBill, selectBill, removeBill } = useBill();
 
-	const handdleSelect = async () => await selectBill(_id);
+	const handdleSelect = async () => await selectBill(tempId);
 
 	const handdleDelete = async () =>
-		await removeBill({ _id, updatedAt: new Date().toISOString() });
+		await removeBill({
+			_id: tempId,
+			updatedAt: new Date().toISOString(),
+		});
 
 	return (
 		<div
 			onClick={handdleSelect}
 			className={`flex gap-2 py-0 pl-2 rounded border  ${
-				currentBill && (currentBill._id == _id || currentBill.tempId == _id)
+				currentBill && currentBill.tempId == tempId
 					? "border-cyan-400"
 					: "border-dashed"
 			} `}

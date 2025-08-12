@@ -46,27 +46,23 @@ const useBillStore = create<IBillStore>()(
 			},
 
 			onGetBill: (id) =>
-				get().bills.find((item) =>
-					item._id ? item._id == id : item.tempId == id
-				),
+				get().bills.find((item) => item.tempId == id || item._id == id),
 
 			onSetBill: (id, bill) =>
 				set((state) => {
 					const { bills, currentBill } = state;
 
-					const b = bills.find((item) =>
-						item._id ? item._id == id : item.tempId == id
-					);
+					const b = bills.find((item) => item.tempId == id || item._id == id);
 
 					if (!b) return { ...state, bills: [...bills, bill] };
 
 					return {
 						...state,
 						bills: bills.map((item) =>
-							item._id == id || item.tempId == id ? bill : item
+							item.tempId == id || item._id == id ? bill : item
 						),
 						currentBill:
-							currentBill._id == id || currentBill.tempId == id
+							currentBill?.tempId == id || currentBill?._id == id
 								? bill
 								: currentBill,
 					};
@@ -77,11 +73,11 @@ const useBillStore = create<IBillStore>()(
 					const { bills, currentBill } = state;
 
 					const newBills = bills.filter(
-						(item) => !(item._id == id || item.tempId == id)
+						(item) => !(item.tempId == id || item._id == id)
 					);
 
 					const newCurrentBill =
-						currentBill?._id == id || currentBill?.tempId == id
+						currentBill?.tempId == id || currentBill?._id == id
 							? null
 							: currentBill;
 

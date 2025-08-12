@@ -50,7 +50,11 @@ export const updateBillItem = (
 
 	const totals = calculateTotals(newItems, foreignExchange);
 
-	return { items: newItems, totals, updatedItem: billItem };
+	return {
+		items: newItems,
+		totals,
+		updatedItem: { ...billItem, quantity: newQuantity },
+	};
 };
 
 export const deleteItemInBill = (

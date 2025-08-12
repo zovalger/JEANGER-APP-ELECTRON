@@ -15,13 +15,13 @@ export interface ITotals {
 }
 
 export interface IBill {
-	_id: string;
+	_id?: string;
 	tempId: string;
 	name: string;
 	items: IBillItem[];
 	// foreignExchange: ForeignExchangeDocument;
 	totals: ITotals;
-	createdBy: string;
+	createdBy?: string;
 	createdAt: string;
 	updatedAt: string;
 }

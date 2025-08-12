@@ -66,6 +66,7 @@ function BillItem({ billId, data, onDeleteItem }: props) {
 	};
 
 	const onSubmit = async () => {
+		setQu(0);
 		await setItem({
 			billId,
 			productId,

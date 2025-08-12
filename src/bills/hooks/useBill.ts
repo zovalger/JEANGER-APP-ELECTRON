@@ -23,13 +23,13 @@ import { useBillContext } from "../context/Bill.context";
 import useRequest from "../../common/hooks/useRequest";
 
 export const initialValuesBill: IBill = {
-	_id: "",
+	// _id: "",
 	tempId: "",
 	name: "",
 	items: [],
 	// foreignExchange: ForeignExchangeDocument,
 	totals: { BSF: 0, USD: 0 },
-	createdBy: "",
+	// createdBy: "",
 	createdAt: new Date().toISOString(),
 	updatedAt: new Date().toISOString(),
 };
@@ -83,7 +83,7 @@ const useBill = () => {
 		const { _id, tempId, updatedAt } = bill;
 
 		try {
-			const t = await getBill(tempId || _id);
+			const t = await getBill(tempId);
 
 			if (disableSync)
 				if (new Date(updatedAt).getTime() < new Date(t.updatedAt).getTime())
@@ -111,7 +111,8 @@ const useBill = () => {
 
 		onRemoveBill(_id);
 
-		if (billContext && !disableSync) billContext.sendDeleteBill(deleteBillDto);
+		if (billContext && !disableSync)
+			billContext.sendDeleteBill({ ...deleteBillDto, _id: t._id });
 	};
 
 	const createBill = async (name?: string) => {
@@ -122,14 +123,25 @@ const useBill = () => {
 		const toSave: IBill = {
 			...initialValuesBill,
 			name: name || "",
-			tempId: uuid(),
+			tempId: id,
 			createdAt: n,
 			updatedAt: n,
 		};
 
-		// todo: hacer request
+		try {
+			// todo: hacer request
+			const { data } = await jeangerApp_API.post<IBill>(
+				BillUrls.base(),
+				toSave
+			);
 
-		onSetBill(id, toSave);
+			onSetBill(data._id, data);
+
+			return data;
+		} catch (error) {
+			console.log(error);
+			onSetBill(id, toSave);
+		}
 
 		return toSave;
 	};
@@ -143,7 +155,8 @@ const useBill = () => {
 			updatedAt: new Date().toISOString(),
 		});
 
-		if (billContext && !disableSync) billContext.sendRenameBill(data);
+		if (billContext && !disableSync)
+			billContext.sendRenameBill({ ...data, _id: bill._id });
 
 		return newBill;
 	};
@@ -157,16 +170,11 @@ const useBill = () => {
 		const disableSync = options?.disableSync || false;
 		const setQuantity = options?.setQuantity || false;
 
+		console.log(data);
+
 		const { billId, productId, updatedAt } = data;
 
-		let bill: IBill | null = null;
-		try {
-			bill = await getBill(billId);
-		} catch (error) {
-			bill = await createBill("");
-
-			await selectBill(bill.tempId || bill._id);
-		}
+		const bill = await getBill(billId);
 
 		try {
 			const { cost, currencyType } = await getProduct(productId);
@@ -186,8 +194,14 @@ const useBill = () => {
 
 			await setBill(newBill, true);
 
+			console.log(updatedItem);
+
 			if (billContext && !disableSync)
-				billContext.sendSetItem({ ...data, quantity: updatedItem.quantity });
+				billContext.sendSetItem({
+					...data,
+					billId: bill._id,
+					quantity: updatedItem.quantity,
+				});
 
 			return updatedItem;
 		} catch (error) {
@@ -199,8 +213,7 @@ const useBill = () => {
 		data: DeleteBillItemFromSocketDto,
 		options?: { disableSync: boolean }
 	) => {
-		const { disableSync = false } = options;
-
+		const disableSync = options?.disableSync || false;
 		const { billId, productId, updatedAt } = data;
 
 		try {
@@ -214,13 +227,21 @@ const useBill = () => {
 
 			await setBill({ ...bill, items, totals });
 
-			if (billContext && !disableSync) billContext.sendDeleteItem(data);
+			if (billContext && !disableSync)
+				billContext.sendDeleteItem({ ...data, billId: bill._id });
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	// const clear_CurrentBill = async () => setCurrentBill(clearBill());
+	const clear_CurrentBill = async () => {
+		const bill = await createBill("");
+		await selectBill(bill.tempId);
+		await removeBill({
+			_id: currentBill.tempId,
+			updatedAt: new Date().toISOString(),
+		});
+	};
 
 	// ************************************************************
 	// 										facturas guardadas
@@ -230,6 +251,7 @@ const useBill = () => {
 		// if (currentBill.items.length) saveCurrentBill();
 
 		const selectedBill = await getBill(bill_id);
+
 		onSetCurrentBill(selectedBill);
 
 		if (billContext && !disableSync)
@@ -273,6 +295,7 @@ const useBill = () => {
 		setItem,
 		removeItem,
 		selectBill,
+		clear_CurrentBill,
 		// comodidades
 		billToText,
 		billItemToText,
