@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 import { ISessionToken, IUser } from "../../auth/interfaces";
 
 interface IUserState {
 	sessionToken: ISessionToken | null;
-	user: IUser | null;
+	userLogged: IUser | null;
 	users: IUser[];
 }
 
@@ -13,37 +13,54 @@ interface IUserActions {
 	onLogout: () => void;
 	onSetUserProfile: (user: IUser) => void;
 	onSetUsers: (users: IUser[]) => void;
+	onSetUser: (id: string, users: IUser) => void;
 }
 
 interface IUserStore extends IUserState, IUserActions {}
 
 const useUserStore = create<IUserStore>()(
-	persist<IUserStore>(
-		(set) => ({
-			sessionToken: null,
-			user: null,
-			users: [],
+	devtools(
+		persist<IUserStore>(
+			(set) => ({
+				sessionToken: null,
+				userLogged: null,
+				users: [],
 
-			onSetSessionToken: (sessionToken) => {
-				set((state) => ({ ...state, sessionToken }));
-			},
-			onLogout: () => {
-				set((state) => ({
-					...state,
-					sessionToken: null,
-					user: null,
-					users: [],
-				}));
-			},
-			onSetUserProfile: (user) => {
-				set((state) => ({ ...state, user }));
-			},
+				onSetSessionToken: (sessionToken) => {
+					set((state) => ({ ...state, sessionToken }));
+				},
+				onLogout: () => {
+					set((state) => ({
+						...state,
+						sessionToken: null,
+						userLogged: null,
+						users: [],
+					}));
+				},
+				onSetUserProfile: (user) => {
+					set((state) => ({ ...state, userLogged: user }));
+				},
 
-			onSetUsers: (users) => {
-				set((state) => ({ ...state, users }));
-			},
-		}),
-		{ name: "user-store" }
+				onSetUsers: (users) => {
+					set((state) => ({ ...state, users }));
+				},
+
+				onSetUser: (id, user) =>
+					set((state) => {
+						const { users } = state;
+
+						const b = users.find((item) => item._id == id);
+
+						if (!b) return { ...state, bills: [...users, user] };
+
+						return {
+							...state,
+							users: users.map((item) => (item._id == id ? user : item)),
+						};
+					}),
+			}),
+			{ name: "user-store" }
+		)
 	)
 );
 

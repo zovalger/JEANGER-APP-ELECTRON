@@ -34,7 +34,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 		closeRightPanel,
 		toogleRightPanel,
 	} = useUI();
-	const { logout, user } = useUser();
+	const { logout, userLogged } = useUser();
 
 	const LeftPanel = () => (
 		<div
@@ -81,9 +81,9 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 						</div>
 					))}
 				</div>
-				{user && (
+				{userLogged && (
 					<div className="flex items-center justify-between border-t border-gray-500">
-						<Text className="block sm:hidden lg:block ml-4">{user.name}</Text>
+						<Text className="block sm:hidden lg:block ml-4">{userLogged.name}</Text>
 						<IconButton className="" icon="Close" onClick={logout} />
 					</div>
 				)}

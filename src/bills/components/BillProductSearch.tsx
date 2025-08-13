@@ -64,7 +64,6 @@ const BillProductSearch = (props: props) => {
 				updatedAt: new Date().toISOString(),
 			});
 
-			
 			quantity = 0;
 			newInputText = "";
 		}
@@ -100,7 +99,10 @@ const BillProductSearch = (props: props) => {
 
 	useEffect(() => {
 		const focusInput = (e: KeyboardEvent) => {
-			if (e.key === "F6" && inputRef.current) inputRef.current.focus();
+			if (e.key === "F6" && inputRef.current) {
+				e.preventDefault();
+				inputRef.current.focus();
+			}
 		};
 
 		document.addEventListener("keydown", focusInput);
@@ -127,7 +129,7 @@ const BillProductSearch = (props: props) => {
 	};
 
 	return (
-		<div className="sticky top-14 p-4 backdrop-blur-sm bg-[#fff9]">
+		<div className="sticky top-14 px-4 pt-4 backdrop-blur-sm bg-[#fff9]">
 			<div className="">
 				<Input
 					ref={inputRef}

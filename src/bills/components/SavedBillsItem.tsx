@@ -1,3 +1,4 @@
+import useUser from "../../auth/hooks/useUser";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import moneyFormat from "../../common/helpers/moneyFormat.helper";
@@ -9,7 +10,9 @@ interface props {
 }
 
 export default function SavedBillsItem({ data }: props) {
-	const { name, totals, tempId, _id } = data;
+	const { name, totals, tempId, createdBy } = data;
+
+	const { userLogged, user } = useUser({ userId: createdBy });
 
 	const { currentBill, selectBill, removeBill } = useBill();
 
@@ -24,14 +27,21 @@ export default function SavedBillsItem({ data }: props) {
 	return (
 		<div
 			onClick={handdleSelect}
-			className={`flex gap-2 py-0 pl-2 rounded border  ${
+			style={{
+				backgroundColor:
+					currentBill && currentBill.tempId == tempId
+						? userLogged?.identityColor + "55"
+						: "",
+				borderColor: user?.identityColor,
+			}}
+			className={`flex gap-2 py-0.5 pl-2 rounded  border  ${
 				currentBill && currentBill.tempId == tempId
-					? "border-cyan-400"
+					? "border shadow"
 					: "border-dashed"
 			} `}
 		>
 			<div className="">
-				<Text>{name || "Sin Nombre"}</Text>
+				<Text>{name || user?.name || "Sin Nombre"}</Text>
 
 				<div className="flex gap-2">
 					<Text className="mr-2 text-right">

@@ -15,7 +15,7 @@ interface PageTemplateLayoutProps {
 }
 
 const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
-	const { user } = useUser();
+	const { userLogged } = useUser();
 	const { openLeftPanel } = useUI();
 	const { children, rightButtons, name, nameHelp, backButtonURL } = props;
 
@@ -31,7 +31,7 @@ const PageTemplateLayout = (props: PageTemplateLayoutProps) => {
 	return (
 		<>
 			<div
-				style={{ backgroundColor: user?.identityColor || "#E5E7EB" }}
+				style={{ backgroundColor: userLogged?.identityColor || "#E5E7EB" }}
 				className={`sticky top-0 flex min-h-14 items-center`}
 			>
 				{backButtonURL ? (
