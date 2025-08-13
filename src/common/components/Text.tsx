@@ -6,6 +6,7 @@ interface TextProps extends ParamHTMLAttributes<HTMLDivElement> {
 	variant?: TextVariants;
 	size?: UI_Sizes;
 	selectable?: boolean;
+	inlineBlock?: boolean;
 }
 
 const Text = (props: TextProps) => {
@@ -14,6 +15,7 @@ const Text = (props: TextProps) => {
 		size = "normal",
 		className,
 		selectable = false,
+		inlineBlock = false,
 		...otherPros
 	} = props;
 
@@ -29,12 +31,14 @@ const Text = (props: TextProps) => {
 	const weightClass =
 		variant == "bold" ? "font-bold" : variant == "lighter" ? "font-light" : "";
 
+	const displayClass = inlineBlock ? "inline-block mx-0.5" : "block";
+
 	return (
 		<div
 			{...otherPros}
-			className={`h-fit  ${
+			className={`h-fit   ${
 				selectable || "select-none"
-			} ${weightClass} ${sizeClass} ${className}`}
+			} ${displayClass} ${weightClass} ${sizeClass} ${className}`}
 		/>
 	);
 };

@@ -16,6 +16,7 @@ import BillProductSearch from "../components/BillProductSearch";
 import Button from "../../common/components/Button";
 import SavedBills from "../components/SavedBills";
 import { CurrencyType } from "../../common/enums";
+import DeleteRequestItem from "../components/DeleteRequestItem";
 
 const BillScreen = () => {
 	const { isCopy, copyToClipboard } = useClipboard();
@@ -25,6 +26,7 @@ const BillScreen = () => {
 	const { products, getProductsFromServer } = useProduct();
 
 	const {
+		deleteRequests,
 		currentBill,
 		billToText,
 		IVAMode,
@@ -241,6 +243,10 @@ const BillScreen = () => {
 					</div>
 				</div>
 			</div>
+
+			{deleteRequests.map((item) => (
+				<DeleteRequestItem data={item} key={item.data._id} />
+			))}
 		</PageTemplateLayout>
 	);
 };

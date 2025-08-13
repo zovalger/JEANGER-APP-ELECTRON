@@ -1,9 +1,11 @@
 import Text from "./Text";
 import Modal from "./Modal";
 import Button from "./Button";
+import React from "react";
 
 interface props {
 	modalText?: string;
+	children?: React.ReactNode;
 	confirmText?: string;
 	onConfirm(): void;
 	cancelText?: string;
@@ -17,13 +19,16 @@ const ConfirmModal = (props: props) => {
 		onConfirm,
 		cancelText = "Cancelar",
 		onCancel,
+		children,
 	} = props;
 
 	return (
-		<Modal visible={true}>
+		<Modal visible={true} className="max-w-1/2">
 			<Text className="mb-4" size="big" variant="bold">
 				{modalText}
 			</Text>
+
+			<div>{children}</div>
 
 			<div className="flex gap-2">
 				<Button

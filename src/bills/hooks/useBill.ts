@@ -26,6 +26,7 @@ import {
 } from "../helpers/Bill.helpers";
 import { useBillContext } from "../context/Bill.context";
 import useRequest from "../../common/hooks/useRequest";
+import { useEffect, useState } from "react";
 
 export const initialValuesBill: IBill = {
 	// _id: "",
@@ -39,7 +40,11 @@ export const initialValuesBill: IBill = {
 	updatedAt: new Date().toISOString(),
 };
 
-const useBill = () => {
+interface Options {
+	billId?: string;
+}
+
+const useBill = (options?: Options) => {
 	const { jeangerApp_API } = useRequest();
 	const billContext = useBillContext();
 	const { getProduct } = useProduct();
@@ -59,6 +64,9 @@ const useBill = () => {
 	const onAddDeleteRequest = useBillStore((state) => state.onAddDeleteRequest);
 	const onGetDeleteRequest = useBillStore((state) => state.onGetDeleteRequest);
 	const onRemoveDeleteBill = useBillStore((state) => state.onRemoveDeleteBill);
+
+	const [first, setFirst] = useState(true);
+	const [bill, setBillProps] = useState<null | IBill>(null);
 
 	// ************************************************************
 	// 										functions
@@ -137,6 +145,9 @@ const useBill = () => {
 				const newBill = await createBill(bill.name, bill.items);
 
 				if (currentBill?._id == billId) await selectBill(newBill.tempId);
+			} else if (currentBill?._id == billId) {
+				const newBill = await createBill();
+				await selectBill(newBill.tempId);
 			}
 
 			await removeBill(req.data, true);
@@ -339,7 +350,23 @@ const useBill = () => {
 		return BillToText_helper({ bill: b, foreignExchange });
 	};
 
+	useEffect(() => {
+		if (!first) return;
+		setFirst(false);
+
+		if (!options) return;
+
+		if (options.billId) {
+			try {
+				getBill(options.billId).then((data) => setBillProps(data));
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	}, []);
+
 	return {
+		bill,
 		bills,
 		currentBill,
 		IVAMode,

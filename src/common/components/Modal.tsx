@@ -6,7 +6,7 @@ interface props extends HTMLAttributes<HTMLDivElement> {
 }
 
 const Modal = (props: props) => {
-	const { onClose, children, visible, ...otherPros } = props;
+	const { onClose, children, visible, className, ...otherPros } = props;
 
 	if (!visible) return;
 
@@ -23,13 +23,13 @@ const Modal = (props: props) => {
 				e.stopPropagation();
 				onClose?.();
 			}}
-			{...otherPros}
 		>
 			<div
-				className="flex-col bg-white mx-4 px-4 py-3 max-h-[90vh] overflow-y-auto rounded shadowlg shadow-neutral-500"
+				className={`flex-col bg-white mx-4 px-4 py-3 max-h-[90vh] overflow-y-auto rounded shadowlg shadow-neutral-500 ${className}`}
 				onClick={(e) => {
 					e.stopPropagation();
 				}}
+				{...otherPros}
 			>
 				{children}
 			</div>
