@@ -6,6 +6,7 @@ import useProduct from "../../products/hooks/useProduct";
 import { IBill, IBillItem } from "../interfaces/bill.interface";
 import {
 	DeleteBillDto,
+	DeleteBillFromServerDto,
 	DeleteBillItemFromSocketDto,
 	RenameBillDto,
 	SetBillItemFromSocketDto,
@@ -18,7 +19,11 @@ import {
 	IBillItem_CopyToClipboard,
 } from "../helpers/BillToText.helper";
 import { BillUrls } from "../api/bill-url";
-import { deleteItemInBill, updateBillItem } from "../helpers/Bill.helpers";
+import {
+	calculateTotals,
+	deleteItemInBill,
+	updateBillItem,
+} from "../helpers/Bill.helpers";
 import { useBillContext } from "../context/Bill.context";
 import useRequest from "../../common/hooks/useRequest";
 
@@ -43,6 +48,7 @@ const useBill = () => {
 	const currentBill = useBillStore((state) => state.currentBill);
 	const bills = useBillStore((state) => state.bills);
 	const IVAMode = useBillStore((state) => state.IVAMode);
+	const deleteRequests = useBillStore((state) => state.deleteRequests);
 
 	const onToggleIVAMode = useBillStore((state) => state.onToggleIVAMode);
 	const onSetBills = useBillStore((state) => state.onSetBills);
@@ -50,6 +56,9 @@ const useBill = () => {
 	const onGetBill = useBillStore((state) => state.onGetBill);
 	const onSetBill = useBillStore((state) => state.onSetBill);
 	const onRemoveBill = useBillStore((state) => state.onRemoveBill);
+	const onAddDeleteRequest = useBillStore((state) => state.onAddDeleteRequest);
+	const onGetDeleteRequest = useBillStore((state) => state.onGetDeleteRequest);
+	const onRemoveDeleteBill = useBillStore((state) => state.onRemoveDeleteBill);
 
 	// ************************************************************
 	// 										functions
@@ -99,6 +108,43 @@ const useBill = () => {
 		return newBill;
 	};
 
+	const addDeleteRequest = async (deleteBillDto: DeleteBillFromServerDto) => {
+		const { userId, data } = deleteBillDto;
+
+		try {
+			const t = await getBill(data._id);
+
+			if (t.createdBy == userId) throw new Error("");
+
+			onAddDeleteRequest(deleteBillDto);
+		} catch (error) {
+			console.log(error);
+			await removeBill(data);
+		}
+	};
+
+	const removeDeleteRequest = async (billId: string, keep = false) => {
+		const req = onGetDeleteRequest(billId);
+
+		try {
+			if (!req) throw new Error("esto no deberia de pasar");
+
+			onRemoveDeleteBill(billId);
+
+			const bill = await getBill(billId);
+
+			if (keep) {
+				const newBill = await createBill(bill.name, bill.items);
+
+				if (currentBill?._id == billId) await selectBill(newBill.tempId);
+			}
+
+			await removeBill(req.data, true);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	const removeBill = async (
 		deleteBillDto: DeleteBillDto,
 		disableSync = false
@@ -115,7 +161,7 @@ const useBill = () => {
 			billContext.sendDeleteBill({ ...deleteBillDto, _id: t._id });
 	};
 
-	const createBill = async (name?: string) => {
+	const createBill = async (name?: string, items?: IBillItem[]) => {
 		const id = uuid();
 
 		const n = new Date().toISOString();
@@ -127,6 +173,11 @@ const useBill = () => {
 			createdAt: n,
 			updatedAt: n,
 		};
+
+		if (items) {
+			toSave.items = items.map(({ createdBy, ...rest }) => rest);
+			toSave.totals = calculateTotals(items, foreignExchange);
+		}
 
 		try {
 			// todo: hacer request
@@ -172,14 +223,20 @@ const useBill = () => {
 
 		console.log(data);
 
-		const { billId, productId, updatedAt } = data;
+		const { billId, productId, updatedAt, ...rest } = data;
 
 		const bill = await getBill(billId);
 
 		try {
 			const { cost, currencyType } = await getProduct(productId);
 
-			const newItemBill: IBillItem = { ...data, cost, currencyType };
+			const newItemBill: IBillItem = {
+				...rest,
+				cost,
+				currencyType,
+				productId,
+				updatedAt,
+			};
 
 			// todo: no permitir actualizaciones viejas
 
@@ -286,6 +343,10 @@ const useBill = () => {
 		bills,
 		currentBill,
 		IVAMode,
+		deleteRequests,
+		addDeleteRequest,
+		removeDeleteRequest,
+
 		getAllBills,
 		getBill,
 		setBill,

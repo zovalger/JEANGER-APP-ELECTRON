@@ -1,3 +1,4 @@
+export { DeleteBillFromServerDto } from "./delete-bill-from-server.dto";
 export { DeleteBillDto } from "./delete-bill.dto";
 export { DeleteBillItemFromSocketDto } from "./delete-bill-item-from-socket.dto";
 export { SetBillItemFromSocketDto } from "./set-bill-item-from-socket.dto";

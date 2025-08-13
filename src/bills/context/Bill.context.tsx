@@ -1,11 +1,10 @@
 import { Socket } from "socket.io-client";
 import React, { createContext, useContext, useEffect } from "react";
-import { IBill } from "../interfaces/bill.interface";
 import { useSocketContext } from "../../common/context/Socket.context";
 import useBill from "../hooks/useBill";
 import {
 	DeleteBillDto,
-	DeleteBillItemDto,
+	DeleteBillFromServerDto,
 	DeleteBillItemFromSocketDto,
 	RenameBillDto,
 	SetBillItemFromSocketDto,
@@ -38,8 +37,14 @@ interface props {
 export const BillContextProvider = ({ children }: props) => {
 	// lista de todos los billos
 	const { socket } = useSocketContext();
-	const { getAllBills, setBill, renameBill, removeBill, setItem, removeItem } =
-		useBill();
+	const {
+		getAllBills,
+		setBill,
+		renameBill,
+		addDeleteRequest,
+		setItem,
+		removeItem,
+	} = useBill();
 	const { getProductsFromServer } = useProduct();
 
 	useEffect(() => {
@@ -53,11 +58,17 @@ export const BillContextProvider = ({ children }: props) => {
 
 	const setListeners = async (s: Socket) => {
 		s.on(BillSocketEvents.set, ({ data }) => setBill(data, true));
+
 		s.on(BillSocketEvents.rename, ({ data }) => renameBill(data, true));
-		s.on(BillSocketEvents.remove, ({ data }) => removeBill(data, true));
+
+		s.on(BillSocketEvents.remove, (res: DeleteBillFromServerDto) =>
+			addDeleteRequest(res)
+		);
+
 		s.on(BillSocketEvents.setItem, ({ data, billId }) =>
 			setItem({ ...data, billId }, { disableSync: true, setQuantity: true })
 		);
+
 		s.on(BillSocketEvents.removeItem, ({ data, billId }) =>
 			removeItem({ ...data, billId }, { disableSync: true })
 		);
