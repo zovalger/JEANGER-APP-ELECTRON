@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 import useUser from "../../auth/hooks/useUser";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
@@ -6,6 +9,12 @@ import moneyFormat from "../../common/helpers/moneyFormat.helper";
 import useBill from "../hooks/useBill";
 import { IBill } from "../interfaces";
 import Input from "../../common/components/Input";
+
+const schema = yup
+	.object({
+		name: yup.string().min(3).required("Nombre es requerido"),
+	})
+	.required();
 
 interface props {
 	data: IBill;
@@ -21,6 +30,44 @@ export default function SavedBillsItem({ data }: props) {
 	const [modeRename, setModeRename] = useState(false);
 
 	// todo: crear el form para renombrar
+
+	const [isSubmit, setIsSubmit] = useState(false);
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, dirtyFields },
+		reset,
+	} = useForm({
+		defaultValues: {
+			name: "",
+		},
+		resolver: yupResolver(schema),
+		mode: "onChange",
+	});
+
+	const onSubmit = async (data: { name: string }) => {
+		if (isSubmit) return;
+		setIsSubmit(true);
+
+		try {
+	
+
+			const t = !initialData
+				? await createProduct(toSend as CreateProductDto)
+				: await updateProduct(initialData._id, toSend as UpdateProductDto);
+
+		} catch (error) {
+			// toast.error(error.message || "Error al guardar el producto");
+		}
+
+		setIsSubmit(false);
+	
+	};
+
+	useEffect(() => {
+		reset(data);
+	}, [data, reset]);
 
 	const handdleSelect = async () => {
 		if (modeRename) return;
@@ -58,13 +105,17 @@ export default function SavedBillsItem({ data }: props) {
 			} `}
 		>
 			{modeRename ? (
-				<Input
-					autoFocus
-					helperText={totals && moneyFormat(totals.BSF) + "bs"}
-					onBlur={(e) => {
-						setModeRename(false);
-					}}
-				/>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<Input
+						{...register("name")}
+						autoFocus
+						helperText={totals && moneyFormat(totals.BSF) + "bs"}
+						errorText={errors.name && errors.name.message}
+						onBlur={(e) => {
+							setModeRename(false);
+						}}
+					/>
+				</form>
 			) : (
 				<>
 					<div className="pl-2">
