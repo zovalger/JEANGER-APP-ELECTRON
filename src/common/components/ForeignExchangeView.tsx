@@ -6,7 +6,7 @@ import Skeleton from "./Skeleton";
 import useClipboard from "../hooks/useClipboard";
 
 export default function ForeignExchangeView() {
-	const { foreignExchange, forceScrapForeignExchange, loadingForeignExchange } =
+	const { foreignExchange, getForeignExchange, loadingForeignExchange } =
 		useForeignExchange();
 
 	const [editMode, setEditMode] = useState(false);
@@ -90,11 +90,7 @@ export default function ForeignExchangeView() {
 					Divisas
 				</Text>
 				{/* <IconButton size="small" onClick={toggleEditMode} icon="Edit" /> */}
-				<IconButton
-					size="small"
-					onClick={forceScrapForeignExchange}
-					icon="Refresh"
-				/>
+				<IconButton size="small" onClick={getForeignExchange} icon="Refresh" />
 			</div>
 
 			{editMode ? (

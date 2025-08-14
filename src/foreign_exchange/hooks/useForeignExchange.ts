@@ -57,7 +57,7 @@ const useForeignExchange = () => {
 		try {
 			onSetLoadingForeignExchange(true);
 
-			const { data } = await jeangerApp_API.get<IForeignExchange>(
+			const { data } = await jeangerApp_API.post<IForeignExchange>(
 				ForeignExchangeUrls.Force()
 			);
 
