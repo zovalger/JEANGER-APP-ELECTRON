@@ -6,6 +6,7 @@ const RouterLinks = {
 	Products: "/dashboard/products",
 	NewProduct: "/dashboard/products/new",
 	ProductById: (id: string) => "/dashboard/products/" + id,
+	ProductSettings: "/dashboard/products/settings",
 	// ForeignExchange: "/foreign-exchange",
 	// NotFound: "*",
 	Login: "auth/login",

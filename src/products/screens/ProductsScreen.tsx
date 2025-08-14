@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import useProduct from "../hooks/useProduct";
 import ProductItem from "../components/ProductItem";
-import ProductForm from "../components/ProductForm";
 import IconButton from "../../common/components/IconButton";
-import Modal from "../../common/components/Modal";
 import RouterLinks from "../../common/config/RouterLinks";
 
 const ProductsScreen = () => {
@@ -21,8 +19,9 @@ const ProductsScreen = () => {
 			name="Productos"
 			nameHelp="Todos los productos creados"
 			rightButtons={[
-				<IconButton icon="Refresh" onClick={getProductsFromServer} />,
 				<IconButton icon="Plus" href={RouterLinks.NewProduct} />,
+				<IconButton icon="Refresh" onClick={getProductsFromServer} />,
+				<IconButton icon="Gear" href={RouterLinks.ProductSettings} />,
 			]}
 		>
 			<div className="flex flex-col flex-wrap gap-2">

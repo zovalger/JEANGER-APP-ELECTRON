@@ -95,33 +95,37 @@ export default function StopwatchItem({ initialData }: props) {
 	}, [initialData, reset]);
 
 	const addToBill = async () => {
-		// todo: remover y colocar en una parte mas general
-		if (!productSettings) await getProductSettings();
+		try {
+			// todo: remover y colocar en una parte mas general
+			if (!productSettings) await getProductSettings();
 
-		if (!productSettings.stopwatchProduct) return;
+			if (!productSettings.stopwatchProduct) return;
 
-		const productId = productSettings.stopwatchProduct;
+			const productId = productSettings.stopwatchProduct;
 
-		const { timeSeted } = initialData;
+			const { timeSeted } = initialData;
 
-		pause(initialData.tempId);
+			pause(initialData.tempId);
 
-		const time =
-			(timeSeted ? timeSeted : getTime(initialData, referenceTime).time) /
-			60000;
+			const time =
+				(timeSeted ? timeSeted : getTime(initialData, referenceTime).time) /
+				60000;
 
-		await setItem(
-			{
-				billId: currentBill?.tempId,
-				productId,
-				quantity: time,
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
-			},
-			{ setQuantity: true }
-		);
+			await setItem(
+				{
+					billId: currentBill?.tempId,
+					productId,
+					quantity: time,
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
+				},
+				{ setQuantity: true }
+			);
 
-		navigate(RouterLinks.Bills);
+			navigate(RouterLinks.Bills);
+		} catch (error) {
+			toast.error(error.message || "Error al añadir");
+		}
 	};
 
 	// ****************************************************************************

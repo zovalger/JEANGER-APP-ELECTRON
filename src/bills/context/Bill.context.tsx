@@ -45,11 +45,12 @@ export const BillContextProvider = ({ children }: props) => {
 		setItem,
 		removeItem,
 	} = useBill();
-	const { getProductsFromServer } = useProduct();
+	const { getProductsFromServer, getProductSettings } = useProduct();
 
 	useEffect(() => {
 		getAllBills();
 		getProductsFromServer();
+		getProductSettings();
 	}, []);
 
 	useEffect(() => {
