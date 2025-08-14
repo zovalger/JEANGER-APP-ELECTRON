@@ -25,7 +25,7 @@ export default function SavedBillsItem({ data }: props) {
 
 	const { userLogged, user } = useUser({ userId: createdBy });
 
-	const { currentBill, selectBill, removeBill } = useBill();
+	const { currentBill, selectBill, removeBill, renameBill } = useBill();
 
 	const [modeRename, setModeRename] = useState(false);
 
@@ -36,7 +36,7 @@ export default function SavedBillsItem({ data }: props) {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors, dirtyFields },
+		formState: { errors },
 		reset,
 	} = useForm({
 		defaultValues: {
@@ -46,28 +46,24 @@ export default function SavedBillsItem({ data }: props) {
 		mode: "onChange",
 	});
 
-	const onSubmit = async (data: { name: string }) => {
+	const onSubmit = async (formData: { name: string }) => {
 		if (isSubmit) return;
 		setIsSubmit(true);
 
 		try {
-	
+			await renameBill({
+				...formData,
+				_id: tempId,
+				updatedAt: new Date().toISOString(),
+			});
 
-			const t = !initialData
-				? await createProduct(toSend as CreateProductDto)
-				: await updateProduct(initialData._id, toSend as UpdateProductDto);
-
+			setModeRename(false);
 		} catch (error) {
 			// toast.error(error.message || "Error al guardar el producto");
 		}
 
 		setIsSubmit(false);
-	
 	};
-
-	useEffect(() => {
-		reset(data);
-	}, [data, reset]);
 
 	const handdleSelect = async () => {
 		if (modeRename) return;
@@ -83,6 +79,20 @@ export default function SavedBillsItem({ data }: props) {
 	const handleContenxtMenu = async () => {
 		setModeRename(true);
 	};
+
+	useEffect(() => {
+		reset({ name: data.name });
+	}, [data, reset]);
+
+	useEffect(() => {
+		if (
+			currentBill &&
+			currentBill.tempId != tempId &&
+			!data.name &&
+			data.createdBy == userLogged._id
+		)
+			setModeRename(true);
+	}, [currentBill]);
 
 	return (
 		<div
@@ -113,6 +123,7 @@ export default function SavedBillsItem({ data }: props) {
 						errorText={errors.name && errors.name.message}
 						onBlur={(e) => {
 							setModeRename(false);
+							handleSubmit(onSubmit)();
 						}}
 					/>
 				</form>

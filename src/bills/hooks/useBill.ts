@@ -209,13 +209,16 @@ const useBill = (options?: Options) => {
 	};
 
 	const renameBill = async (data: RenameBillDto, disableSync = false) => {
-		const bill = await getBill(data._id || data.tempId);
+		const bill = await getBill(data._id);
 
-		const newBill = await setBill({
-			...bill,
-			...data,
-			updatedAt: new Date().toISOString(),
-		});
+		const newBill = await setBill(
+			{
+				...bill,
+				name: data.name,
+				updatedAt: data.updatedAt,
+			},
+			true
+		);
 
 		if (billContext && !disableSync)
 			billContext.sendRenameBill({ ...data, _id: bill._id });
