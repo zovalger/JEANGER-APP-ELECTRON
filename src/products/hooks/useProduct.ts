@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { CurrencyType } from "../../common/enums";
 import useRequest from "../../common/hooks/useRequest";
 import useProductStore from "../../common/store/useProductStore";
 import { ProductUrls } from "../api/product-url";
 import {
 	CreateProductDto,
 	CreateProductReferenceDto,
+	CreateProductSettingDto,
 	PosibleParentDto,
 	UpdateProductDto,
 	UpdateProductReferenceDto,
+	UpdateProductSettingDto,
 } from "../dto";
 import { IProduct, IProductReference, IProductSetting } from "../interfaces";
 
@@ -203,6 +204,43 @@ const useProduct = (options?: Options) => {
 		}
 	};
 
+	const createProductSettings = async (
+		createProductSettingDto: CreateProductSettingDto
+	) => {
+		try {
+			const { data } = await jeangerApp_API.post<IProductSetting>(
+				ProductUrls.settings(),
+				createProductSettingDto
+			);
+
+			onSetProductsSettings(data);
+
+			return data;
+		} catch (error) {
+			console.log(error);
+			throw new Error("error al crear la configuracion");
+		}
+	};
+
+	const updateProductSettings = async (
+		id: string,
+		updateProductSettingDto: UpdateProductSettingDto
+	) => {
+		try {
+			const { data } = await jeangerApp_API.patch<IProductSetting>(
+				ProductUrls.settingsById(id),
+				updateProductSettingDto
+			);
+
+			onSetProductsSettings(data);
+
+			return data;
+		} catch (error) {
+			console.log(error);
+			throw new Error("error al actualizar la configuracion");
+		}
+	};
+
 	const getProductSettings = async () => {
 		try {
 			const { data } = await jeangerApp_API.get<IProductSetting>(
@@ -210,8 +248,11 @@ const useProduct = (options?: Options) => {
 			);
 
 			onSetProductsSettings(data);
+
+			return data;
 		} catch (error) {
 			console.log(error);
+			throw new Error("error al obtenere la configuracion");
 		}
 	};
 
@@ -263,6 +304,8 @@ const useProduct = (options?: Options) => {
 		clearCurrentRef: onClearCurrentRef,
 
 		getProductSettings,
+		createProductSettings,
+		updateProductSettings,
 	};
 };
 

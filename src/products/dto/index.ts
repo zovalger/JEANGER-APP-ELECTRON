@@ -5,3 +5,5 @@ export { CreateProductReferenceDto } from "./create-product-reference.dto";
 export { CreateProductDto } from "./create-product.dto";
 export { UpdateProductReferenceDto } from "./update-product-reference.dto";
 export { UpdateProductDto } from "./update-product.dto";
+export { CreateProductSettingDto } from "./create-product-setting.dto";
+export { UpdateProductSettingDto } from "./update-product-setting.dto";
