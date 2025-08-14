@@ -9,6 +9,7 @@ import { BillContextProvider } from "../../bills/context/Bill.context";
 import { AuthContextProvider } from "../../auth/context/Auth.context";
 import useRequest from "../hooks/useRequest";
 import useProduct from "../../products/hooks/useProduct";
+import { ForeignExchangeContextProvider } from "../../foreign_exchange/context/ForeignExchange.context";
 
 interface BackgroundProcessesLayoutProps {
 	children?: React.ReactNode;
@@ -34,12 +35,14 @@ const BackgroundProcessesLayout = (
 	return (
 		<AuthContextProvider>
 			<SocketContextProvider>
-				<BillContextProvider>
-					<StopwatchContextProvider>
-						<SoundPlayer />
-						{children || <Outlet />}
-					</StopwatchContextProvider>
-				</BillContextProvider>
+				<ForeignExchangeContextProvider>
+					<BillContextProvider>
+						<StopwatchContextProvider>
+							<SoundPlayer />
+							{children || <Outlet />}
+						</StopwatchContextProvider>
+					</BillContextProvider>
+				</ForeignExchangeContextProvider>
 			</SocketContextProvider>
 		</AuthContextProvider>
 	);

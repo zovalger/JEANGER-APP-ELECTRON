@@ -81,12 +81,19 @@ const useForeignExchange = () => {
 		return getCostInBSAndCurrency_helper(foreignExchange, toCalculate);
 	};
 
+	const setForeignExchange = (foreignExchange: IForeignExchange) => {
+		if (!foreignExchange) throw new Error("al set foreignExchange");
+
+		onSetForeignExchange(foreignExchange);
+	};
+
 	return {
 		foreignExchange,
 		loadingForeignExchange,
 		getForeignExchange,
 		forceScrapForeignExchange,
 		getCostInBSAndCurrency,
+		setForeignExchange,
 	};
 };
 
