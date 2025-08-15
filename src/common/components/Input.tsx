@@ -42,6 +42,8 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 				? "border-b"
 				: "outline-none";
 
+		const tinyText = errorText || helperText;
+
 		const content = (
 			<div>
 				<input
@@ -51,10 +53,11 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
 					type={type}
 					className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
 				/>
-
-				<Text size="small" className="mb-2 min-h-4">
-					{errorText || helperText}
-				</Text>
+				{tinyText && (
+					<Text size="small" className="mb-2 min-h-4">
+						{tinyText}
+					</Text>
+				)}
 			</div>
 		);
 

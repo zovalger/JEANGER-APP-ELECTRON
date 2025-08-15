@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
-import { ISaldoMovilnet } from "../interfaces/SaldoMovilnet.interface";
-import { getSaldoMovilnet_Request } from "../api/ConsultMovilnet.api";
 import Text from "./Text";
 import Input from "./Input";
 import IconButton from "./IconButton";
 import Skeleton from "./Skeleton";
 import useClipboard from "../hooks/useClipboard";
+import useUtils from "../hooks/useUtils";
+import { IMovilnetBalance } from "../interfaces/SaldoMovilnet.interface";
 
 export default function ConsultMovilnet() {
+	const { getSaldoMovilnet } = useUtils();
+
 	const [id] = useState(uuid());
 	const { isCopy, copyToClipboard } = useClipboard();
-	const [saldoMovilnet, setSaldoMovilnet] = useState<ISaldoMovilnet | null>();
+	const [saldoMovilnet, setSaldoMovilnet] = useState<IMovilnetBalance | null>();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [value, setValue] = useState("");
@@ -25,7 +27,7 @@ export default function ConsultMovilnet() {
 			if (!value) return;
 			setLoading(true);
 
-			const result = await getSaldoMovilnet_Request(value);
+			const result = await getSaldoMovilnet(value);
 
 			setSaldoMovilnet(result);
 		} catch (error) {
