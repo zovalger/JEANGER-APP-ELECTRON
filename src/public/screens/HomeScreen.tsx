@@ -6,17 +6,15 @@ import Button from "../../common/components/Button";
 
 const HomeScreen = () => {
 	return (
-		<>
-			<Text size="big">inversiones jeanger </Text>
-			<Text>
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum
-				aspernatur voluptatum possimus? Id placeat eius aliquam voluptas sequi
-				vero reiciendis quidem, ea nam temporibus porro saepe consequuntur nobis
-				quae.
-			</Text>
+		<div className="flex flex-col justify-center items-center h-screen w-screen p-4">
+			<div className="shadow-md p-4 rounded">
+				<Text size="big" variant="bold">
+					Inversiones Jeanger C.A.
+				</Text>
 
-			<Button href={RouterLinks.Login}>login</Button>
-		</>
+				<Button href={RouterLinks.Login}>login</Button>
+			</div>
+		</div>
 	);
 };
 

@@ -1,24 +1,22 @@
+import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
 import { useForm } from "react-hook-form";
+
 import Button from "../../common/components/Button";
 import Input from "../../common/components/Input";
 import useUser from "../hooks/useUser";
 import { LoginUserDto } from "../dto";
-import { Link, useNavigate } from "react-router-dom";
 import RouterLinks from "../../common/config/RouterLinks";
-import useRequest from "../../common/hooks/useRequest";
-import { useEffect } from "react";
 
 const schema = yup
 	.object({
-		email: yup.string().email().required("Email es requerido"),
+		email: yup.string().email().required("El correo es requerido"),
 		password: yup
 			.string()
 			.min(
 				8,
-				"Contraseña debe tener al menos 8 caracteres con mayusculas, minúsculas, números y símbolos"
+				"La contraseña debe tener al menos 8 caracteres con mayusculas, minúsculas, números y símbolos"
 			)
 			.required("Contraseña es requerida"),
 	})
@@ -26,7 +24,7 @@ const schema = yup
 
 const LoginScreen = () => {
 	const router = useNavigate();
-	const { login, logout } = useUser();
+	const { login } = useUser();
 
 	const {
 		register,
@@ -34,8 +32,8 @@ const LoginScreen = () => {
 		formState: { errors },
 	} = useForm<LoginUserDto>({
 		defaultValues: {
-			email: "test1@gmail.com",
-			password: "Vv12345678.",
+			email: "",
+			password: "",
 		},
 		resolver: yupResolver(schema),
 	});
@@ -50,27 +48,27 @@ const LoginScreen = () => {
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit(onSubmit)}
-			className="flex flex-col justify-center items-center h-screen w-screen"
-		>
-			<Input {...register("email")} placeholder="correo" />
-			{errors.email && errors.email.message}
-			<Input
-				{...register("password")}
-				placeholder="contraseña"
-				type="password"
-			/>
-			{errors.password && errors.password.message}
+		<div className="flex flex-col justify-center items-center h-screen w-screen p-4">
+			<form className="shadow-md p-4 rounded" onSubmit={handleSubmit(onSubmit)}>
+				<Input
+					{...register("email")}
+					label="Correo"
+					placeholder="correo"
+					errorText={errors.email && errors.email.message}
+				/>
 
-			<Button className="w-full" type="submit">
-				Login
-			</Button>
+				<Input
+					{...register("password")}
+					label="Contraseña"
+					type="password"
+					errorText={errors.password && errors.password.message}
+				/>
 
-			<Button className="w-full" type="button" onClick={logout}>
-				logout
-			</Button>
-		</form>
+				<Button className="w-full mt-2" type="submit">
+					Login
+				</Button>
+			</form>
+		</div>
 	);
 };
 

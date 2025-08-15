@@ -146,7 +146,7 @@ const BillProductSearch = (props: props) => {
 			</div>
 
 			{productList.length > 0 && (
-				<div className="absolute -translate-y-4 z-10 left-4 right-4 bg-white rounded shadow-2xl outline">
+				<div className="absolute z-10 left-4 right-4 bg-white rounded shadow-2xl outline">
 					{showLimitedProducts(productList)}
 				</div>
 			)}
