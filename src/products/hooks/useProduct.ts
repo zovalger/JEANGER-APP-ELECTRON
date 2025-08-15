@@ -12,6 +12,7 @@ import {
 	UpdateProductSettingDto,
 } from "../dto";
 import { IProduct, IProductReference, IProductSetting } from "../interfaces";
+import { searchProductsByWord } from "../helpers/Product.helpers";
 
 interface Options {
 	productId?: string;
@@ -256,6 +257,10 @@ const useProduct = (options?: Options) => {
 		}
 	};
 
+	const filterByName = async (name: string, prods: IProduct[]) => {
+		return searchProductsByWord(name, prods);
+	};
+
 	useEffect(() => {
 		if (!first) return;
 		setFirst(false);
@@ -306,6 +311,7 @@ const useProduct = (options?: Options) => {
 		getProductSettings,
 		createProductSettings,
 		updateProductSettings,
+		filterByName,
 	};
 };
 
