@@ -25,7 +25,7 @@ const Modal = (props: props) => {
 			}}
 		>
 			<div
-				className={`flex-col bg-white mx-4 px-4 py-3 max-h-[90vh] overflow-y-auto rounded shadowlg shadow-neutral-500 ${className}`}
+				className={`flex-col bg-white mx-4 px-4 py-3 max-h-[90vh] h-fit overflow-y-auto rounded shadow-lg shadow-neutral-500 ${className}`}
 				onClick={(e) => {
 					e.stopPropagation();
 				}}

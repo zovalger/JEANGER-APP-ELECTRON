@@ -35,7 +35,7 @@ const ProductsScreen = () => {
 				500
 			)
 		);
-	}, [inputValue]);
+	}, [inputValue, products]);
 
 	return (
 		<PageTemplateLayout

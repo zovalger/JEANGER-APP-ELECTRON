@@ -42,8 +42,8 @@ const Accordion = (props: AccordionProps) => {
 			</div>
 
 			<div
-				className={`transform duration-300 transition-all overflow-hidden  ${
-					trustOpen ? "h-fit p-4" : " h-0 "
+				className={`transform duration-300 transition-all  ${
+					trustOpen ? "h-fit p-4 " : " h-0 overflow-hidden  "
 				}`}
 			>
 				{children}
