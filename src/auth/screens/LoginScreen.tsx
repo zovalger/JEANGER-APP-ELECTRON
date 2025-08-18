@@ -8,6 +8,8 @@ import Input from "../../common/components/Input";
 import useUser from "../hooks/useUser";
 import { LoginUserDto } from "../dto";
 import RouterLinks from "../../common/config/RouterLinks";
+import SessionItem from "../components/SessionItem";
+import Text from "../../common/components/Text";
 
 const schema = yup
 	.object({
@@ -19,28 +21,39 @@ const schema = yup
 				"La contraseña debe tener al menos 8 caracteres con mayusculas, minúsculas, números y símbolos"
 			)
 			.required("Contraseña es requerida"),
+		save: yup
+			.boolean()
+
+			.required("Contraseña es requerida"),
 	})
 	.required();
 
+interface p extends LoginUserDto {
+	save: boolean;
+}
+
 const LoginScreen = () => {
 	const router = useNavigate();
-	const { login } = useUser();
+	const { login, savedSessions } = useUser();
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<LoginUserDto>({
+	} = useForm<p>({
 		defaultValues: {
 			email: "",
 			password: "",
+			save: false,
 		},
 		resolver: yupResolver(schema),
 	});
 
-	const onSubmit = async (data: LoginUserDto) => {
+	const onSubmit = async (data: p) => {
+		const { save, ...rest } = data;
 		try {
-			await login(data);
+			await login(rest, save);
+
 			router(RouterLinks.Bills);
 		} catch (error) {
 			console.log(error);
@@ -49,25 +62,43 @@ const LoginScreen = () => {
 
 	return (
 		<div className="flex flex-col justify-center items-center h-screen w-screen p-4">
-			<form className="shadow-md p-4 rounded" onSubmit={handleSubmit(onSubmit)}>
-				<Input
-					{...register("email")}
-					label="Correo"
-					placeholder="correo"
-					errorText={errors.email && errors.email.message}
-				/>
+			<div className="shadow-md p-4 rounded">
+				{savedSessions.length > 0 && (
+					<>
+						<div>
+							<Text>Sesiones anteriores</Text>
 
-				<Input
-					{...register("password")}
-					label="Contraseña"
-					type="password"
-					errorText={errors.password && errors.password.message}
-				/>
+							{savedSessions.map((item) => (
+								<SessionItem key={item._id} data={item} />
+							))}
+						</div>
 
-				<Button className="w-full mt-2" type="submit">
-					Login
-				</Button>
-			</form>
+						<hr className="my-2" />
+					</>
+				)}
+
+				<form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+					<Input
+						{...register("email")}
+						label="Correo"
+						placeholder="correo"
+						errorText={errors.email && errors.email.message}
+					/>
+
+					<Input
+						{...register("password")}
+						label="Contraseña"
+						type="password"
+						errorText={errors.password && errors.password.message}
+					/>
+
+					<Input {...register("save")} label="Guardar Sesión" type="checkbox" />
+
+					<Button className="w-full mt-2" type="submit">
+						Login
+					</Button>
+				</form>
+			</div>
 		</div>
 	);
 };

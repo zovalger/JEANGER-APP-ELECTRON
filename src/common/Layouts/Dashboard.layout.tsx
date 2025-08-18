@@ -83,8 +83,10 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				</div>
 				{userLogged && (
 					<div className="flex items-center justify-between border-t border-gray-500">
-						<Text className="block sm:hidden lg:block ml-4">{userLogged.name}</Text>
-						<IconButton className="" icon="Close" onClick={logout} />
+						<Text className="block sm:hidden lg:block ml-4">
+							{userLogged.name}
+						</Text>
+						<IconButton className="" icon="Close" onClick={() => logout()} />
 					</div>
 				)}
 			</div>
