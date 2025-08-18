@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { CurrencyType } from "../../common/enums";
 import { IForeignExchange } from "../../foreign_exchange/interfaces";
 import { IBill, IBillItem } from "../interfaces";
@@ -25,10 +26,9 @@ export const updateBillItem = (
 		: oldQuantity + billItem.quantity;
 
 	// error si se coloca directamente 0 o negativo
-	if (newQuantity <= 0)
-		throw new Error(
-			"no se puede colocar en negativo o en 0, use el boton de eliminar si desea eleminar el producto"
-		);
+	if (newQuantity <= 0) {
+		newItems = newItems.filter((i) => i.productId != billItem.productId);
+	}
 
 	// anadirlo
 	if (!oldBillItem && newQuantity > 0) {
@@ -75,20 +75,23 @@ export const calculateTotals = (
 	items: IBillItem[],
 	foreignExchange: IForeignExchange
 ) => {
-	const USD = items.reduce((total: number, item: IBillItem) => {
+	const USD = items.reduce((total: Decimal, item: IBillItem) => {
 		const { cost, currencyType, quantity } = item;
 
-		let toSum = cost * quantity;
+		let toSum = new Decimal(cost).mul(quantity);
 
 		if (currencyType === CurrencyType.EUR)
-			toSum = (toSum * foreignExchange.euro) / foreignExchange.dolar;
+			toSum = toSum.mul(foreignExchange.euro).div(foreignExchange.dolar);
 		if (currencyType === CurrencyType.BSF)
-			toSum = toSum / foreignExchange.dolar;
+			toSum = toSum.div(foreignExchange.dolar);
 
-		return total + toSum;
-	}, 0);
+		return total.add(toSum);
+	}, new Decimal(0));
 
-	return { USD, BSF: USD * foreignExchange.dolar };
+	return {
+		USD: USD.toNumber(),
+		BSF: USD.mul(foreignExchange.dolar).toNumber(),
+	};
 };
 
 export const isIncomingItemMoreRecent = (

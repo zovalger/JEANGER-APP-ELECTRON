@@ -41,8 +41,6 @@ function BillItem({ billId, data, onDeleteItem }: props) {
 	const handdleCloseContext = () => setOpenContext(false);
 
 	const [openModal, setOpenModal] = useState(false);
-	const handdleOpendiv = () => setOpenModal(true);
-	const handdleCloseModal = () => setOpenModal(false);
 
 	const handdleDelete = async () => {
 		if (onDeleteItem) onDeleteItem(productId);
@@ -57,24 +55,36 @@ function BillItem({ billId, data, onDeleteItem }: props) {
 	// 													modal
 	// *******************************************************************
 
-	const [qu, setQu] = useState(0);
+	const [qu, setQu] = useState<string | number>(0);
 	const [signo, setSigno] = useState<"+" | "-">("+");
 
+	const handdleOpendiv = () => setOpenModal(true);
+	const handdleCloseModal = () => {
+		setQu(0);
+		setOpenModal(false);
+	};
+
 	const haddleChange = (text: string) => {
-		const n = parseFloat(signo + text.replace(/[-+]/gi, ""));
-		setQu(isNaN(n) ? 0 : n);
+		const n = text
+			.replace(",", ".")
+			.replace(/[^\d.]/g, "")
+			.replace(/^0/, "");
+
+		setQu(n);
 	};
 
 	const onSubmit = async () => {
 		setQu(0);
+		setSigno("+");
 		await setItem({
 			billId,
 			productId,
-			quantity: qu,
+			quantity: parseFloat(signo + qu),
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		});
 		handdleCloseModal();
+		console.log("submit ");
 	};
 
 	if (!product) return <Text>loanding....</Text>;
@@ -154,17 +164,24 @@ function BillItem({ billId, data, onDeleteItem }: props) {
 				<div className="flex items-center gap-2">
 					<Input
 						autoFocus
-						type="number"
 						className={`${
 							signo === "-" ? "outline-red-500" : "outline-lime-500"
 						}`}
 						placeholder="Cantidad"
 						onKeyDown={({ nativeEvent: { key } }) => {
-							if (key === "Enter") onSubmit();
-							if (key === "+" || key === "-") setSigno(key);
+							if (key === "Enter") {
+								onSubmit();
+							}
+							if (key === "+" || key === "-") {
+								setSigno(key);
+							}
 						}}
-						value={qu.toString()}
-						onChange={({ target: { value } }) => haddleChange(value)}
+						value={qu}
+						onChange={({ target: { value } }) => {
+							console.log(value);
+
+							haddleChange(value);
+						}}
 					/>
 
 					<IconButton onClick={onSubmit} icon="Plus" />

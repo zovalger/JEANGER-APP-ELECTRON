@@ -14,6 +14,7 @@ interface IUserActions {
 	onSetUserProfile: (user: IUser) => void;
 	onSetUsers: (users: IUser[]) => void;
 	onSetUser: (id: string, users: IUser) => void;
+	onGetUser: (id: string) => IUser;
 }
 
 interface IUserStore extends IUserState, IUserActions {}
@@ -21,7 +22,7 @@ interface IUserStore extends IUserState, IUserActions {}
 const useUserStore = create<IUserStore>()(
 	devtools(
 		persist<IUserStore>(
-			(set) => ({
+			(set, get) => ({
 				sessionToken: null,
 				userLogged: null,
 				users: [],
@@ -58,6 +59,8 @@ const useUserStore = create<IUserStore>()(
 							users: users.map((item) => (item._id == id ? user : item)),
 						};
 					}),
+
+				onGetUser: (id) => get().users.find((item) => item._id == id),
 			}),
 			{ name: "user-store" }
 		)

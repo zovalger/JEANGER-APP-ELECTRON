@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { CurrencyType } from "../../common/enums";
 import { IForeignExchange } from "../interfaces/ForeignExchange.interface";
 
@@ -12,9 +13,15 @@ export const getCostInBSAndCurrency_helper = (
 			? foreignExchange.dolar
 			: foreignExchange.euro;
 
-	const BSF = currencyType === CurrencyType.BSF ? cost : cost * divisaRef;
+	const BSF =
+		currencyType === CurrencyType.BSF
+			? cost
+			: new Decimal(cost).mul(divisaRef).toNumber();
 
-	const divisaCost = currencyType == CurrencyType.BSF ? cost / divisaRef : cost;
+	const divisaCost =
+		currencyType == CurrencyType.BSF
+			? new Decimal(cost).div(divisaRef).toNumber()
+			: cost;
 
 	return { BSF, divisaCost };
 };

@@ -1,9 +1,10 @@
 import useBill from "../hooks/useBill";
 import Text from "../../common/components/Text";
 import SavedBillsItem from "./SavedBillsItem";
+import IconButton from "../../common/components/IconButton";
 
 export default function SavedBills() {
-	const { bills } = useBill();
+	const { bills, getAllBills } = useBill();
 
 	return (
 		<>
@@ -13,20 +14,7 @@ export default function SavedBills() {
 				<div className="flex items-center justify-between ">
 					<Text variant="bold">Facturas guardadas</Text>
 
-					{/* <IconButton
-						
-						onClick={refreshBills}
-					>
-						<RefreshIcon />
-					</IconButton> */}
-
-					{/* <IconButton
-						icon="Plus"
-						size="small"
-						onClick={() => {
-							saveCurrentBill();
-						}}
-					/> */}
+					<IconButton onClick={getAllBills} icon="Refresh" />
 				</div>
 
 				<div className="flex flex-wrap gap-2">

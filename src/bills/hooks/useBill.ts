@@ -267,12 +267,20 @@ const useBill = (options?: Options) => {
 
 			console.log(updatedItem);
 
-			if (billContext && !disableSync)
-				billContext.sendSetItem({
-					...data,
-					billId: bill._id,
-					quantity: updatedItem.quantity,
-				});
+			if (billContext && !disableSync) {
+				if (updatedItem.quantity <= 0)
+					billContext.sendDeleteItem({
+						billId: bill._id,
+						productId: updatedItem.productId,
+						updatedAt: new Date().toISOString(),
+					});
+				else
+					billContext.sendSetItem({
+						...data,
+						billId: bill._id,
+						quantity: updatedItem.quantity,
+					});
+			}
 
 			return updatedItem;
 		} catch (error) {

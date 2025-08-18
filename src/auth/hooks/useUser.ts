@@ -16,6 +16,7 @@ const useUser = (options?: Options) => {
 	const onSetSessionToken = useUserStore((state) => state.onSetSessionToken);
 	const onLogout = useUserStore((state) => state.onLogout);
 	const onSetUsers = useUserStore((state) => state.onSetUsers);
+	const onGetUser = useUserStore((state) => state.onGetUser);
 	const onSetUser = useUserStore((state) => state.onSetUser);
 	const onSetUserProfile = useUserStore((state) => state.onSetUserProfile);
 
