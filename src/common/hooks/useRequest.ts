@@ -11,13 +11,17 @@ const useRequest = () => {
 		new HttpClient(mainServer, { token: sessionToken?.token || null })
 	);
 
+	const [jeangerApp_API_Basic] = useState<HttpClient>(
+		new HttpClient(mainServer)
+	);
+
 	useEffect(() => {
 		setJeangerApp_API(
 			new HttpClient(mainServer, { token: sessionToken?.token || null })
 		);
 	}, [sessionToken]);
 
-	return { jeangerApp_API, sessionToken };
+	return { jeangerApp_API_Basic, jeangerApp_API, sessionToken };
 };
 
 export default useRequest;

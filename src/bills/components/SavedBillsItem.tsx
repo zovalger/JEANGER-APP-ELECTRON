@@ -89,7 +89,7 @@ export default function SavedBillsItem({ data }: props) {
 			currentBill &&
 			currentBill.tempId != tempId &&
 			!data.name &&
-			data.createdBy == userLogged._id
+			data.createdBy == userLogged?._id
 		)
 			setModeRename(true);
 	}, [currentBill]);

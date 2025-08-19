@@ -31,7 +31,7 @@ const useUser = (options?: Options) => {
 		(state) => state.onRemoveSavedSession
 	);
 
-	const { jeangerApp_API } = useRequest();
+	const { jeangerApp_API, jeangerApp_API_Basic } = useRequest();
 	const [first, setFirst] = useState(true);
 
 	const [user, setUser] = useState<null | IUser>(null);
@@ -53,11 +53,12 @@ const useUser = (options?: Options) => {
 	};
 
 	const getShortToken = async (refreshToken: string) => {
-		const { data: sesionShort } = await jeangerApp_API.post<ISessionToken>(
-			UserUrls.refresh(),
-			{},
-			{ headers: { Authorization: `Bearer ${refreshToken}` } }
-		);
+		const { data: sesionShort } =
+			await jeangerApp_API_Basic.post<ISessionToken>(
+				UserUrls.refresh(),
+				{},
+				{ headers: { Authorization: `Bearer ${refreshToken}` } }
+			);
 
 		onSetSessionToken(sesionShort);
 
@@ -66,10 +67,8 @@ const useUser = (options?: Options) => {
 
 	const login = async (data: LoginUserDto, saveSession = false) => {
 		try {
-			const { data: sesionlong } = await jeangerApp_API.post<ISessionToken>(
-				UserUrls.login(),
-				data
-			);
+			const { data: sesionlong } =
+				await jeangerApp_API_Basic.post<ISessionToken>(UserUrls.login(), data);
 
 			onSetRefreshSessionToken(sesionlong);
 			if (saveSession) onAddSavedSession(sesionlong);
@@ -84,23 +83,30 @@ const useUser = (options?: Options) => {
 	};
 
 	const pickSavedSession = async (sesion: ISessionToken) => {
-		if (new Date(sesion.expiration).getTime() < Date.now())
-			return onRemoveSavedSession(sesion._id);
+		console.log(sesion);
+
+		console.log(new Date(sesion.expiration).getTime() < Date.now());
+
+		if (new Date(sesion.expiration).getTime() < Date.now()) {
+			onRemoveSavedSession(sesion._id);
+			throw new Error("Sesión vencida");
+		}
 
 		await getShortToken(sesion.token);
 		onSetRefreshSessionToken(sesion);
 	};
+
 	const removeSavedSession = async (sesion: ISessionToken) => {
 		onRemoveSavedSession(sesion._id);
 	};
 
 	const logout = async (removeSession = false) => {
 		if (removeSession) onRemoveSavedSession(sessionToken._id);
-
+		
 		try {
+			onLogout();
 			await jeangerApp_API.post<ISessionToken>(UserUrls.logout());
 
-			onLogout();
 		} catch (error) {
 			console.log(error);
 		}
@@ -132,6 +138,8 @@ const useUser = (options?: Options) => {
 		savedSessions,
 		pickSavedSession,
 		removeSavedSession,
+		refreshSessionToken,
+		getShortToken,
 	};
 };
 

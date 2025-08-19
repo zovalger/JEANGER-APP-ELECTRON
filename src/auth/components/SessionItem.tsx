@@ -4,6 +4,7 @@ import useUser from "../hooks/useUser";
 import RouterLinks from "../../common/config/RouterLinks";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
+import toast from "react-hot-toast";
 
 interface props {
 	data: ISessionToken;
@@ -24,6 +25,7 @@ const SessionItem = (props: props) => {
 			router(RouterLinks.Bills);
 		} catch (error) {
 			console.log(error);
+			toast.error(error.message || "error al iniciar sesion");
 		}
 	};
 
