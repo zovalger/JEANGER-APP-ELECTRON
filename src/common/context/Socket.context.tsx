@@ -20,17 +20,21 @@ interface props {
 }
 
 export const SocketContextProvider = ({ children }: props) => {
-	const { sessionToken } = useUser();
+	const { sessionToken, getShortToken, refreshSessionToken } = useUser();
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
 
-	const createNewConnection = () => {
+	const createNewConnection = async () => {
 		try {
+			if (socket) socket.disconnect();
+
 			const soc = io(SOCKET_SERVER_URL, {
 				// withCredentials: true,
 				extraHeaders: {
 					"Access-Control-Allow-Origin": "*",
-					"x-access-token": sessionToken.token,
+					"x-access-token": sessionToken
+						? sessionToken.token
+						: (await getShortToken(refreshSessionToken.token)).token,
 				},
 			});
 
