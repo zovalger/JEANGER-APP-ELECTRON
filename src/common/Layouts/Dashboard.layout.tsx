@@ -10,6 +10,7 @@ import ConsultMovilnet from "../components/ConsultMovilnet";
 import Button from "../components/Button";
 import { Icons } from "../interfaces/icons";
 import useUser from "../../auth/hooks/useUser";
+import { useSocketContext } from "../context/Socket.context";
 
 interface DashboardLayoutProps {
 	children?: React.ReactNode;
@@ -27,6 +28,7 @@ const ModulesApp: {
 
 const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	const { children } = DashboardLayoutProps;
+	const { isConnected, createNewConnection } = useSocketContext();
 	const {
 		leftPanelOpen,
 		closeLeftPanel,
@@ -112,23 +114,38 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 	);
 
 	return (
-		<div className="relative flex-1 overflow-hidden">
-			<div
-				className={`flex flex-col h-full overflow-y-auto sm:ml-12 lg:ml-48 ${
-					rightPanelOpen && "sm:mr-60"
-				}`}
-			>
-				{children || <Outlet />}
+		<>
+			<div className="relative flex-1 overflow-hidden">
+				<div
+					className={`flex flex-col h-full overflow-y-auto sm:ml-12 lg:ml-48 ${
+						rightPanelOpen && "sm:mr-60"
+					}`}
+				>
+					{children || <Outlet />}
+				</div>
+
+				<div className="absolute bottom-2 right-2">
+					<IconButton icon="Tools" onClick={toogleRightPanel} />
+				</div>
+
+				<LeftPanel />
+
+				<RightPanel />
 			</div>
-
-			<div className="absolute bottom-2 right-2">
-				<IconButton icon="Tools" onClick={toogleRightPanel} />
-			</div>
-
-			<LeftPanel />
-
-			<RightPanel />
-		</div>
+			{!isConnected && (
+				<div className="bg-red-300 px-4 flex justify-center items-center">
+					<Text>Sin Conexión</Text>
+					<Button
+						className="ml-4"
+						icon="Refresh"
+						size="tiny"
+						onClick={() => createNewConnection()}
+					>
+						Reconectar
+					</Button>
+				</div>
+			)}
+		</>
 	);
 };
 

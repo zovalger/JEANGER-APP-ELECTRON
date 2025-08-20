@@ -10,6 +10,7 @@ import { LoginUserDto } from "../dto";
 import RouterLinks from "../../common/config/RouterLinks";
 import SessionItem from "../components/SessionItem";
 import Text from "../../common/components/Text";
+import toast from "react-hot-toast";
 
 const schema = yup
 	.object({
@@ -57,6 +58,8 @@ const LoginScreen = () => {
 			router(RouterLinks.Bills);
 		} catch (error) {
 			console.log(error);
+
+			toast.error(error.message || "Error desconocido");
 		}
 	};
 

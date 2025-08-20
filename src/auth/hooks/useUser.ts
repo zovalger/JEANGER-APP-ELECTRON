@@ -10,6 +10,7 @@ interface Options {
 }
 
 const useUser = (options?: Options) => {
+	const isAuth = useUserStore((state) => state.isAuth);
 	const userLogged = useUserStore((state) => state.userLogged);
 	const users = useUserStore((state) => state.users);
 	const sessionToken = useUserStore((state) => state.sessionToken);
@@ -38,17 +39,21 @@ const useUser = (options?: Options) => {
 
 	const getProfile = async (id?: string) => {
 		try {
-			const { data: user } = await jeangerApp_API.get<IUser>(
+			const { data: userData } = await jeangerApp_API.get<IUser>(
 				id ? UserUrls.userById(id) : UserUrls.user()
 			);
 
-			if (!id) onSetUserProfile(user);
+			if (!id) onSetUserProfile(userData);
 
-			onSetUser(user._id, user);
+			onSetUser(userData._id, userData);
 
-			return user;
+			return userData;
 		} catch (error) {
-			console.log(error);
+			const userData = onGetUser(id);
+
+			if (!userData) throw new Error("usuario no encontrado");
+
+			return userData;
 		}
 	};
 
@@ -83,17 +88,18 @@ const useUser = (options?: Options) => {
 	};
 
 	const pickSavedSession = async (sesion: ISessionToken) => {
-		console.log(sesion);
-
-		console.log(new Date(sesion.expiration).getTime() < Date.now());
-
 		if (new Date(sesion.expiration).getTime() < Date.now()) {
 			onRemoveSavedSession(sesion._id);
 			throw new Error("Sesión vencida");
 		}
-
-		await getShortToken(sesion.token);
 		onSetRefreshSessionToken(sesion);
+		onSetUserProfile(await getProfile(sesion.userId));
+
+		try {
+			await getShortToken(sesion.token);
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	const removeSavedSession = async (sesion: ISessionToken) => {
@@ -102,11 +108,10 @@ const useUser = (options?: Options) => {
 
 	const logout = async (removeSession = false) => {
 		if (removeSession) onRemoveSavedSession(sessionToken._id);
-		
+
 		try {
 			onLogout();
 			await jeangerApp_API.post<ISessionToken>(UserUrls.logout());
-
 		} catch (error) {
 			console.log(error);
 		}
@@ -128,6 +133,7 @@ const useUser = (options?: Options) => {
 	}, []);
 
 	return {
+		isAuth,
 		userLogged,
 		sessionToken,
 		user,

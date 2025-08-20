@@ -7,6 +7,7 @@ interface IUserState {
 	refreshSessionToken: ISessionToken | null;
 	savedSessions: ISessionToken[];
 	userLogged: IUser | null;
+	isAuth: boolean;
 	users: IUser[];
 }
 
@@ -28,6 +29,7 @@ const useUserStore = create<IUserStore>()(
 	devtools(
 		persist<IUserStore>(
 			(set, get) => ({
+				isAuth: false,
 				sessionToken: null,
 				refreshSessionToken: null,
 				userLogged: null,
@@ -37,16 +39,23 @@ const useUserStore = create<IUserStore>()(
 				onSetSessionToken: (sessionToken) => {
 					set((state) => ({ ...state, sessionToken }));
 				},
+
 				onSetRefreshSessionToken: (sessionToken) => {
-					set((state) => ({ ...state, refreshSessionToken: sessionToken }));
+					set((state) => ({
+						...state,
+						refreshSessionToken: sessionToken,
+						isAuth: true,
+					}));
 				},
+
 				onLogout: () =>
 					set((state) => ({
 						...state,
 						sessionToken: null,
 						refreshSessionToken: null,
 						userLogged: null,
-						users: [],
+						// users: [],
+						isAuth: false,
 					})),
 				onSetUserProfile: (user) => {
 					set((state) => ({ ...state, userLogged: user }));
@@ -70,7 +79,11 @@ const useUserStore = create<IUserStore>()(
 						};
 					}),
 
-				onGetUser: (id) => get().users.find((item) => item._id == id),
+				onGetUser: (id) => {
+					console.log(get().users);
+
+					return get().users.find((item) => item._id == id);
+				},
 
 				onAddSavedSession: (session) =>
 					set((state) => {

@@ -13,6 +13,7 @@ interface props {
 export const AuthContextProvider = ({ children }: props) => {
 	const { jeangerApp_API } = useRequest();
 	const {
+		isAuth,
 		sessionToken,
 		getProfile,
 		getShortToken,
@@ -25,28 +26,30 @@ export const AuthContextProvider = ({ children }: props) => {
 	const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
-		if (sessionToken) {
-			getProfile();
+		if (!sessionToken) return;
 
+		getProfile();
+
+		if (!timer)
 			setTimer(
-				setTimeout(() => {
-					getShortToken(refreshSessionToken.token).catch(async (err) => {
-						if (err.statusCode == 401) {
-							await logout();
-							await removeSavedSession(refreshSessionToken);
-						}
-					});
-				}, new Date(sessionToken.expiration).getTime() - Date.now() - 30000)
+				setTimeout(
+					() =>
+						getShortToken(refreshSessionToken.token).catch(async (err) => {
+							if (err.statusCode == 401) {
+								await logout();
+								await removeSavedSession(refreshSessionToken);
+							}
+						}),
+					new Date(sessionToken.expiration).getTime() - Date.now() - 30000
+				)
 			);
-		}
 
 		return () => {
 			clearTimeout(timer);
 		};
 	}, [jeangerApp_API, sessionToken]);
 
-	if (!sessionToken) {
-		// ver permisos
+	if (!isAuth) {
 		navigate(RouterLinks.Login);
 		return "";
 	}
