@@ -138,54 +138,50 @@ const BillScreen = () => {
 				)}
 			</div>
 
-			<div className="m-4 flex flex-col sm:flex-row sm:justify-between gap-2">
-				<div className="order-3 sm:order-1 sm:flex-1">
-					<div className="flex flex-wrap ">
-						<Button icon="Trash" variant="danger" onClick={onDelete}>
-							Limpiar
-						</Button>
+			<div className="mx-4 flex flex-col sm:flex-row sm:justify-between gap-2">
+				<div className="flex flex-wrap order-3 sm:order-1 sm:flex-1">
+					<Button icon="Trash" variant="danger" onClick={onDelete}>
+						Limpiar
+					</Button>
 
-						<Button
-							icon={
-								deletedFavorites.length === productsFavorites.length
-									? "Eye"
-									: "EyeOff"
-							}
-							onClick={() => {
-								if (deletedFavorites.length === productsFavorites.length)
-									return setDeletedFavorites([]);
+					<Button
+						icon={
+							deletedFavorites.length === productsFavorites.length
+								? "Eye"
+								: "EyeOff"
+						}
+						onClick={() => {
+							if (deletedFavorites.length === productsFavorites.length)
+								return setDeletedFavorites([]);
 
-								setDeletedFavorites(productsFavorites.map((item) => item._id));
-							}}
-						>
-							Simplificar
-						</Button>
+							setDeletedFavorites(productsFavorites.map((item) => item._id));
+						}}
+					>
+						Simplificar
+					</Button>
 
-						<Button variant="danger" onClick={() => toggleIVAMode()}>
-							IVA
-						</Button>
+					<Button variant="danger" onClick={() => toggleIVAMode()}>
+						IVA
+					</Button>
 
-						<Button
-							icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
-							onClick={async () => {
-								const text = await billToText(currentBill);
-								copyToClipboard(text);
-							}}
-						>
-							Copiar
-						</Button>
-						<Button
-							icon="Plus"
-							onClick={async () => {
-								const bill = await createBill("");
-								await selectBill(bill.tempId);
-							}}
-						>
-							Nueva
-						</Button>
-					</div>
-
-					<SavedBills />
+					<Button
+						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
+						onClick={async () => {
+							const text = await billToText(currentBill);
+							copyToClipboard(text);
+						}}
+					>
+						Copiar
+					</Button>
+					<Button
+						icon="Plus"
+						onClick={async () => {
+							const bill = await createBill("");
+							await selectBill(bill.tempId);
+						}}
+					>
+						Nueva
+					</Button>
 				</div>
 
 				<div className="order-2 sm:mr-16">
@@ -242,6 +238,10 @@ const BillScreen = () => {
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<div className="mx-4 ">
+				<SavedBills />
 			</div>
 
 			{deleteRequests.map((item) => (

@@ -11,10 +11,9 @@ export default function SavedBills() {
 			{/* <Divider sx={{ my: 3 }} /> */}
 
 			<div>
-				<div className="flex items-center justify-between ">
+				<div className="flex items-center ">
 					<Text variant="bold">Facturas guardadas</Text>
-
-					<IconButton onClick={getAllBills} icon="Refresh" />
+					<IconButton onClick={getAllBills} icon="Refresh" size="small" />
 				</div>
 
 				<div className="flex flex-wrap gap-2">

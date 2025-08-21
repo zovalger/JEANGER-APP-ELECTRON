@@ -9,6 +9,8 @@ import moneyFormat from "../../common/helpers/moneyFormat.helper";
 import useBill from "../hooks/useBill";
 import { IBill } from "../interfaces";
 import Input from "../../common/components/Input";
+import Popover from "../../common/components/Popover";
+import Button from "../../common/components/Button";
 
 const schema = yup
 	.object({
@@ -28,6 +30,8 @@ export default function SavedBillsItem({ data }: props) {
 	const { currentBill, selectBill, removeBill, renameBill } = useBill();
 
 	const [modeRename, setModeRename] = useState(false);
+
+	const [popoverOpen, setPopoverOpen] = useState(false);
 
 	// todo: crear el form para renombrar
 
@@ -108,7 +112,7 @@ export default function SavedBillsItem({ data }: props) {
 						: "",
 				borderColor: user?.identityColor,
 			}}
-			className={`flex gap-2 py-0.5 rounded  border  ${
+			className={`relative flex gap-2 py-0.5 rounded  border  ${
 				currentBill && currentBill.tempId == tempId
 					? "border shadow"
 					: "border-dashed"
@@ -142,12 +146,24 @@ export default function SavedBillsItem({ data }: props) {
 					<IconButton
 						onClick={async (e) => {
 							e.stopPropagation();
-							await handdleDelete();
+							setPopoverOpen((prev) => !prev);
 						}}
 						size="tiny"
-						icon="Trash"
-						variant="danger"
+						icon="DotsVertical"
 					/>
+					<Popover isOpen={popoverOpen} setIsOpen={setPopoverOpen}>
+						<Button
+							textJustify="left"
+							onClick={async (e) => {
+								e.stopPropagation();
+								await handdleDelete();
+							}}
+							icon="Trash"
+							variant="danger"
+						>
+							Eliminar
+						</Button>
+					</Popover>
 				</>
 			)}
 		</div>
