@@ -1,6 +1,4 @@
-import { Link } from "react-router";
 import RouterLinks from "../../common/config/RouterLinks";
-
 import Text from "../../common/components/Text";
 import Button from "../../common/components/Button";
 

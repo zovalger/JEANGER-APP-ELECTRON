@@ -1,5 +1,6 @@
 const RouterLinks = {
 	Home: "/",
+	test: "/test",
 	Dashboard: "/dashboard",
 	Bills: "/dashboard/bills",
 	Stopwatchs: "/dashboard/stopwatchs",
@@ -13,6 +14,7 @@ const RouterLinks = {
 	// Register: "/register",
 	// Profile: "/profile",
 	// Settings: "/settings",
+	PhotoEditor: () => "/dashboard/photo-editor",
 };
 
 export default RouterLinks;

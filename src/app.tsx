@@ -10,6 +10,7 @@ import BackgroundProcessesLayout from "./common/Layouts/BackgroundProcesses.layo
 import PublicRoutes from "./public/routes";
 import AuthRoutes from "./auth/routes";
 import ProductRoutes from "./products/routes";
+import PhotoEditorRoutes from "./photo-editor/routes";
 
 const root = createRoot(document.body);
 
@@ -22,6 +23,7 @@ const App = () => (
 			<Route element={<BackgroundProcessesLayout />}>
 				<Route path="/dashboard" element={<DashboardLayout />}>
 					{BillRoutes()}
+					{PhotoEditorRoutes()}
 					{StopwatchRoutes()}
 					{ProductRoutes()}
 				</Route>
