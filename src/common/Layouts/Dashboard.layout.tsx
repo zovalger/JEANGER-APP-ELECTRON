@@ -23,6 +23,7 @@ const ModulesApp: {
 }[] = [
 	{ icon: "ShoppingCart", href: RouterLinks.Bills, text: "Facturas" },
 	{ icon: "Clock", href: RouterLinks.Stopwatchs, text: "Cronometros" },
+	{ icon: "Image", href: RouterLinks.PhotoEditor, text: "Imagenes" },
 	{ icon: "Package", href: RouterLinks.Products, text: "Productos" },
 ];
 

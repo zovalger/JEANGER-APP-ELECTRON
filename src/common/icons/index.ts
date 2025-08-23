@@ -27,6 +27,7 @@ import EyeOffIcon from "./EyeOffIcon";
 import SaveIcon from "./SaveIcon";
 import PackageIcon from "./PackageIcon";
 import GearIcon from "./GearIcon";
+import ImageIcon from "./ImageIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	icon_not_found: IconNotFound,
@@ -57,6 +58,7 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	Save: SaveIcon,
 	Package: PackageIcon,
 	Gear: GearIcon,
+	Image: ImageIcon,
 };
 
 export default IconMap;

@@ -26,4 +26,5 @@ export type Icons =
 	| "EyeOff"
 	| "Save"
 	| "Package"
-	| "Gear";
+	| "Gear"
+	| "Image";

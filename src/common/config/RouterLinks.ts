@@ -14,7 +14,7 @@ const RouterLinks = {
 	// Register: "/register",
 	// Profile: "/profile",
 	// Settings: "/settings",
-	PhotoEditor: () => "/dashboard/photo-editor",
+	PhotoEditor: "/dashboard/photo-editor",
 };
 
 export default RouterLinks;
