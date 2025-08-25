@@ -10,11 +10,14 @@ import {
 	ImageAccepted,
 	ImageEditor,
 } from "../helpers/ImageEditor.helper";
+import IconButton from "../../common/components/IconButton";
+import Text from "../../common/components/Text";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D>(null);
 	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
+	const [selected, setSelected] = useState<string | null>(null);
 	const [globalAdjustments, setGlobalAdjustments] =
 		useState<Adjustments>(defaultAdjustments);
 
@@ -125,25 +128,63 @@ export default function PhotoEditorScreen() {
 			name="Editor imagenes"
 			rightButtons={[]}
 		>
-			<Input
-				type="file"
-				accept={Object.values(ImageAccepted).join(",")}
-				multiple
-				onChange={(e) => {
-					if (e.target.files.length == 0) return;
-					getImageDataFromFiles(e.target.files)
-						.then((images) => setImagesUploaded(images))
-						.catch((error) => console.error(error));
-				}}
-			/>
+			<div className="flex flex-col">
+				<div className="mx-4 my-2">
+					<Input
+						label="Imagenes a editar"
+						type="file"
+						accept={Object.values(ImageAccepted).join(",")}
+						multiple
+						onChange={(e) => {
+							if (e.target.files.length == 0) return;
+							getImageDataFromFiles(e.target.files)
+								.then((images) => setImagesUploaded(images))
+								.catch((error) => {
+									console.error(error);
+									alert(error);
+								});
+						}}
+					/>
+				</div>
 
-			<div>
-				{imagesUploaded.map((img) => (
-					<img key={img.tempId} src={img.mainImg.src} alt={img.fileName} />
-				))}
+				<div className="flex mx-4 h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
+					{imagesUploaded.map((img) => (
+						<div
+							className="flex flex-col max-w-32 h-full shrink-0 relative shadow px-2 pt-2 pb-1 rounded bg-white"
+							onClick={() => setSelected(img.tempId)}
+						>
+							<div className=" flex-1 flex justify-center rounded overflow-hidden">
+								<img
+									className="h-full w-auto"
+									key={img.tempId}
+									src={img.mainImg.src}
+									alt={img.fileName}
+								/>
+							</div>
+
+							<div className="flex">
+								<Text className="flex overflow-hidden text-nowrap">
+									{img.fileName}
+								</Text>
+
+								<IconButton
+									icon="Close"
+									className="ml-auto"
+									size="tiny"
+									onClick={() =>
+										setImagesUploaded((prev) =>
+											prev.filter((i) => i.tempId != img.tempId)
+										)
+									}
+								/>
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 
 			<div className="grid grid-cols-2">
+				<div>imagen seleccionada:{selected}</div>
 				<div className=" flex justify-center h-full overflow-auto p-4 ">
 					<canvas ref={canvasRef} className="w-full h-auto bg-gray-200 p-4" />
 				</div>

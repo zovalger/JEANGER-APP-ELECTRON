@@ -1,3 +1,5 @@
+import { v4 as uuid } from "uuid";
+
 export interface Adjustments {
 	brightness: number;
 	exposure: number;
@@ -99,7 +101,7 @@ export const getImageDataFromFiles = async (
 		const { height, width } = mainImg;
 
 		images.push({
-			tempId: crypto.randomUUID(),
+			tempId: uuid(),
 			mainImg,
 			modifiedImg: null,
 			fileName,
