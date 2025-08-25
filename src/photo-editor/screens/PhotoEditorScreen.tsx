@@ -2,114 +2,122 @@ import { useEffect, useRef, useState } from "react";
 import RouterLinks from "../../common/config/RouterLinks";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import Input from "../../common/components/Input";
-import { applyColorFilters } from "../helpers/FilterColor.helper";
 import Button from "../../common/components/Button";
+import {
+	Adjustments,
+	defaultAdjustments,
+	getImageDataFromFiles,
+	ImageAccepted,
+	ImageEditor,
+} from "../helpers/ImageEditor.helper";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [ctx, setCtx] = useState<CanvasRenderingContext2D>(null);
-	const [original, setOriginal] = useState<ImageData>(null);
+	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
+	const [globalAdjustments, setGlobalAdjustments] =
+		useState<Adjustments>(defaultAdjustments);
 
 	useEffect(() => {
 		setCtx(canvasRef.current.getContext("2d"));
 	}, [canvasRef.current]);
 
-	const [presest, setPresest] = useState<"default" | "invert">("default");
-	const [brightness, setBrillo] = useState(0);
-	const [lights, setLuces] = useState(0);
-	const [shadows, setSombras] = useState(0);
-	const [exposure, setExposicion] = useState(0);
-	const [contrast, setContrast] = useState(0);
-	const [saturation, setSaturation] = useState(0);
+	// const [presest, setPresest] = useState<"default" | "invert">("default");
+	// const [brightness, setBrillo] = useState(0);
+	// const [lights, setLuces] = useState(0);
+	// const [shadows, setSombras] = useState(0);
+	// const [exposure, setExposicion] = useState(0);
+	// const [contrast, setContrast] = useState(0);
+	// const [saturation, setSaturation] = useState(0);
 
-	const dibujar = () => {
-		if (presest == "default") byDefault();
-		if (presest == "invert") fondoNegro();
-	};
+	// const dibujar = () => {
+	// 	if (presest == "default") byDefault();
+	// 	if (presest == "invert") fondoNegro();
+	// };
 
-	const byDefault = () => {
-		const newFrame = new ImageData(
-			canvasRef.current.width,
-			canvasRef.current.height
-		);
+	// const byDefault = () => {
+	// 	const newFrame = new ImageData(
+	// 		canvasRef.current.width,
+	// 		canvasRef.current.height
+	// 	);
 
-		const data = newFrame.data;
+	// 	const data = newFrame.data;
 
-		for (let i = 0; i < newFrame.data.length; i += 4) {
-			const rgb = [
-				original.data[i + 0],
-				original.data[i + 1],
-				original.data[i + 2],
-			];
+	// 	for (let i = 0; i < newFrame.data.length; i += 4) {
+	// 		const rgb = [
+	// 			original.data[i + 0],
+	// 			original.data[i + 1],
+	// 			original.data[i + 2],
+	// 		];
 
-			const options = {
-				brightness,
-				contrast,
-				exposure,
-				lights,
-				shadows,
-				saturation,
-				rgb,
-			};
+	// 		const options = {
+	// 			brightness,
+	// 			contrast,
+	// 			exposure,
+	// 			lights,
+	// 			shadows,
+	// 			saturation,
+	// 			rgb,
+	// 		};
 
-			data[i + 0] = applyColorFilters(original.data[i + 0], options);
-			data[i + 1] = applyColorFilters(original.data[i + 1], options);
-			data[i + 2] = applyColorFilters(original.data[i + 2], options);
-			data[i + 3] = 255;
-		}
+	// 		data[i + 0] = applyColorFilters(original.data[i + 0], options);
+	// 		data[i + 1] = applyColorFilters(original.data[i + 1], options);
+	// 		data[i + 2] = applyColorFilters(original.data[i + 2], options);
+	// 		data[i + 3] = 255;
+	// 	}
 
-		ctx.putImageData(newFrame, 0, 0);
-	};
+	// 	ctx.putImageData(newFrame, 0, 0);
+	// };
 
-	const fondoNegro = () => {
-		const newFrame = new ImageData(
-			canvasRef.current.width,
-			canvasRef.current.height
-		);
+	// const fondoNegro = () => {
+	// 	const newFrame = new ImageData(
+	// 		canvasRef.current.width,
+	// 		canvasRef.current.height
+	// 	);
 
-		const data = newFrame.data;
+	// 	const data = newFrame.data;
 
-		for (let i = 0; i < newFrame.data.length; i += 4) {
-			const avg =
-				255 -
-				(original.data[i + 0] + original.data[i + 1] + original.data[i + 2]) /
-					3;
+	// 	for (let i = 0; i < newFrame.data.length; i += 4) {
+	// 		const avg =
+	// 			255 -
+	// 			(original.data[i + 0] + original.data[i + 1] + original.data[i + 2]) /
+	// 				3;
 
-			const rgb = [avg, avg, avg];
+	// 		const rgb = [avg, avg, avg];
 
-			const options = {
-				brightness,
-				contrast,
-				exposure,
-				lights,
-				shadows,
-				saturation,
-				rgb,
-			};
+	// 		const options = {
+	// 			brightness,
+	// 			contrast,
+	// 			exposure,
+	// 			lights,
+	// 			shadows,
+	// 			saturation,
+	// 			rgb,
+	// 		};
 
-			data[i + 0] = applyColorFilters(avg, options);
-			data[i + 1] = applyColorFilters(avg, options);
-			data[i + 2] = applyColorFilters(avg, options);
-			data[i + 3] = 255;
-		}
+	// 		data[i + 0] = applyColorFilters(avg, options);
+	// 		data[i + 1] = applyColorFilters(avg, options);
+	// 		data[i + 2] = applyColorFilters(avg, options);
+	// 		data[i + 3] = 255;
+	// 	}
 
-		ctx.putImageData(newFrame, 0, 0);
-	};
+	// 	ctx.putImageData(newFrame, 0, 0);
+	// };
 
-	const download = () => {
-		canvasRef.current.toBlob((blob) => {
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = "canvas-image.jpg";
-			a.click();
-			URL.revokeObjectURL(url); // Clean up after download
-		}, "image/jpg");
-	};
+	// const download = () => {
+	// 	canvasRef.current.toBlob((blob) => {
+	// 		const url = URL.createObjectURL(blob);
+	// 		const a = document.createElement("a");
+	// 		a.href = url;
+	// 		a.download = "canvas-image.jpg";
+	// 		a.click();
+	// 		URL.revokeObjectURL(url); // Clean up after download
+	// 	}, "image/jpg");
+	// };
 
-	useEffect(() => {
-		if (ctx) dibujar();
-	}, [brightness, lights, shadows, exposure, contrast, saturation, presest]);
+	// useEffect(() => {
+	// 	if (ctx) dibujar();
+	// }, [brightness, lights, shadows, exposure, contrast, saturation, presest]);
 
 	return (
 		<PageTemplateLayout
@@ -117,13 +125,31 @@ export default function PhotoEditorScreen() {
 			name="Editor imagenes"
 			rightButtons={[]}
 		>
+			<Input
+				type="file"
+				accept={Object.values(ImageAccepted).join(",")}
+				multiple
+				onChange={(e) => {
+					if (e.target.files.length == 0) return;
+					getImageDataFromFiles(e.target.files)
+						.then((images) => setImagesUploaded(images))
+						.catch((error) => console.error(error));
+				}}
+			/>
+
+			<div>
+				{imagesUploaded.map((img) => (
+					<img key={img.tempId} src={img.mainImg.src} alt={img.fileName} />
+				))}
+			</div>
+
 			<div className="grid grid-cols-2">
 				<div className=" flex justify-center h-full overflow-auto p-4 ">
 					<canvas ref={canvasRef} className="w-full h-auto bg-gray-200 p-4" />
 				</div>
 
 				<div>
-					<Button onClick={download}> descargar</Button>
+					{/* <Button onClick={download}> descargar</Button>
 					<Button
 						onClick={() => {
 							setPresest("invert");
@@ -149,31 +175,7 @@ export default function PhotoEditorScreen() {
 						}}
 					>
 						Reset
-					</Button>
-
-					<Input
-						type="file"
-						onChange={(e) => {
-							const image = new Image();
-
-							image.onload = (ee) => {
-								console.log(ee);
-								canvasRef.current.width = image.width;
-								canvasRef.current.height = image.height;
-								ctx.drawImage(image, 0, 0);
-
-								const frame = ctx.getImageData(
-									0,
-									0,
-									canvasRef.current.width,
-									canvasRef.current.height
-								);
-
-								setOriginal(frame);
-							};
-							image.src = URL.createObjectURL(e.target.files[0]);
-						}}
-					/>
+					</Button> */}
 
 					{/* <Input
 						label="zoom"
@@ -189,7 +191,7 @@ export default function PhotoEditorScreen() {
 						}}
 					/> */}
 
-					<Input
+					{/* <Input
 						label={"Brillo: " + brightness}
 						type="range"
 						min={-100}
@@ -258,7 +260,7 @@ export default function PhotoEditorScreen() {
 						onChange={(e) => {
 							setSaturation(parseInt(e.target.value));
 						}}
-					/>
+					/> */}
 				</div>
 			</div>
 		</PageTemplateLayout>
