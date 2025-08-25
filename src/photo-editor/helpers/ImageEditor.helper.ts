@@ -7,6 +7,7 @@ export interface Adjustments {
 	lights: number;
 	shadows: number;
 	saturation: number;
+	temperature: number;
 }
 
 export type FilterEffect = "none" | "invert";
@@ -39,13 +40,44 @@ export enum ImageAccepted {
 	webp = "image/webp",
 }
 
-export const defaultAdjustments = {
+export const defaultAdjustments: Adjustments = {
 	brightness: 0,
 	exposure: 0,
 	contrast: 0,
 	lights: 0,
 	shadows: 0,
 	saturation: 0,
+	temperature: 0,
+};
+
+export const FondoNegroAdjustments: Adjustments = {
+	brightness: 0,
+	exposure: 25,
+	contrast: 15,
+	lights: 60,
+	shadows: 0,
+	saturation: -100,
+	temperature: 0,
+};
+
+export const BN_Adjustments: Adjustments = {
+	brightness: 0,
+	exposure: 0,
+	contrast: 0,
+	lights: 0,
+	shadows: 0,
+	saturation: -100,
+	temperature: 0,
+};
+
+export const Enchance_Adjustments: Adjustments = {
+	brightness: 0,
+	exposure: 0,
+	contrast: 0,
+	lights: 0,
+	shadows: 0,
+	saturation: 20,
+	temperature: 0,
 };
 
 // ****************************************************************************
@@ -124,8 +156,24 @@ export const getImageDataFromFiles = async (
 // 														CTX control
 // ****************************************************************************
 
+export const clearCanvas = (canvas: HTMLCanvasElement) => {
+	// canvas.width = imageEditor.width;
+	// canvas.height = imageEditor.height;
+	// const ctx = canvas.getContext("2d");
+	// ctx.drawImage(imageEditor.mainImg, 0, 0);
+};
+
+export const showImage = (
+	canvas: HTMLCanvasElement,
+	imageEditor: ImageEditor
+) => {
+	canvas.width = imageEditor.width;
+	canvas.height = imageEditor.height;
+
+	const ctx = canvas.getContext("2d");
+	ctx.drawImage(imageEditor.mainImg, 0, 0);
+};
+
 export const draw = (ctx: CanvasRenderingContext2D, frame: ImageData) => {
 	ctx.putImageData(frame, 0, 0);
-
-	return;
 };

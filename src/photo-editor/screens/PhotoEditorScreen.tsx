@@ -5,25 +5,31 @@ import Input from "../../common/components/Input";
 import Button from "../../common/components/Button";
 import {
 	Adjustments,
+	BN_Adjustments,
+	clearCanvas,
 	defaultAdjustments,
+	Enchance_Adjustments,
+	FilterEffect,
+	FondoNegroAdjustments,
 	getImageDataFromFiles,
 	ImageAccepted,
 	ImageEditor,
+	showImage,
 } from "../helpers/ImageEditor.helper";
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
+import ColorAdjustmentsForm from "../components/ColorAdjustmentsForm";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const [ctx, setCtx] = useState<CanvasRenderingContext2D>(null);
 	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
-	const [selected, setSelected] = useState<string | null>(null);
 	const [globalAdjustments, setGlobalAdjustments] =
 		useState<Adjustments>(defaultAdjustments);
 
-	useEffect(() => {
-		setCtx(canvasRef.current.getContext("2d"));
-	}, [canvasRef.current]);
+	const [selected, setSelected] = useState<string | null>(null);
+
+	const [currentAdjustments, setCurrentAdjustments] =
+		useState<Adjustments>(defaultAdjustments);
 
 	// const [presest, setPresest] = useState<"default" | "invert">("default");
 	// const [brightness, setBrillo] = useState(0);
@@ -122,6 +128,46 @@ export default function PhotoEditorScreen() {
 	// 	if (ctx) dibujar();
 	// }, [brightness, lights, shadows, exposure, contrast, saturation, presest]);
 
+	const selectImage = (img: ImageEditor) => {
+		setSelected(img.tempId);
+		showImage(canvasRef.current, img);
+
+		if (img.adjustments) setCurrentAdjustments(img.adjustments);
+		else setCurrentAdjustments(globalAdjustments);
+	};
+
+	const deleteImage = (tempId: string) => {
+		setImagesUploaded((prev) =>
+			prev.filter((item, index) => {
+				if (item.tempId == selected && selected == tempId) {
+					const toIndex =
+						index + 1 < imagesUploaded.length - 2
+							? index + 1
+							: index - 1 >= 0
+							? index - 1
+							: 1;
+
+					if (imagesUploaded.length - 1 <= 0) {
+						clearCanvas(canvasRef.current);
+					} else {
+						showImage(canvasRef.current, imagesUploaded[toIndex]);
+						setSelected(imagesUploaded[toIndex].tempId);
+					}
+
+					URL.revokeObjectURL(item.mainImg.src);
+				}
+
+				return item.tempId != tempId;
+			})
+		);
+	};
+
+	const SetFilterEffect = (
+		tempId: string,
+		effect: FilterEffect,
+		adjustments: Adjustments
+	) => {};
+
 	return (
 		<PageTemplateLayout
 			backButtonURL={RouterLinks.Dashboard}
@@ -138,7 +184,11 @@ export default function PhotoEditorScreen() {
 						onChange={(e) => {
 							if (e.target.files.length == 0) return;
 							getImageDataFromFiles(e.target.files)
-								.then((images) => setImagesUploaded(images))
+								.then((images) => {
+									setImagesUploaded(images);
+									setSelected(images[0].tempId);
+									showImage(canvasRef.current, images[0]);
+								})
 								.catch((error) => {
 									console.error(error);
 									alert(error);
@@ -146,12 +196,18 @@ export default function PhotoEditorScreen() {
 						}}
 					/>
 				</div>
+			</div>
 
+			<div className=" flex justify-center h-full overflow-auto p-4 ">
+				<canvas ref={canvasRef} className="w-full h-auto bg-gray-200 p-4" />
+			</div>
+
+			{!!imagesUploaded.length && (
 				<div className="flex mx-4 h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
 					{imagesUploaded.map((img) => (
 						<div
 							className="flex flex-col max-w-32 h-full shrink-0 relative shadow px-2 pt-2 pb-1 rounded bg-white"
-							onClick={() => setSelected(img.tempId)}
+							onClick={() => selectImage(img)}
 						>
 							<div className=" flex-1 flex justify-center rounded overflow-hidden">
 								<img
@@ -171,139 +227,52 @@ export default function PhotoEditorScreen() {
 									icon="Close"
 									className="ml-auto"
 									size="tiny"
-									onClick={() =>
-										setImagesUploaded((prev) =>
-											prev.filter((i) => i.tempId != img.tempId)
-										)
-									}
+									onClick={() => deleteImage(img.tempId)}
 								/>
 							</div>
 						</div>
 					))}
 				</div>
-			</div>
+			)}
 
-			<div className="grid grid-cols-2">
-				<div>imagen seleccionada:{selected}</div>
-				<div className=" flex justify-center h-full overflow-auto p-4 ">
-					<canvas ref={canvasRef} className="w-full h-auto bg-gray-200 p-4" />
-				</div>
-
-				<div>
-					{/* <Button onClick={download}> descargar</Button>
+			<div className="mx-4">
+				<Text variant="bold">Prestablecidos</Text>
+				<div className="flex gap-2 flex-wrap">
 					<Button
-						onClick={() => {
-							setPresest("invert");
-							setBrillo(0);
-							setLuces(60);
-							setSombras(0);
-							setExposicion(25);
-							setContrast(15);
-							setSaturation(-100);
-						}}
+						onClick={() => SetFilterEffect(selected, "none", BN_Adjustments)}
+					>
+						B/N
+					</Button>
+					<Button
+						onClick={() =>
+							SetFilterEffect(selected, "invert", defaultAdjustments)
+						}
+					>
+						Invertir
+					</Button>
+					<Button
+						onClick={() =>
+							SetFilterEffect(selected, "invert", FondoNegroAdjustments)
+						}
 					>
 						Fondo negro
 					</Button>
 					<Button
-						onClick={() => {
-							setPresest("default");
-							setBrillo(0);
-							setLuces(0);
-							setSombras(0);
-							setExposicion(0);
-							setContrast(0);
-							setSaturation(0);
-						}}
+						onClick={() =>
+							SetFilterEffect(selected, "none", Enchance_Adjustments)
+						}
 					>
-						Reset
-					</Button> */}
-
-					{/* <Input
-						label="zoom"
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={zoom}
-						onChange={(e) => {
-							setZoom(parseInt(e.target.value));
-
-							ctx.scale(parseInt(e.target.value), parseInt(e.target.value));
-						}}
-					/> */}
-
-					{/* <Input
-						label={"Brillo: " + brightness}
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={brightness}
-						onChange={(e) => {
-							setBrillo(parseInt(e.target.value));
-						}}
-					/>
-
-					<Input
-						label="Luces"
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={lights}
-						onChange={(e) => {
-							setLuces(parseInt(e.target.value));
-						}}
-					/>
-
-					<Input
-						label="Sombras"
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={shadows}
-						onChange={(e) => {
-							setSombras(parseInt(e.target.value));
-						}}
-					/>
-
-					<Input
-						label="exposicion"
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={exposure}
-						onChange={(e) => {
-							setExposicion(parseInt(e.target.value));
-						}}
-					/>
-
-					<Input
-						label="contraste"
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={contrast}
-						onChange={(e) => {
-							setContrast(parseInt(e.target.value));
-						}}
-					/>
-					<Input
-						label="saturacion"
-						type="range"
-						min={-100}
-						max={100}
-						step={1}
-						value={saturation}
-						onChange={(e) => {
-							setSaturation(parseInt(e.target.value));
-						}}
-					/> */}
+						Auto Mejorar
+					</Button>
 				</div>
 			</div>
+
+			<ColorAdjustmentsForm
+				adjustments={currentAdjustments}
+				setAdjustments={setCurrentAdjustments}
+			/>
+
+			{/* <Button onClick={download}> descargar</Button> */}
 		</PageTemplateLayout>
 	);
 }
