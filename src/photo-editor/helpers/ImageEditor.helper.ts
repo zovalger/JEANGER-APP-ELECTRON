@@ -19,7 +19,7 @@ export interface ImageEditor {
 	modifiedImg: ImageData | null;
 	fileName: string;
 	filterEffect: FilterEffect;
-	adjustments: Adjustments | null;
+	adjustments: Adjustments;
 	width: number;
 	height: number;
 	rotation: number;
@@ -27,6 +27,7 @@ export interface ImageEditor {
 	cropY: number;
 	cropOffsetX: number;
 	cropOffsetY: number;
+	isSelected: boolean;
 }
 
 export interface FilterColorSettings extends Adjustments {
@@ -96,7 +97,7 @@ export const applyColorFilters = (
 	const { brightness, exposure, contrast, lights, saturation, shadows, rgb } =
 		filterColorSettings;
 
-	const avg = grayScaleFilter(rgb)
+	const avg = grayScaleFilter(rgb);
 
 	n = avg + (n - avg) * (saturation * 0.01 + 1);
 	n *= exposure / 100 + 1;
@@ -139,7 +140,7 @@ export const getImageDataFromFiles = async (
 			modifiedImg: null,
 			fileName,
 			filterEffect: "none",
-			adjustments: null,
+			adjustments: defaultAdjustments,
 			width,
 			height,
 			rotation: 0,
@@ -147,6 +148,7 @@ export const getImageDataFromFiles = async (
 			cropY: 0,
 			cropOffsetX: width,
 			cropOffsetY: height,
+			isSelected: false,
 		});
 	}
 
@@ -177,13 +179,15 @@ export const showImage = (
 
 	const adjustmentsToSet = adjustments || defaultAdjustments;
 
-	canvas.width = width;
-	canvas.height = height;
+	//todo: colocar un valor manejable para que no se vea tan borroso
+
+	canvas.width = Math.round(width / 8);
+	canvas.height = Math.round(height / 8);
 
 	const ctx = canvas.getContext("2d");
-	ctx.drawImage(imageEditor.mainImg, 0, 0);
+	ctx.drawImage(imageEditor.mainImg, 0, 0, canvas.width, canvas.height);
 
-	const original = ctx.getImageData(0, 0, width, height);
+	const original = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
 	const newFrame = new ImageData(canvas.width, canvas.height);
 	const data = newFrame.data;

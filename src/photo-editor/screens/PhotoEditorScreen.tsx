@@ -24,25 +24,18 @@ export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
 
-	const [globalAdjustments, setGlobalAdjustments] =
-		useState<Adjustments>(defaultAdjustments);
 	const [currentAdjustments, setCurrentAdjustments] =
 		useState<Adjustments>(defaultAdjustments);
 
-	const [selected, setSelected] = useState<string | null>(null);
-
-	const [isGlobalUse, setIsGlobalUse] = useState(true);
+	const [fileInView, setFileInView] = useState<string | null>(null);
 
 	const drawCanvas = () => {
-		if (!canvasRef.current || !selected) return;
+		if (!canvasRef.current || !fileInView) return;
 
-		const img = imagesUploaded.find((i) => i.tempId == selected);
+		const img = imagesUploaded.find((i) => i.tempId == fileInView);
 		if (!img) return;
 
-		showImage(canvasRef.current, {
-			...img,
-			adjustments: img.adjustments ? img.adjustments : currentAdjustments,
-		});
+		showImage(canvasRef.current, img);
 	};
 
 	// const download = () => {
@@ -58,84 +51,76 @@ export default function PhotoEditorScreen() {
 
 	useEffect(() => {
 		if (canvasRef.current) drawCanvas();
-	}, [currentAdjustments, selected]);
+	}, [currentAdjustments, fileInView]);
 
 	const SetFilterEffect = (
-		tempId: string,
 		filterEffect: FilterEffect,
 		adjustments: Adjustments
 	) => {
 		setCurrentAdjustments(adjustments);
-		setIsGlobalUse(false);
 		setImagesUploaded((prev) =>
-			prev.map((i) =>
-				i.tempId == tempId ? { ...i, adjustments, filterEffect } : i
-			)
+			prev.map((i) => (i.isSelected ? { ...i, adjustments, filterEffect } : i))
 		);
 	};
 
-	const handleAdjustmentsContextChange = (newGlobalUse: boolean) => {
-		setIsGlobalUse(newGlobalUse);
+	const selectAll = (s = false) => {
+		setImagesUploaded((prev) => prev.map((i) => ({ ...i, isSelected: s })));
+	};
 
-		if (newGlobalUse) {
-			setCurrentAdjustments(globalAdjustments);
-			setImagesUploaded((prev) =>
-				prev.map((i) =>
-					i.tempId == selected ? { ...i, adjustments: null } : i
-				)
-			);
-		} else {
-			const img = imagesUploaded.find((i) => i.tempId == selected);
-			if (img) setCurrentAdjustments(img.adjustments || globalAdjustments);
-		}
+	const selectImage = (tempId: string, isSelected: boolean) => {
+		setImagesUploaded((prev) =>
+			prev.map((i) => (tempId == i.tempId ? { ...i, isSelected } : i))
+		);
 	};
 
 	const handleAdjustmentsChange = (adjustments: Adjustments) => {
 		setCurrentAdjustments(adjustments);
 
-		if (isGlobalUse) return setGlobalAdjustments(adjustments);
-
 		setImagesUploaded((prev) =>
-			prev.map((i) => (i.tempId == selected ? { ...i, adjustments } : i))
+			prev.map((i) => (i.isSelected ? { ...i, adjustments } : i))
 		);
 	};
 
-	const selectImage = (img: ImageEditor) => {
-		setSelected(img.tempId);
+	const selectToView = (img: ImageEditor) => {
+		setFileInView(img.tempId);
 
-		if (img.adjustments) {
-			setCurrentAdjustments(img.adjustments);
-			setIsGlobalUse(false);
-		} else {
-			setCurrentAdjustments(globalAdjustments);
-			setIsGlobalUse(true);
-		}
+		setImagesUploaded((prev) =>
+			prev.map((i) => ({ ...i, isSelected: img.tempId == i.tempId }))
+		);
+
+		setCurrentAdjustments(img.adjustments);
 	};
 
 	const deleteImage = (tempId: string) => {
 		setImagesUploaded((prev) =>
 			prev.filter((item, index) => {
-				if (item.tempId == selected && selected == tempId) {
-					const toIndex =
-						index + 1 < imagesUploaded.length - 2
-							? index + 1
-							: index - 1 >= 0
-							? index - 1
-							: 1;
+				if (item.tempId == tempId) {
+					if (fileInView == tempId) {
+						const toIndex =
+							index + 1 < imagesUploaded.length - 2
+								? index + 1
+								: index - 1 >= 0
+								? index - 1
+								: 1;
 
-					if (imagesUploaded.length - 1 <= 0) {
-						clearCanvas(canvasRef.current);
-					} else {
-						selectImage(imagesUploaded[toIndex]);
+						if (imagesUploaded.length - 1 <= 0) {
+							clearCanvas(canvasRef.current);
+						} else {
+							selectToView(imagesUploaded[toIndex]);
+						}
+
+						URL.revokeObjectURL(item.mainImg.src);
 					}
-
-					URL.revokeObjectURL(item.mainImg.src);
 				}
 
 				return item.tempId != tempId;
 			})
 		);
 	};
+
+	const allAreSelected =
+		imagesUploaded.filter((i) => i.isSelected).length ==
+			imagesUploaded.length && imagesUploaded.length > 0;
 
 	return (
 		<PageTemplateLayout
@@ -157,7 +142,7 @@ export default function PhotoEditorScreen() {
 									getImageDataFromFiles(e.target.files)
 										.then((images) => {
 											setImagesUploaded(images);
-											selectImage(images[0]);
+											selectToView(images[0]);
 										})
 										.catch((error) => {
 											console.error(error);
@@ -171,96 +156,109 @@ export default function PhotoEditorScreen() {
 					<div className=" flex justify-center h-full overflow-auto p-4 ">
 						<canvas ref={canvasRef} className="w-full h-auto bg-gray-200 p-4" />
 					</div>
-
-					{!!imagesUploaded.length && (
-						<div className="flex h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
-							{imagesUploaded.map((img) => (
-								<div
-									key={img.tempId}
-									className="flex flex-col max-w-32 h-full shrink-0 relative shadow px-2 pt-2 pb-1 rounded bg-white"
-									onClick={() => selectImage(img)}
-								>
-									<div className=" flex-1 flex justify-center rounded overflow-hidden">
-										<img
-											className="h-full w-auto"
-											key={img.tempId}
-											src={img.mainImg.src}
-											alt={img.fileName}
-										/>
-									</div>
-
-									<div className="flex">
-										<Text className="flex overflow-hidden text-nowrap">
-											{img.fileName}
-										</Text>
-
-										<IconButton
-											icon="Close"
-											className="ml-auto"
-											size="tiny"
-											onClick={() => deleteImage(img.tempId)}
-										/>
-									</div>
-								</div>
-							))}
-						</div>
-					)}
 				</div>
 
 				<div>
-					<div className="">
-						<Text variant="bold">Prestablecidos</Text>
-						<div className="flex gap-2 flex-wrap">
-							<Button
-								onClick={() =>
-									SetFilterEffect(selected, "none", defaultAdjustments)
-								}
-							>
-								Original
-							</Button>
-							<Button
-								onClick={() =>
-									SetFilterEffect(selected, "none", Enchance_Adjustments)
-								}
-							>
-								Auto
-							</Button>
-							<Button
-								onClick={() =>
-									SetFilterEffect(selected, "none", BN_Adjustments)
-								}
-							>
-								B/N
-							</Button>
-							<Button
-								onClick={() =>
-									SetFilterEffect(selected, "invert", defaultAdjustments)
-								}
-							>
-								Invertir
-							</Button>
-							<Button
-								onClick={() =>
-									SetFilterEffect(selected, "invert", FondoNegroAdjustments)
-								}
-							>
-								Fondo negro
-							</Button>
-						</div>
-					</div>
-					<div>
-						<Input
-							label="Usar ajustes globales"
-							type="checkbox"
-							checked={isGlobalUse}
-							onChange={(e) => handleAdjustmentsContextChange(e.target.checked)}
-						/>
-					</div>
+					{!!imagesUploaded.length && (
+						<>
+							<div>
+								<Button
+									textJustify="left"
+									icon={allAreSelected ? "SquareCheck" : "Square"}
+									onClick={() => selectAll(!allAreSelected)}
+								>
+									Seleccionar todos
+								</Button>
+							</div>
 
-					<ColorAdjustmentsForm
-						adjustments={currentAdjustments}
-						setAdjustments={handleAdjustmentsChange}
-					/>
+							<div className="flex h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
+								{imagesUploaded.map((img) => (
+									<div
+										key={img.tempId}
+										className="flex flex-col max-w-32 h-full shrink-0 shadow px-2 pt-2 pb-1 rounded bg-white"
+										onClick={() => selectToView(img)}
+									>
+										<div className="flex justify-end">
+											<IconButton
+												size="tiny"
+												icon={img.isSelected ? "SquareCheck" : "Square"}
+												onClick={() => {
+													selectImage(img.tempId, !img.isSelected);
+												}}
+											/>
+										</div>
+										<div className=" flex-1 flex justify-center rounded overflow-hidden">
+											<img
+												className="h-full w-auto"
+												key={img.tempId}
+												src={img.mainImg.src}
+												alt={img.fileName}
+											/>
+										</div>
+
+										<div className="flex">
+											<Text className="flex overflow-hidden text-nowrap">
+												{img.fileName}
+											</Text>
+
+											<IconButton
+												icon="Close"
+												className="ml-auto"
+												size="tiny"
+												onClick={() => deleteImage(img.tempId)}
+											/>
+										</div>
+									</div>
+								))}
+							</div>
+						</>
+					)}
+
+					{imagesUploaded.some((i) => i.isSelected) && (
+						<>
+							<div className="">
+								<Text variant="bold">Prestablecidos</Text>
+								<div className="flex gap-2 flex-wrap">
+									<Button
+										onClick={() => SetFilterEffect("none", defaultAdjustments)}
+									>
+										Original
+									</Button>
+									<Button
+										onClick={() =>
+											SetFilterEffect("none", Enchance_Adjustments)
+										}
+									>
+										Auto
+									</Button>
+									<Button
+										onClick={() => SetFilterEffect("none", BN_Adjustments)}
+									>
+										B/N
+									</Button>
+									<Button
+										onClick={() =>
+											SetFilterEffect("invert", defaultAdjustments)
+										}
+									>
+										Invertir
+									</Button>
+									<Button
+										onClick={() =>
+											SetFilterEffect("invert", FondoNegroAdjustments)
+										}
+									>
+										Fondo negro
+									</Button>
+								</div>
+							</div>
+
+							<ColorAdjustmentsForm
+								adjustments={currentAdjustments}
+								setAdjustments={handleAdjustmentsChange}
+							/>
+						</>
+					)}
 				</div>
 			</div>
 

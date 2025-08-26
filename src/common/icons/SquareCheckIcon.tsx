@@ -1,4 +1,4 @@
-const SquareCheck = () => {
+const SquareCheckIcon = () => {
 	return (
 		<svg
 			className="h-4 w-4"
@@ -18,4 +18,4 @@ const SquareCheck = () => {
 	);
 };
 
-export default SquareCheck;
+export default SquareCheckIcon;

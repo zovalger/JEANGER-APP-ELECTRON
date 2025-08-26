@@ -28,6 +28,7 @@ import SaveIcon from "./SaveIcon";
 import PackageIcon from "./PackageIcon";
 import GearIcon from "./GearIcon";
 import ImageIcon from "./ImageIcon";
+import SquareCheckIcon from "./SquareCheckIcon";
 
 const IconMap: Record<Icons, () => JSX.Element> = {
 	icon_not_found: IconNotFound,
@@ -42,7 +43,7 @@ const IconMap: Record<Icons, () => JSX.Element> = {
 	Minus: MinusIcon,
 	Refresh: RefreshIcon,
 	Square: SquareIcon,
-	SquareCheck: SquareIcon,
+	SquareCheck: SquareCheckIcon,
 	ClipboardCheck: ClipboardCheckIcon,
 	ClipboardCopy: ClipboardCopyIcon,
 	Tools: ToolsIcon,
