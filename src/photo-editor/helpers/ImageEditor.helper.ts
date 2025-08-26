@@ -16,7 +16,7 @@ export interface ImageEditor {
 	_id?: string;
 	tempId: string;
 	mainImg: HTMLImageElement;
-	modifiedImg: ImageData | null;
+	modifiedImg:Blob|null;
 	fileName: string;
 	filterEffect: FilterEffect;
 	adjustments: Adjustments;
@@ -154,6 +154,11 @@ export const getImageDataFromFiles = async (
 
 	return images;
 };
+
+
+export const generateExportImages = async(imageEditor: ImageEditor[]):Promise<ImageEditor[]>=>{
+
+}
 
 // ****************************************************************************
 // 														CTX control

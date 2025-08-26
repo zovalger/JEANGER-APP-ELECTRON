@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import FileSaver from "file-saver";
 import RouterLinks from "../../common/config/RouterLinks";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import Input from "../../common/components/Input";
@@ -9,6 +10,7 @@ import {
 	clearCanvas,
 	defaultAdjustments,
 	Enchance_Adjustments,
+	generateExportImages,
 	FilterEffect,
 	FondoNegroAdjustments,
 	getImageDataFromFiles,
@@ -19,6 +21,7 @@ import {
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import ColorAdjustmentsForm from "../components/ColorAdjustmentsForm";
+import JSZip from "jszip";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,16 +41,31 @@ export default function PhotoEditorScreen() {
 		showImage(canvasRef.current, img);
 	};
 
-	// const download = () => {
-	// 	canvasRef.current.toBlob((blob) => {
-	// 		const url = URL.createObjectURL(blob);
-	// 		const a = document.createElement("a");
-	// 		a.href = url;
-	// 		a.download = "canvas-image.jpg";
-	// 		a.click();
-	// 		URL.revokeObjectURL(url); // Clean up after download
-	// 	}, "image/jpg");
-	// };
+	const download = async () => {
+		const images = await generateExportImages(imagesUploaded);
+		const zip = new JSZip();
+
+		const nameZip = new Date().toString();
+		const img = zip.folder(nameZip);
+
+		for (const item of images) {
+			img.file(item.fileName, item.modifiedImg, { base64: true });
+			images;
+		}
+
+		const contentZip = await zip.generateAsync({ type: "blob" });
+
+		FileSaver.saveAs(contentZip, nameZip + ".zip");
+
+		canvasRef.current.toBlob((blob) => {
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "canvas-image.jpg";
+			a.click();
+			URL.revokeObjectURL(url); // Clean up after download
+		}, "image/jpg");
+	};
 
 	useEffect(() => {
 		if (canvasRef.current) drawCanvas();
