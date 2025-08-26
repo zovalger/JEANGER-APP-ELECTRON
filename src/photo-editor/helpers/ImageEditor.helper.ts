@@ -72,11 +72,11 @@ export const BN_Adjustments: Adjustments = {
 
 export const Enchance_Adjustments: Adjustments = {
 	brightness: 0,
-	exposure: 0,
-	contrast: 0,
-	lights: 0,
-	shadows: 0,
-	saturation: 20,
+	exposure: 4,
+	contrast: 4,
+	lights: 12,
+	shadows: 6,
+	saturation: 25,
 	temperature: 0,
 };
 
@@ -96,7 +96,8 @@ export const applyColorFilters = (
 	const { brightness, exposure, contrast, lights, saturation, shadows, rgb } =
 		filterColorSettings;
 
-	const avg = grayScaleFilter(rgb) / 3;
+	const avg = grayScaleFilter(rgb)
+
 	n = avg + (n - avg) * (saturation * 0.01 + 1);
 	n *= exposure / 100 + 1;
 	n = n >= 128 ? n + contrast : n - contrast;
@@ -163,17 +164,53 @@ export const clearCanvas = (canvas: HTMLCanvasElement) => {
 	// ctx.drawImage(imageEditor.mainImg, 0, 0);
 };
 
+// const applyAdjustments = (ctx: CanvasRenderingContext2D, 	imageEditor: ImageEditor) => {
+
+// 	ctx.putImageData(frame, 0, 0);
+// };
+
 export const showImage = (
 	canvas: HTMLCanvasElement,
 	imageEditor: ImageEditor
 ) => {
-	canvas.width = imageEditor.width;
-	canvas.height = imageEditor.height;
+	const { width, height, filterEffect, adjustments } = imageEditor;
+
+	const adjustmentsToSet = adjustments || defaultAdjustments;
+
+	canvas.width = width;
+	canvas.height = height;
 
 	const ctx = canvas.getContext("2d");
 	ctx.drawImage(imageEditor.mainImg, 0, 0);
-};
 
-export const draw = (ctx: CanvasRenderingContext2D, frame: ImageData) => {
-	ctx.putImageData(frame, 0, 0);
+	const original = ctx.getImageData(0, 0, width, height);
+
+	const newFrame = new ImageData(canvas.width, canvas.height);
+	const data = newFrame.data;
+
+	for (let i = 0; i < newFrame.data.length; i += 4) {
+		const rgb = [
+			original.data[i + 0],
+			original.data[i + 1],
+			original.data[i + 2],
+		];
+
+		let newRgb = rgb;
+
+		if (filterEffect == "invert")
+			newRgb = [
+				negativeFilter(rgb[0]),
+				negativeFilter(rgb[1]),
+				negativeFilter(rgb[2]),
+			];
+
+		const options = { ...adjustmentsToSet, rgb: newRgb };
+
+		data[i + 0] = applyColorFilters(newRgb[0], options);
+		data[i + 1] = applyColorFilters(newRgb[1], options);
+		data[i + 2] = applyColorFilters(newRgb[2], options);
+		data[i + 3] = 255;
+	}
+
+	ctx.putImageData(newFrame, 0, 0);
 };

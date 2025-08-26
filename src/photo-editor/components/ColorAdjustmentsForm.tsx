@@ -1,5 +1,8 @@
+import Button from "../../common/components/Button";
+import IconButton from "../../common/components/IconButton";
 import Input from "../../common/components/Input";
-import { Adjustments } from "../helpers/ImageEditor.helper";
+import Text from "../../common/components/Text";
+import { Adjustments, defaultAdjustments } from "../helpers/ImageEditor.helper";
 
 interface props {
 	adjustments: Adjustments;
@@ -18,111 +21,209 @@ const ColorAdjustmentsForm = (props: props) => {
 		temperature,
 	} = adjustments;
 
+	const handleChange = (a: Partial<Adjustments>) =>
+		setAdjustments({ ...adjustments, ...a });
+
 	return (
-		<div>
-			<Input
-				label={"Brillo: " + brightness}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={brightness}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						brightness: parseInt(e.target.value),
-					})
-				}
-			/>
+		<div className="my-4">
+			<div className="flex items-center justify-between mb-4">
+				<Text variant="bold" size="big">Ajustes</Text>
+				<Button
+					icon="Refresh"
+					onClick={() => setAdjustments(defaultAdjustments)}
+				>
+					Resetear
+				</Button>
+			</div>
 
-			<Input
-				label={"Luces: " + lights}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={lights}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						lights: parseInt(e.target.value),
-					})
-				}
-			/>
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Brillo: {brightness}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ brightness: brightness - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ brightness: brightness + 1 })}
+					/>
+				</div>
 
-			<Input
-				label={"Sombras:" + shadows}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={shadows}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						shadows: parseInt(e.target.value),
-					})
-				}
-			/>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={brightness}
+					onChange={(e) =>
+						handleChange({ brightness: parseInt(e.target.value) })
+					}
+				/>
+			</div>
 
-			<Input
-				label={"Exposición: " + exposure}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={exposure}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						exposure: parseInt(e.target.value),
-					})
-				}
-			/>
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Luces: {lights}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ lights: lights - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ lights: lights + 1 })}
+					/>
+				</div>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={lights}
+					onChange={(e) => handleChange({ lights: parseInt(e.target.value) })}
+				/>
+			</div>
 
-			<Input
-				label={"Contraste: " + contrast}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={contrast}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						contrast: parseInt(e.target.value),
-					})
-				}
-			/>
-			<Input
-				label={"Saturación: " + saturation}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={saturation}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						saturation: parseInt(e.target.value),
-					})
-				}
-			/>
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Sombras: {shadows}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ shadows: shadows - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ shadows: shadows + 1 })}
+					/>
+				</div>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={shadows}
+					onChange={(e) => handleChange({ shadows: parseInt(e.target.value) })}
+				/>
+			</div>
 
-			<Input
-				label={"Temperatura: " + temperature}
-				type="range"
-				min={-100}
-				max={100}
-				step={1}
-				value={temperature}
-				onChange={(e) =>
-					setAdjustments({
-						...adjustments,
-						temperature: parseInt(e.target.value),
-					})
-				}
-			/>
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Exposición: {exposure}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ exposure: exposure - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ exposure: exposure + 1 })}
+					/>
+				</div>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={exposure}
+					onChange={(e) => handleChange({ exposure: parseInt(e.target.value) })}
+				/>
+			</div>
+
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Contraste: {contrast}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ contrast: contrast - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ contrast: contrast + 1 })}
+					/>
+				</div>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={contrast}
+					onChange={(e) => handleChange({ contrast: parseInt(e.target.value) })}
+				/>
+			</div>
+
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Saturación: {saturation}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ saturation: saturation - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ saturation: saturation + 1 })}
+					/>
+				</div>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={saturation}
+					onChange={(e) =>
+						handleChange({ saturation: parseInt(e.target.value) })
+					}
+				/>
+			</div>
+
+			<div>
+				<div className="flex items-center">
+					<Text variant="bold">Temperatura: {temperature}</Text>
+					<IconButton
+						icon="ChevronLeft"
+						className="ml-auto"
+						size="tiny"
+						onClick={() => handleChange({ temperature: temperature - 1 })}
+					/>
+					<IconButton
+						icon="ChevronLeft"
+						className="rotate-180"
+						size="tiny"
+						onClick={() => handleChange({ temperature: temperature + 1 })}
+					/>
+				</div>
+				<Input
+					type="range"
+					min={-100}
+					max={100}
+					step={1}
+					value={temperature}
+					onChange={(e) =>
+						handleChange({ temperature: parseInt(e.target.value) })
+					}
+				/>
+			</div>
 		</div>
 	);
 };
