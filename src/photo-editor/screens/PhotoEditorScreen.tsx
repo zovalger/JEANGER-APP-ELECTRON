@@ -26,11 +26,13 @@ import JSZip from "jszip";
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
+	
 
 	const [currentAdjustments, setCurrentAdjustments] =
 		useState<Adjustments>(defaultAdjustments);
 
 	const [fileInView, setFileInView] = useState<string | null>(null);
+	const [isExporting, setIsExporting] = useState(false)
 
 	const drawCanvas = () => {
 		if (!canvasRef.current || !fileInView) return;
@@ -42,29 +44,39 @@ export default function PhotoEditorScreen() {
 	};
 
 	const download = async () => {
-		const images = await generateExportImages(imagesUploaded);
+		setIsExporting(true)
+		const images = await generateExportImages(
+			canvasRef.current,
+			imagesUploaded
+		);
+
+		if (images.length <= 1) {
+			const url = URL.createObjectURL(images[0].modifiedImg);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "new " + images[0].fileName;
+			a.click();
+			URL.revokeObjectURL(url);
+
+			return 	setIsExporting(false)
+		}
+
 		const zip = new JSZip();
 
 		const nameZip = new Date().toString();
 		const img = zip.folder(nameZip);
 
 		for (const item of images) {
+			if (!item.modifiedImg) continue;
+
 			img.file(item.fileName, item.modifiedImg, { base64: true });
-			images;
 		}
 
 		const contentZip = await zip.generateAsync({ type: "blob" });
 
 		FileSaver.saveAs(contentZip, nameZip + ".zip");
-
-		canvasRef.current.toBlob((blob) => {
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = "canvas-image.jpg";
-			a.click();
-			URL.revokeObjectURL(url); // Clean up after download
-		}, "image/jpg");
+		
+		setIsExporting(false)
 	};
 
 	useEffect(() => {
@@ -275,12 +287,13 @@ export default function PhotoEditorScreen() {
 								adjustments={currentAdjustments}
 								setAdjustments={handleAdjustmentsChange}
 							/>
+
+
+							<Button onClick={download} disabled={isExporting}> Descargar</Button>
 						</>
 					)}
 				</div>
 			</div>
-
-			{/* <Button onClick={download}> descargar</Button> */}
 		</PageTemplateLayout>
 	);
 }

@@ -16,7 +16,7 @@ export interface ImageEditor {
 	_id?: string;
 	tempId: string;
 	mainImg: HTMLImageElement;
-	modifiedImg:Blob|null;
+	modifiedImg: Blob | null;
 	fileName: string;
 	filterEffect: FilterEffect;
 	adjustments: Adjustments;
@@ -155,11 +155,6 @@ export const getImageDataFromFiles = async (
 	return images;
 };
 
-
-export const generateExportImages = async(imageEditor: ImageEditor[]):Promise<ImageEditor[]>=>{
-
-}
-
 // ****************************************************************************
 // 														CTX control
 // ****************************************************************************
@@ -178,7 +173,8 @@ export const clearCanvas = (canvas: HTMLCanvasElement) => {
 
 export const showImage = (
 	canvas: HTMLCanvasElement,
-	imageEditor: ImageEditor
+	imageEditor: ImageEditor,
+	originalQuality = false
 ) => {
 	const { width, height, filterEffect, adjustments } = imageEditor;
 
@@ -186,8 +182,8 @@ export const showImage = (
 
 	//todo: colocar un valor manejable para que no se vea tan borroso
 
-	canvas.width = Math.round(width / 8);
-	canvas.height = Math.round(height / 8);
+	canvas.width = originalQuality ? width : Math.round(width / 8);
+	canvas.height = originalQuality ? height : Math.round(height / 8);
 
 	const ctx = canvas.getContext("2d");
 	ctx.drawImage(imageEditor.mainImg, 0, 0, canvas.width, canvas.height);
@@ -222,4 +218,30 @@ export const showImage = (
 	}
 
 	ctx.putImageData(newFrame, 0, 0);
+};
+
+const exportToBlob = (canva: HTMLCanvasElement): Promise<Blob> =>
+	new Promise((resolve, reject) => {
+		const a = (b: Blob) => resolve(b);
+		canva.toBlob(a);
+	});
+
+export const generateExportImages = async (
+	canva:HTMLCanvasElement,
+	imageEditor: ImageEditor[]
+): Promise<ImageEditor[]> => {
+
+	const toExport: ImageEditor[] = [];
+
+	for (const item of imageEditor) {
+		showImage(canva, item, true);
+
+		const img = await exportToBlob(canva);
+
+		if (!img) continue;
+
+		toExport.push({ ...item, modifiedImg: img });
+	}
+
+	return toExport;
 };
