@@ -22,17 +22,19 @@ import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import ColorAdjustmentsForm from "../components/ColorAdjustmentsForm";
 import JSZip from "jszip";
+import toast from "react-hot-toast";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
-	
 
 	const [currentAdjustments, setCurrentAdjustments] =
 		useState<Adjustments>(defaultAdjustments);
 
+	const [currentFilter, setCurrentFilter] = useState<string>("");
+
 	const [fileInView, setFileInView] = useState<string | null>(null);
-	const [isExporting, setIsExporting] = useState(false)
+	const [isExporting, setIsExporting] = useState(false);
 
 	const drawCanvas = () => {
 		if (!canvasRef.current || !fileInView) return;
@@ -44,10 +46,17 @@ export default function PhotoEditorScreen() {
 	};
 
 	const download = async () => {
-		setIsExporting(true)
+		setIsExporting(true);
 		const images = await generateExportImages(
 			canvasRef.current,
-			imagesUploaded
+			imagesUploaded,
+			(i) => {
+				if (i < 0) return toast.success("Render finalizado");
+
+				toast.loading("procesando: " + imagesUploaded[i].fileName, {
+					duration: 2000,
+				});
+			}
 		);
 
 		if (images.length <= 1) {
@@ -58,7 +67,7 @@ export default function PhotoEditorScreen() {
 			a.click();
 			URL.revokeObjectURL(url);
 
-			return 	setIsExporting(false)
+			return setIsExporting(false);
 		}
 
 		const zip = new JSZip();
@@ -75,18 +84,19 @@ export default function PhotoEditorScreen() {
 		const contentZip = await zip.generateAsync({ type: "blob" });
 
 		FileSaver.saveAs(contentZip, nameZip + ".zip");
-		
-		setIsExporting(false)
+
+		setIsExporting(false);
 	};
 
 	useEffect(() => {
 		if (canvasRef.current) drawCanvas();
-	}, [currentAdjustments, fileInView]);
+	}, [currentAdjustments, fileInView, currentFilter]);
 
 	const SetFilterEffect = (
 		filterEffect: FilterEffect,
 		adjustments: Adjustments
 	) => {
+		setCurrentFilter(filterEffect);
 		setCurrentAdjustments(adjustments);
 		setImagesUploaded((prev) =>
 			prev.map((i) => (i.isSelected ? { ...i, adjustments, filterEffect } : i))
@@ -130,8 +140,8 @@ export default function PhotoEditorScreen() {
 							index + 1 < imagesUploaded.length - 2
 								? index + 1
 								: index - 1 >= 0
-								? index - 1
-								: 1;
+									? index - 1
+									: 1;
 
 						if (imagesUploaded.length - 1 <= 0) {
 							clearCanvas(canvasRef.current);
@@ -192,13 +202,54 @@ export default function PhotoEditorScreen() {
 					{!!imagesUploaded.length && (
 						<>
 							<div>
-								<Button
-									textJustify="left"
-									icon={allAreSelected ? "SquareCheck" : "Square"}
-									onClick={() => selectAll(!allAreSelected)}
-								>
-									Seleccionar todos
-								</Button>
+								<Text variant="bold">Tipos de selección</Text>
+								<div className="flex flex-wrap">
+									<Button
+										textJustify="left"
+										onClick={() =>
+											setImagesUploaded((prev) =>
+												prev.map((i, index) => ({
+													...i,
+													isSelected: !!(index % 2),
+												}))
+											)
+										}
+									>
+										Impares
+									</Button>
+									<Button
+										textJustify="left"
+										onClick={() =>
+											setImagesUploaded((prev) =>
+												prev.map((i, index) => ({
+													...i,
+													isSelected: !(index % 2),
+												}))
+											)
+										}
+									>
+										Pares
+									</Button>
+
+									<Button
+										textJustify="left"
+										onClick={() =>
+											setImagesUploaded((prev) =>
+												prev.map((i) => ({ ...i, isSelected: !i.isSelected }))
+											)
+										}
+									>
+										Invertir
+									</Button>
+
+									<Button
+										textJustify="left"
+										icon={allAreSelected ? "SquareCheck" : "Square"}
+										onClick={() => selectAll(!allAreSelected)}
+									>
+										{allAreSelected ? "Deseleccionar" : "Todos"}
+									</Button>
+								</div>
 							</div>
 
 							<div className="flex h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
@@ -246,8 +297,8 @@ export default function PhotoEditorScreen() {
 
 					{imagesUploaded.some((i) => i.isSelected) && (
 						<>
-							<div className="">
-								<Text variant="bold">Prestablecidos</Text>
+							<div className="mt-4">
+								<Text variant="bold">Filtros prestablecidos</Text>
 								<div className="flex gap-2 flex-wrap">
 									<Button
 										onClick={() => SetFilterEffect("none", defaultAdjustments)}
@@ -266,6 +317,7 @@ export default function PhotoEditorScreen() {
 									>
 										B/N
 									</Button>
+
 									<Button
 										onClick={() =>
 											SetFilterEffect("invert", defaultAdjustments)
@@ -273,6 +325,7 @@ export default function PhotoEditorScreen() {
 									>
 										Invertir
 									</Button>
+
 									<Button
 										onClick={() =>
 											SetFilterEffect("invert", FondoNegroAdjustments)
@@ -288,8 +341,14 @@ export default function PhotoEditorScreen() {
 								setAdjustments={handleAdjustmentsChange}
 							/>
 
+							<Button onClick={download} disabled={isExporting}>
+								Descargar Todo
+							</Button>
 
-							<Button onClick={download} disabled={isExporting}> Descargar</Button>
+
+							{/* <Button onClick={download} disabled={isExporting}>
+								Exportar a PDF
+							</Button> */}
 						</>
 					)}
 				</div>

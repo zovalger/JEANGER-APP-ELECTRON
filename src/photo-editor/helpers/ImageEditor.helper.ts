@@ -179,6 +179,7 @@ export const showImage = (
 	const { width, height, filterEffect, adjustments } = imageEditor;
 
 	const adjustmentsToSet = adjustments || defaultAdjustments;
+	const { temperature } = adjustmentsToSet;
 
 	//todo: colocar un valor manejable para que no se vea tan borroso
 
@@ -202,6 +203,18 @@ export const showImage = (
 
 		let newRgb = rgb;
 
+		const t = -Math.abs(temperature * 0.0015);
+		const temperatureRGB =
+			temperature > 0
+				? [(0 - newRgb[0]) * t, (100 - newRgb[1]) * t, (200 + newRgb[2]) * t]
+				: [(200 + newRgb[0]) * t, (100 - newRgb[1]) * t, (0 - newRgb[2]) * t];
+
+		newRgb = [
+			newRgb[0] + temperatureRGB[0],
+			newRgb[1] + temperatureRGB[1],
+			newRgb[2] + temperatureRGB[2],
+		];
+
 		if (filterEffect == "invert")
 			newRgb = [
 				negativeFilter(rgb[0]),
@@ -223,17 +236,20 @@ export const showImage = (
 const exportToBlob = (canva: HTMLCanvasElement): Promise<Blob> =>
 	new Promise((resolve, reject) => {
 		const a = (b: Blob) => resolve(b);
-		canva.toBlob(a);
+		canva.toBlob(a, "image/jpeg");
 	});
 
 export const generateExportImages = async (
-	canva:HTMLCanvasElement,
-	imageEditor: ImageEditor[]
+	canva: HTMLCanvasElement,
+	imagesEditors: ImageEditor[],
+	feedback: (index: number) => void
 ): Promise<ImageEditor[]> => {
-
 	const toExport: ImageEditor[] = [];
 
-	for (const item of imageEditor) {
+	for (let i = 0; i < imagesEditors.length; i++) {
+		if (feedback) feedback(i);
+
+		const item = imagesEditors[i];
 		showImage(canva, item, true);
 
 		const img = await exportToBlob(canva);
@@ -242,6 +258,8 @@ export const generateExportImages = async (
 
 		toExport.push({ ...item, modifiedImg: img });
 	}
+
+	feedback(-1);
 
 	return toExport;
 };
