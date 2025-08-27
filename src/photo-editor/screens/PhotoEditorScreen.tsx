@@ -23,6 +23,7 @@ import Text from "../../common/components/Text";
 import ColorAdjustmentsForm from "../components/ColorAdjustmentsForm";
 import JSZip from "jszip";
 import toast from "react-hot-toast";
+import { PDFDocument } from "pdf-lib";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,6 +36,7 @@ export default function PhotoEditorScreen() {
 
 	const [fileInView, setFileInView] = useState<string | null>(null);
 	const [isExporting, setIsExporting] = useState(false);
+	const [qualityExport, setQualityExport] = useState(80);
 
 	const drawCanvas = () => {
 		if (!canvasRef.current || !fileInView) return;
@@ -45,11 +47,18 @@ export default function PhotoEditorScreen() {
 		showImage(canvasRef.current, img);
 	};
 
-	const download = async () => {
+	const generate = async (quality: number) => {
+		if (isExporting) {
+			toast.error("Ya se está exportando, espera un momento");
+			throw new Error("Ya se está exportando, espera un momento");
+		}
+
 		setIsExporting(true);
-		const images = await generateExportImages(
+
+		return await generateExportImages(
 			canvasRef.current,
 			imagesUploaded,
+			quality,
 			(i) => {
 				if (i < 0) return toast.success("Render finalizado");
 
@@ -58,6 +67,10 @@ export default function PhotoEditorScreen() {
 				});
 			}
 		);
+	};
+
+	const download = async () => {
+		const images = await generate(qualityExport);
 
 		if (images.length <= 1) {
 			const url = URL.createObjectURL(images[0].modifiedImg);
@@ -84,6 +97,48 @@ export default function PhotoEditorScreen() {
 		const contentZip = await zip.generateAsync({ type: "blob" });
 
 		FileSaver.saveAs(contentZip, nameZip + ".zip");
+
+		setIsExporting(false);
+	};
+
+	const downloadToPdf = async () => {
+		setIsExporting(true);
+		const images = await generate(qualityExport);
+
+		const pdfDoc = await PDFDocument.create();
+
+		for (const img of images) {
+			if (!img.modifiedImg) continue;
+
+			const { width, height } = img;
+
+			const jpgImage = await pdfDoc.embedJpg(
+				await img.modifiedImg.arrayBuffer()
+			);
+
+			const page = pdfDoc.addPage([width, height]);
+
+			page.drawImage(jpgImage, {
+				x: 0,
+				y: 0,
+				width: width,
+				height: height,
+			});
+		}
+
+		const pdfBytes = await pdfDoc.save();
+
+		const url = URL.createObjectURL(
+			pdfBytes instanceof Blob
+				? pdfBytes
+				: new Blob([pdfBytes], { type: "application/pdf" })
+		);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download =
+			"new " + images[0].fileName.split(".").slice(0, -1).join(".") + ".pdf";
+		a.click();
+		URL.revokeObjectURL(url);
 
 		setIsExporting(false);
 	};
@@ -183,6 +238,7 @@ export default function PhotoEditorScreen() {
 										.then((images) => {
 											setImagesUploaded(images);
 											selectToView(images[0]);
+											selectAll(true);
 										})
 										.catch((error) => {
 											console.error(error);
@@ -210,7 +266,7 @@ export default function PhotoEditorScreen() {
 											setImagesUploaded((prev) =>
 												prev.map((i, index) => ({
 													...i,
-													isSelected: !!(index % 2),
+													isSelected: !(index % 2),
 												}))
 											)
 										}
@@ -223,7 +279,7 @@ export default function PhotoEditorScreen() {
 											setImagesUploaded((prev) =>
 												prev.map((i, index) => ({
 													...i,
-													isSelected: !(index % 2),
+													isSelected: !!(index % 2),
 												}))
 											)
 										}
@@ -341,14 +397,31 @@ export default function PhotoEditorScreen() {
 								setAdjustments={handleAdjustmentsChange}
 							/>
 
-							<Button onClick={download} disabled={isExporting}>
-								Descargar Todo
-							</Button>
+							<div className="border-b my-4"></div>
 
+							<div>
+								<Input
+									label={
+										"Calidad de exportación: " +
+										qualityExport +
+										"% (mayor calidad, mayor tamaño)"
+									}
+									type="range"
+									value={qualityExport}
+									onChange={(e) => setQualityExport(parseInt(e.target.value))}
+									min={1}
+									max={100}
+								/>
+								<div className="flex gap-2 flex-wrap mt-4">
+									<Button onClick={download} disabled={isExporting}>
+										Descargar Todo
+									</Button>
 
-							{/* <Button onClick={download} disabled={isExporting}>
-								Exportar a PDF
-							</Button> */}
+									<Button onClick={downloadToPdf} disabled={isExporting}>
+										Exportar a PDF
+									</Button>
+								</div>
+							</div>
 						</>
 					)}
 				</div>

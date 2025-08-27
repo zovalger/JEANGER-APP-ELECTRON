@@ -148,7 +148,7 @@ export const getImageDataFromFiles = async (
 			cropY: 0,
 			cropOffsetX: width,
 			cropOffsetY: height,
-			isSelected: false,
+			isSelected: true,
 		});
 	}
 
@@ -183,8 +183,8 @@ export const showImage = (
 
 	//todo: colocar un valor manejable para que no se vea tan borroso
 
-	canvas.width = originalQuality ? width : Math.round(width / 8);
-	canvas.height = originalQuality ? height : Math.round(height / 8);
+	canvas.width = originalQuality ? width : Math.round(width / 4);
+	canvas.height = originalQuality ? height : Math.round(height / 4);
 
 	const ctx = canvas.getContext("2d");
 	ctx.drawImage(imageEditor.mainImg, 0, 0, canvas.width, canvas.height);
@@ -233,15 +233,16 @@ export const showImage = (
 	ctx.putImageData(newFrame, 0, 0);
 };
 
-const exportToBlob = (canva: HTMLCanvasElement): Promise<Blob> =>
+const exportToBlob = (canva: HTMLCanvasElement, quality = 80): Promise<Blob> =>
 	new Promise((resolve, reject) => {
 		const a = (b: Blob) => resolve(b);
-		canva.toBlob(a, "image/jpeg");
+		canva.toBlob(a, "image/jpeg", quality / 100);
 	});
 
 export const generateExportImages = async (
 	canva: HTMLCanvasElement,
 	imagesEditors: ImageEditor[],
+	quality = 80,
 	feedback: (index: number) => void
 ): Promise<ImageEditor[]> => {
 	const toExport: ImageEditor[] = [];
@@ -252,7 +253,7 @@ export const generateExportImages = async (
 		const item = imagesEditors[i];
 		showImage(canva, item, true);
 
-		const img = await exportToBlob(canva);
+		const img = await exportToBlob(canva, quality);
 
 		if (!img) continue;
 
