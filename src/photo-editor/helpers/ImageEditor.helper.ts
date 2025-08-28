@@ -176,18 +176,40 @@ export const showImage = (
 	imageEditor: ImageEditor,
 	originalQuality = false
 ) => {
-	const { width, height, filterEffect, adjustments } = imageEditor;
+	const { width, height, filterEffect, adjustments, rotation } = imageEditor;
 
 	const adjustmentsToSet = adjustments || defaultAdjustments;
 	const { temperature } = adjustmentsToSet;
 
-	//todo: colocar un valor manejable para que no se vea tan borroso
+	const anguloRadian = (rotation * Math.PI) / 180;
 
-	canvas.width = originalQuality ? width : Math.round(width / 4);
-	canvas.height = originalQuality ? height : Math.round(height / 4);
+	const newWidth =
+		Math.abs(width * Math.cos(anguloRadian)) +
+		Math.abs(height * Math.sin(anguloRadian));
+
+	const newHeight =
+		Math.abs(width * Math.sin(anguloRadian)) +
+		Math.abs(height * Math.cos(anguloRadian));
+
+	canvas.width = originalQuality ? newWidth : Math.round(newWidth / 4);
+	canvas.height = originalQuality ? newHeight : Math.round(newHeight / 4);
 
 	const ctx = canvas.getContext("2d");
-	ctx.drawImage(imageEditor.mainImg, 0, 0, canvas.width, canvas.height);
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	ctx.save();
+	ctx.translate(canvas.width / 2, canvas.height / 2);
+
+	if (!originalQuality) ctx.scale(0.5, 0.5);
+
+	ctx.rotate(anguloRadian);
+
+	// console.log(canvas.width, "x", canvas.height);
+	// console.log(width, "x", height);
+
+	ctx.drawImage(imageEditor.mainImg, -width / 2, -height / 2);
+	ctx.restore();
 
 	const original = ctx.getImageData(0, 0, canvas.width, canvas.height);
 

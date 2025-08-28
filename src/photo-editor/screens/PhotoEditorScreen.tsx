@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import FileSaver from "file-saver";
+import JSZip from "jszip";
+import toast from "react-hot-toast";
+import { PDFDocument } from "pdf-lib";
+
 import RouterLinks from "../../common/config/RouterLinks";
 import PageTemplateLayout from "../../common/Layouts/PageTemplate.layout";
 import Input from "../../common/components/Input";
@@ -21,9 +25,8 @@ import {
 import IconButton from "../../common/components/IconButton";
 import Text from "../../common/components/Text";
 import ColorAdjustmentsForm from "../components/ColorAdjustmentsForm";
-import JSZip from "jszip";
-import toast from "react-hot-toast";
-import { PDFDocument } from "pdf-lib";
+
+import ImageEditItem from "../components/ImageEditItem";
 
 export default function PhotoEditorScreen() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -110,19 +113,28 @@ export default function PhotoEditorScreen() {
 		for (const img of images) {
 			if (!img.modifiedImg) continue;
 
-			const { width, height } = img;
+			const { width, height, rotation } = img;
 
 			const jpgImage = await pdfDoc.embedJpg(
 				await img.modifiedImg.arrayBuffer()
 			);
 
-			const page = pdfDoc.addPage([width, height]);
+			const anguloRadian = (rotation * Math.PI) / 180;
+
+			const newWidth =
+				Math.abs(width * Math.cos(anguloRadian)) +
+				Math.abs(height * Math.sin(anguloRadian));
+
+			const newHeight =
+				Math.abs(width * Math.sin(anguloRadian)) +
+				Math.abs(height * Math.cos(anguloRadian));
+			const page = pdfDoc.addPage([newWidth, newHeight]);
 
 			page.drawImage(jpgImage, {
 				x: 0,
 				y: 0,
-				width: width,
-				height: height,
+				width: newWidth,
+				height: newHeight,
 			});
 		}
 
@@ -159,7 +171,11 @@ export default function PhotoEditorScreen() {
 	};
 
 	const selectAll = (s = false) => {
-		setImagesUploaded((prev) => prev.map((i) => ({ ...i, isSelected: s })));
+		setImagesUploaded((prev) => {
+			const a = prev.map((i) => ({ ...i, isSelected: s }));
+			selectToView(a.find((i) => i.isSelected)?.tempId);
+			return a;
+		});
 	};
 
 	const selectImage = (tempId: string, isSelected: boolean) => {
@@ -176,14 +192,16 @@ export default function PhotoEditorScreen() {
 		);
 	};
 
-	const selectToView = (img: ImageEditor) => {
-		setFileInView(img.tempId);
+	const selectToView = (tempId: string) => {
+		const g = imagesUploaded.find((i) => i.tempId == tempId);
 
-		setImagesUploaded((prev) =>
-			prev.map((i) => ({ ...i, isSelected: img.tempId == i.tempId }))
-		);
+		setFileInView(tempId);
+		// setImagesUploaded((prev) =>
+		// 	prev.map((i) => ({ ...i, isSelected: tempId == i.tempId }))
+		// );
 
-		setCurrentAdjustments(img.adjustments);
+		if (!g) return;
+		setCurrentAdjustments(g.adjustments);
 	};
 
 	const deleteImage = (tempId: string) => {
@@ -201,7 +219,7 @@ export default function PhotoEditorScreen() {
 						if (imagesUploaded.length - 1 <= 0) {
 							clearCanvas(canvasRef.current);
 						} else {
-							selectToView(imagesUploaded[toIndex]);
+							selectToView(imagesUploaded[toIndex].tempId);
 						}
 
 						URL.revokeObjectURL(item.mainImg.src);
@@ -211,6 +229,37 @@ export default function PhotoEditorScreen() {
 				return item.tempId != tempId;
 			})
 		);
+	};
+
+	const rotate = (r: number) => {
+		const img = imagesUploaded.find((i) => i.tempId == fileInView);
+
+		if (!img || !canvasRef.current) return;
+
+		setImagesUploaded((prev) => {
+			const a = prev.map((i) => {
+				if (!i.isSelected) return i;
+
+				const newangle = i.rotation + r;
+
+				return {
+					...i,
+					rotation:
+						newangle >= 360
+							? newangle - 360
+							: newangle < 0
+								? newangle + 360
+								: newangle,
+				};
+			});
+
+			showImage(
+				canvasRef.current,
+				a.find((i) => i.isSelected)
+			);
+
+			return a;
+		});
 	};
 
 	const allAreSelected =
@@ -237,7 +286,7 @@ export default function PhotoEditorScreen() {
 									getImageDataFromFiles(e.target.files)
 										.then((images) => {
 											setImagesUploaded(images);
-											selectToView(images[0]);
+											selectToView(images[0].tempId);
 											selectAll(true);
 										})
 										.catch((error) => {
@@ -249,8 +298,13 @@ export default function PhotoEditorScreen() {
 						</div>
 					</div>
 
+					<div className="flex justify-between">
+						<Button onClick={() => rotate(-90)}>-90°</Button>
+						<Button onClick={() => rotate(90)}>+90°</Button>
+					</div>
+
 					<div className=" flex justify-center h-full overflow-auto p-4 ">
-						<canvas ref={canvasRef} className="w-full h-auto bg-gray-200 p-4" />
+						<canvas ref={canvasRef} className="w-full h-auto bg-gray-200" />
 					</div>
 				</div>
 
@@ -263,12 +317,16 @@ export default function PhotoEditorScreen() {
 									<Button
 										textJustify="left"
 										onClick={() =>
-											setImagesUploaded((prev) =>
-												prev.map((i, index) => ({
+											setImagesUploaded((prev) => {
+												const a = prev.map((i, index) => ({
 													...i,
 													isSelected: !(index % 2),
-												}))
-											)
+												}));
+
+												selectToView(a.find((i) => i.isSelected)?.tempId);
+
+												return a;
+											})
 										}
 									>
 										Impares
@@ -276,12 +334,15 @@ export default function PhotoEditorScreen() {
 									<Button
 										textJustify="left"
 										onClick={() =>
-											setImagesUploaded((prev) =>
-												prev.map((i, index) => ({
+											setImagesUploaded((prev) => {
+												const a = prev.map((i, index) => ({
 													...i,
 													isSelected: !!(index % 2),
-												}))
-											)
+												}));
+
+												selectToView(a.find((i) => i.isSelected)?.tempId);
+												return a;
+											})
 										}
 									>
 										Pares
@@ -290,9 +351,16 @@ export default function PhotoEditorScreen() {
 									<Button
 										textJustify="left"
 										onClick={() =>
-											setImagesUploaded((prev) =>
-												prev.map((i) => ({ ...i, isSelected: !i.isSelected }))
-											)
+											setImagesUploaded((prev) => {
+												const a = prev.map((i) => ({
+													...i,
+													isSelected: !i.isSelected,
+												}));
+
+												selectToView(a.find((i) => i.isSelected)?.tempId);
+
+												return a;
+											})
 										}
 									>
 										Invertir
@@ -310,42 +378,20 @@ export default function PhotoEditorScreen() {
 
 							<div className="flex h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
 								{imagesUploaded.map((img) => (
-									<div
-										key={img.tempId}
-										className="flex flex-col max-w-32 h-full shrink-0 shadow px-2 pt-2 pb-1 rounded bg-white"
-										onClick={() => selectToView(img)}
-									>
-										<div className="flex justify-end">
-											<IconButton
-												size="tiny"
-												icon={img.isSelected ? "SquareCheck" : "Square"}
-												onClick={() => {
-													selectImage(img.tempId, !img.isSelected);
-												}}
-											/>
-										</div>
-										<div className=" flex-1 flex justify-center rounded overflow-hidden">
-											<img
-												className="h-full w-auto"
-												key={img.tempId}
-												src={img.mainImg.src}
-												alt={img.fileName}
-											/>
-										</div>
-
-										<div className="flex">
-											<Text className="flex overflow-hidden text-nowrap">
-												{img.fileName}
-											</Text>
-
-											<IconButton
-												icon="Close"
-												className="ml-auto"
-												size="tiny"
-												onClick={() => deleteImage(img.tempId)}
-											/>
-										</div>
-									</div>
+									<ImageEditItem
+										data={img}
+										onClick={(tempId: string) => {
+											setImagesUploaded((prev) =>
+												prev.map((i) => ({
+													...i,
+													isSelected: tempId == i.tempId,
+												}))
+											);
+											selectToView(tempId);
+										}}
+										onDelete={deleteImage}
+										onClickCheck={selectImage}
+									/>
 								))}
 							</div>
 						</>
