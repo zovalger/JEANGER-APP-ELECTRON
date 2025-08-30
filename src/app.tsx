@@ -10,7 +10,7 @@ import BackgroundProcessesLayout from "./common/Layouts/BackgroundProcesses.layo
 import PublicRoutes from "./public/routes";
 import AuthRoutes from "./auth/routes";
 import ProductRoutes from "./products/routes";
-import PhotoEditorRoutes from "./photo-editor/routes";
+import PhotoEditorRoutes from "./photo_editor/routes";
 
 const root = createRoot(document.body);
 
