@@ -104,8 +104,8 @@ export default function PhotoEditorScreen() {
 			name="Editor imagenes"
 			rightButtons={[]}
 		>
-			<div className="flex flex-col md:grid md:grid-cols-2 gap-4 mt-4 mx-4">
-				<div className="flex flex-col">
+			<div className="flex flex-col md:grid md:grid-cols-4 gap-4 mt-4 mx-4">
+				<div className="flex flex-col col-span-3">
 					<div className="flex flex-col">
 						<div className="my-2">
 							<Input
@@ -132,7 +132,7 @@ export default function PhotoEditorScreen() {
 					</div>
 				</div>
 
-				<div>
+				<div className="col-span-1">
 					{!!imagesUploaded.length && (
 						<>
 							<div>
@@ -175,6 +175,7 @@ export default function PhotoEditorScreen() {
 							<div className="flex h-42 gap-2 p-1 rounded overflow-y-hidden overflow-x-auto">
 								{imagesUploaded.map((img) => (
 									<ImageEditItem
+										key={img.tempId}
 										data={img}
 										onClick={(tempId: string) => {
 											selectImageByMode(SelectMode.one, tempId);

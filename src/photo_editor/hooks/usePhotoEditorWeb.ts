@@ -4,6 +4,7 @@ import {
 	defaultAdjustments,
 	FilterEffect,
 	generateExportImages,
+	getImageDataFromFiles,
 	ImageEditor,
 	showImage,
 } from "../helpers/ImageEditor.helper";
@@ -26,16 +27,14 @@ const usePhotoEditorWeb = () => {
 	};
 
 	const uploadFiles = async (files: FileList) => {
-		// getImageDataFromFiles(e.target.files)
-		// 	.then((images) => {
-		// 		setImagesUploaded(images);
-		// 		showInCanvas(images[0].tempId);
-		// 		selectAll(true);
-		// 	})
-		// 	.catch((error) => {
-		// 		console.error(error);
-		// 		alert(error);
-		// 	});
+		try {
+			const images = await getImageDataFromFiles(files);
+			setImagesUploaded(images);
+			drawCanvas(images[0]);
+		} catch (error) {
+			console.error(error);
+			alert(error);
+		}
 	};
 
 	const drawCanvas = (img: ImageEditor) => {
@@ -157,7 +156,6 @@ const usePhotoEditorWeb = () => {
 		});
 	};
 
-
 	const [isExporting, setIsExporting] = useState(false);
 
 	const generateExport = async (
@@ -198,7 +196,7 @@ const usePhotoEditorWeb = () => {
 		deleteImage,
 		rotateImg,
 		generateExport,
-		isExporting
+		isExporting,
 	};
 };
 

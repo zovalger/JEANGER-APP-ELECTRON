@@ -48,7 +48,6 @@ export const SocketContextProvider = ({ children }: props) => {
 	};
 
 	useEffect(() => {
-		if (socket) return;
 		if (!sessionToken) return;
 
 		createNewConnection();
@@ -56,7 +55,7 @@ export const SocketContextProvider = ({ children }: props) => {
 		return () => {
 			if (socket) socket.disconnect();
 		};
-	}, [socket]);
+	}, [sessionToken]);
 
 	return (
 		<SocketContext.Provider

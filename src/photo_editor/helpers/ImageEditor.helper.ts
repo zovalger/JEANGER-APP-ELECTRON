@@ -176,6 +176,9 @@ export const showImage = (
 	imageEditor: ImageEditor,
 	originalQuality = false
 ) => {
+	if (!canvas) throw new Error("no se proporciono un canvas");
+	if (!imageEditor) throw new Error("no se proporciono datos de imagen");
+
 	const { width, height, filterEffect, adjustments, rotation } = imageEditor;
 
 	const adjustmentsToSet = adjustments || defaultAdjustments;
