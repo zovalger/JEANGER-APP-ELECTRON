@@ -37,6 +37,8 @@ export default function PhotoEditorScreen() {
 		deleteImage,
 		generateExport,
 		isExporting,
+		zoom,
+		applyZoom,
 	} = usePhotoEditorWeb();
 
 	const [qualityExport, setQualityExport] = useState(80);
@@ -124,11 +126,25 @@ export default function PhotoEditorScreen() {
 
 					<div className="flex justify-between">
 						<Button onClick={() => rotateImg(-90)}>-90°</Button>
+
+						<Input
+							label={"Zoom: " + zoom}
+							type="range"
+							value={zoom}
+							onChange={(e) => applyZoom(parseFloat(e.target.value))}
+							min={0.1}
+							step={0.1}
+							max={200}
+						/>
+
 						<Button onClick={() => rotateImg(90)}>+90°</Button>
 					</div>
 
-					<div className=" flex justify-center h-full overflow-auto p-4 ">
-						<canvas ref={canvasRef} className="w-full h-auto bg-gray-200" />
+					<div className=" flex h-[calc(h-screen - h-10)]  justify-center overflow-auto p-4 ">
+						<canvas
+							ref={canvasRef}
+							className={`bg-gray-200 ${canvasRef.current && canvasRef.current.width > canvasRef.current.height ? "w-full h-auto" : "w-auto h-full"} `}
+						/>
 					</div>
 				</div>
 
@@ -140,12 +156,14 @@ export default function PhotoEditorScreen() {
 								<div className="flex flex-wrap">
 									<Button
 										textJustify="left"
+										size="tiny"
 										onClick={() => selectImageByMode(SelectMode.impar)}
 									>
 										Impares
 									</Button>
 									<Button
 										textJustify="left"
+										size="tiny"
 										onClick={() => selectImageByMode(SelectMode.par)}
 									>
 										Pares
@@ -153,6 +171,7 @@ export default function PhotoEditorScreen() {
 
 									<Button
 										textJustify="left"
+										size="tiny"
 										onClick={() => selectImageByMode(SelectMode.invertSelect)}
 									>
 										Invertir
@@ -160,6 +179,7 @@ export default function PhotoEditorScreen() {
 
 									<Button
 										textJustify="left"
+										size="tiny"
 										icon={allAreSelected ? "SquareCheck" : "Square"}
 										onClick={() =>
 											selectImageByMode(
@@ -195,6 +215,7 @@ export default function PhotoEditorScreen() {
 								<div className="flex gap-2 flex-wrap">
 									<Button
 										onClick={() => SetFilterEffect("none", defaultAdjustments)}
+										size="tiny"
 									>
 										Original
 									</Button>
@@ -202,11 +223,13 @@ export default function PhotoEditorScreen() {
 										onClick={() =>
 											SetFilterEffect("none", Enchance_Adjustments)
 										}
+										size="tiny"
 									>
 										Auto
 									</Button>
 									<Button
 										onClick={() => SetFilterEffect("none", BN_Adjustments)}
+										size="tiny"
 									>
 										B/N
 									</Button>
@@ -215,6 +238,7 @@ export default function PhotoEditorScreen() {
 										onClick={() =>
 											SetFilterEffect("invert", defaultAdjustments)
 										}
+										size="tiny"
 									>
 										Invertir
 									</Button>
@@ -223,6 +247,7 @@ export default function PhotoEditorScreen() {
 										onClick={() =>
 											SetFilterEffect("invert", FondoNegroAdjustments)
 										}
+										size="tiny"
 									>
 										Fondo negro
 									</Button>

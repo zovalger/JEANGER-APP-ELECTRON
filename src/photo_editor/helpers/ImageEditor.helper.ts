@@ -171,13 +171,20 @@ export const clearCanvas = (canvas: HTMLCanvasElement) => {
 // 	ctx.putImageData(frame, 0, 0);
 // };
 
+interface ShowImageOptions {
+	zoom?: number;
+	originalQuality?: boolean;
+}
+
 export const showImage = (
 	canvas: HTMLCanvasElement,
 	imageEditor: ImageEditor,
-	originalQuality = false
+	options: ShowImageOptions = { zoom: 1, originalQuality: false }
 ) => {
 	if (!canvas) throw new Error("no se proporciono un canvas");
 	if (!imageEditor) throw new Error("no se proporciono datos de imagen");
+
+	const { zoom = 100, originalQuality } = options;
 
 	const { width, height, filterEffect, adjustments, rotation } = imageEditor;
 
@@ -204,12 +211,10 @@ export const showImage = (
 	ctx.save();
 	ctx.translate(canvas.width / 2, canvas.height / 2);
 
-	if (!originalQuality) ctx.scale(0.5, 0.5);
+	const zoomScale = zoom / 100;
+	ctx.scale(zoomScale, zoomScale);
 
 	ctx.rotate(anguloRadian);
-
-	// console.log(canvas.width, "x", canvas.height);
-	// console.log(width, "x", height);
 
 	ctx.drawImage(imageEditor.mainImg, -width / 2, -height / 2);
 	ctx.restore();
@@ -258,10 +263,22 @@ export const showImage = (
 	ctx.putImageData(newFrame, 0, 0);
 };
 
+export const applyZoomHelper = (canvas: HTMLCanvasElement, zoom: number) => {
+	if (!canvas) throw new Error("no se proporciono un canvas");
+
+	const ctx = canvas.getContext("2d");
+
+	ctx.scale(zoom / 100, zoom / 100);
+};
+
 const exportToBlob = (canva: HTMLCanvasElement, quality = 80): Promise<Blob> =>
 	new Promise((resolve, reject) => {
-		const a = (b: Blob) => resolve(b);
-		canva.toBlob(a, "image/jpeg", quality / 100);
+		try {
+			const a = (b: Blob) => resolve(b);
+			canva.toBlob(a, "image/jpeg", quality / 100);
+		} catch (error) {
+			reject(error);
+		}
 	});
 
 export const generateExportImages = async (
@@ -276,7 +293,7 @@ export const generateExportImages = async (
 		if (feedback) feedback(i);
 
 		const item = imagesEditors[i];
-		showImage(canva, item, true);
+		showImage(canva, item, { originalQuality: true });
 
 		const img = await exportToBlob(canva, quality);
 

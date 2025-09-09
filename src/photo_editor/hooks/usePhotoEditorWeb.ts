@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
 	Adjustments,
+	clearCanvas,
 	defaultAdjustments,
 	FilterEffect,
 	generateExportImages,
@@ -8,6 +9,7 @@ import {
 	ImageEditor,
 	showImage,
 } from "../helpers/ImageEditor.helper";
+
 import { SelectMode } from "../../common/enums/SelectMode.enum";
 
 const usePhotoEditorWeb = () => {
@@ -17,6 +19,8 @@ const usePhotoEditorWeb = () => {
 		useState<Adjustments>(defaultAdjustments);
 
 	const [fileInView, setFileInView] = useState<string | null>(null);
+
+	const [zoom, setZoom] = useState(100);
 
 	const handleAdjustmentsChange = (adjustments: Adjustments) => {
 		setCurrentAdjustments(adjustments);
@@ -39,7 +43,18 @@ const usePhotoEditorWeb = () => {
 
 	const drawCanvas = (img: ImageEditor) => {
 		if (!canvasRef.current) return;
-		showImage(canvasRef.current, img);
+		if (!img) return;
+
+		showImage(canvasRef.current, img, { zoom });
+	};
+	
+
+	const applyZoom = (v: number) => {
+		if (!canvasRef.current) return;
+
+		setZoom(v);
+		const img = imagesUploaded.find((i) => i.isSelected);
+		if (img) drawCanvas(img);
 	};
 
 	// const showInCanvas = (tempId: string) => {};
@@ -76,9 +91,14 @@ const usePhotoEditorWeb = () => {
 				}));
 
 			const visible = newSelecteds.find((i) => i.isSelected);
-			drawCanvas(visible);
-			setFileInView(tempId);
-			setCurrentAdjustments(visible.adjustments);
+
+			if (visible) {
+				drawCanvas(visible);
+				setFileInView(tempId);
+				setCurrentAdjustments(visible.adjustments);
+			} else {
+				clearCanvas(canvasRef.current);
+			}
 
 			return newSelecteds;
 		});
@@ -147,10 +167,9 @@ const usePhotoEditorWeb = () => {
 				};
 			});
 
-			showImage(
-				canvasRef.current,
-				a.find((i) => i.isSelected)
-			);
+			const img = a.find((i) => i.isSelected);
+
+			if (img) drawCanvas(img);
 
 			return a;
 		});
@@ -197,6 +216,8 @@ const usePhotoEditorWeb = () => {
 		rotateImg,
 		generateExport,
 		isExporting,
+		zoom,
+		applyZoom,
 	};
 };
 
