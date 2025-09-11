@@ -21,6 +21,7 @@ import ImageEditItem from "../components/ImageEditItem";
 import usePhotoEditorWeb from "../hooks/usePhotoEditorWeb";
 import { SelectMode } from "../../common/enums/SelectMode.enum";
 import usePdfWeb from "../../pdf_tools/hooks/usePdfWeb";
+import CropForm from "../components/CropForm";
 
 export default function PhotoEditorScreen() {
 	const { ImgToPdf } = usePdfWeb();
@@ -39,6 +40,8 @@ export default function PhotoEditorScreen() {
 		isExporting,
 		zoom,
 		applyZoom,
+		currentCrop,
+		handleCropChange,
 	} = usePhotoEditorWeb();
 
 	const [qualityExport, setQualityExport] = useState(80);
@@ -108,22 +111,14 @@ export default function PhotoEditorScreen() {
 		>
 			<div className="flex flex-col md:grid md:grid-cols-4 gap-4 mt-4 mx-4">
 				<div className="flex flex-col col-span-3">
-					<div className="flex flex-col">
-						<div className="my-2">
-							<Input
-								label="Imagenes a editar"
-								type="file"
-								accept={Object.values(ImageAccepted).join(",")}
-								multiple
-								onChange={(e) => {
-									if (e.target.files.length == 0) return;
-
-									uploadFiles(e.target.files);
-								}}
-							/>
-						</div>
+					<div className=" flex h-[calc(100vh-5rem)] justify-center">
+						<canvas
+							ref={canvasRef}
+							width={400}
+							height={800}
+							className={`${canvasRef.current && canvasRef.current.width > canvasRef.current.height ? "w-full h-auto" : "w-auto h-full"} `}
+						/>
 					</div>
-
 					<div className="flex justify-between">
 						<Button onClick={() => rotateImg(-90)}>-90°</Button>
 
@@ -139,16 +134,21 @@ export default function PhotoEditorScreen() {
 
 						<Button onClick={() => rotateImg(90)}>+90°</Button>
 					</div>
-
-					<div className=" flex h-[calc(h-screen - h-10)]  justify-center overflow-auto p-4 ">
-						<canvas
-							ref={canvasRef}
-							className={`bg-gray-200 ${canvasRef.current && canvasRef.current.width > canvasRef.current.height ? "w-full h-auto" : "w-auto h-full"} `}
-						/>
-					</div>
 				</div>
 
 				<div className="col-span-1">
+					<Input
+						label="Imagenes a editar"
+						type="file"
+						accept={Object.values(ImageAccepted).join(",")}
+						multiple
+						onChange={(e) => {
+							if (e.target.files.length == 0) return;
+
+							uploadFiles(e.target.files);
+						}}
+					/>
+
 					{!!imagesUploaded.length && (
 						<>
 							<div>
@@ -210,6 +210,8 @@ export default function PhotoEditorScreen() {
 
 					{imagesUploaded.some((i) => i.isSelected) && (
 						<>
+							<CropForm crop={currentCrop} setCrop={handleCropChange} />
+
 							<div className="mt-4">
 								<Text variant="bold">Filtros prestablecidos</Text>
 								<div className="flex gap-2 flex-wrap">

@@ -12,6 +12,14 @@ export interface Adjustments {
 
 export type FilterEffect = "none" | "invert";
 
+// this is by percentage
+export interface Crop {
+	x: number;
+	y: number;
+	offsetX: number;
+	offsetY: number;
+}
+
 export interface ImageEditor {
 	_id?: string;
 	tempId: string;
@@ -23,10 +31,7 @@ export interface ImageEditor {
 	width: number;
 	height: number;
 	rotation: number;
-	cropX: number;
-	cropY: number;
-	cropOffsetX: number;
-	cropOffsetY: number;
+	crop: Crop;
 	isSelected: boolean;
 }
 
@@ -40,6 +45,13 @@ export enum ImageAccepted {
 	jpg = "image/jpg",
 	webp = "image/webp",
 }
+
+export const defaultCrop: Crop = {
+	x: 0,
+	y: 0,
+	offsetX: 100,
+	offsetY: 100,
+};
 
 export const defaultAdjustments: Adjustments = {
 	brightness: 0,
@@ -144,10 +156,7 @@ export const getImageDataFromFiles = async (
 			width,
 			height,
 			rotation: 0,
-			cropX: 0,
-			cropY: 0,
-			cropOffsetX: width,
-			cropOffsetY: height,
+			crop: defaultCrop,
 			isSelected: true,
 		});
 	}
@@ -186,7 +195,8 @@ export const showImage = (
 
 	const { zoom = 100, originalQuality } = options;
 
-	const { width, height, filterEffect, adjustments, rotation } = imageEditor;
+	const { width, height, filterEffect, adjustments, rotation, crop } =
+		imageEditor;
 
 	const adjustmentsToSet = adjustments || defaultAdjustments;
 	const { temperature } = adjustmentsToSet;
@@ -201,8 +211,13 @@ export const showImage = (
 		Math.abs(width * Math.sin(anguloRadian)) +
 		Math.abs(height * Math.cos(anguloRadian));
 
-	canvas.width = originalQuality ? newWidth : Math.round(newWidth / 4);
-	canvas.height = originalQuality ? newHeight : Math.round(newHeight / 4);
+	const canvasWidth = originalQuality ? newWidth : Math.round(newWidth / 4);
+	const canvasHeight = originalQuality ? newHeight : Math.round(newHeight / 4);
+
+
+// todo: ajustar el tamaño del canvas al recorte
+	canvas.width = canvasWidth 
+	canvas.height = canvasHeight;
 
 	const ctx = canvas.getContext("2d");
 
@@ -216,7 +231,18 @@ export const showImage = (
 
 	ctx.rotate(anguloRadian);
 
-	ctx.drawImage(imageEditor.mainImg, -width / 2, -height / 2);
+	ctx.drawImage(
+		imageEditor.mainImg,
+		newWidth * (crop.x / 100),
+		newHeight * (crop.y / 100),
+		newWidth * (crop.offsetX / 100),
+		newHeight * (crop.offsetY / 100),
+		-canvas.width / 2,
+		-canvas.height / 2,
+		canvas.width,
+		canvas.height
+	);
+	// ctx.drawImage(imageEditor.mainImg, 0, 0);
 	ctx.restore();
 
 	const original = ctx.getImageData(0, 0, canvas.width, canvas.height);

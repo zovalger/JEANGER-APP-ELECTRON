@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import {
 	Adjustments,
 	clearCanvas,
+	Crop,
 	defaultAdjustments,
+	defaultCrop,
 	FilterEffect,
 	generateExportImages,
 	getImageDataFromFiles,
@@ -17,10 +19,11 @@ const usePhotoEditorWeb = () => {
 	const [imagesUploaded, setImagesUploaded] = useState<ImageEditor[]>([]);
 	const [currentAdjustments, setCurrentAdjustments] =
 		useState<Adjustments>(defaultAdjustments);
+	const [currentCrop, setCurrentCrop] = useState<Crop>(defaultCrop);
 
 	const [fileInView, setFileInView] = useState<string | null>(null);
 
-	const [zoom, setZoom] = useState(100);
+	const [currentZoom, setZoom] = useState(100);
 
 	const handleAdjustmentsChange = (adjustments: Adjustments) => {
 		setCurrentAdjustments(adjustments);
@@ -30,34 +33,60 @@ const usePhotoEditorWeb = () => {
 		);
 	};
 
+	const handleCropChange = (crop: Crop) => {
+		if (!canvasRef.current) return;
+		setCurrentCrop(crop);
+
+		setImagesUploaded((prev) => {
+			const newList = prev.map((i) => (i.isSelected ? { ...i, crop } : i));
+
+			drawCanvas({ list: newList });
+
+			return newList;
+		});
+	};
+
 	const uploadFiles = async (files: FileList) => {
 		try {
 			const images = await getImageDataFromFiles(files);
 			setImagesUploaded(images);
-			drawCanvas(images[0]);
+			drawCanvas({ img: images[0] });
 		} catch (error) {
 			console.error(error);
 			alert(error);
 		}
 	};
+	interface DrawOptions {
+		img?: ImageEditor;
+		zoom?: number;
+		list?: ImageEditor[];
+	}
 
-	const drawCanvas = (img: ImageEditor) => {
-		if (!canvasRef.current) return;
-		if (!img) return;
-
-		showImage(canvasRef.current, img, { zoom });
-	};
-	
-
-	const applyZoom = (v: number) => {
+	const drawCanvas = (options: DrawOptions = {}) => {
 		if (!canvasRef.current) return;
 
-		setZoom(v);
-		const img = imagesUploaded.find((i) => i.isSelected);
-		if (img) drawCanvas(img);
+		const { img, zoom, list } = options;
+
+		let imgToView: ImageEditor | null = img;
+
+		if (!imgToView && list)
+			imgToView = list.find((i) => i.tempId == fileInView || i.isSelected);
+
+		if (!imgToView && !list)
+			imgToView = imagesUploaded.find(
+				(i) => i.tempId == fileInView || i.isSelected
+			);
+
+		if (!imgToView) return clearCanvas(canvasRef.current);
+
+		showImage(canvasRef.current, imgToView, { zoom: zoom || currentZoom });
 	};
 
-	// const showInCanvas = (tempId: string) => {};
+	const applyZoom = (z: number) => {
+		if (!canvasRef.current) return;
+		setZoom(z);
+		drawCanvas({ zoom: z });
+	};
 
 	const selectImageByMode = async (type: SelectMode, tempId?: string) =>
 		setImagesUploaded((prev) => {
@@ -93,7 +122,7 @@ const usePhotoEditorWeb = () => {
 			const visible = newSelecteds.find((i) => i.isSelected);
 
 			if (visible) {
-				drawCanvas(visible);
+				drawCanvas({ img: visible });
 				setFileInView(tempId);
 				setCurrentAdjustments(visible.adjustments);
 			} else {
@@ -113,9 +142,12 @@ const usePhotoEditorWeb = () => {
 		adjustments: Adjustments
 	) => {
 		setCurrentAdjustments(adjustments);
+
 		setImagesUploaded((prev) =>
 			prev.map((i) => (i.isSelected ? { ...i, adjustments, filterEffect } : i))
 		);
+
+		drawCanvas();
 	};
 
 	const deleteImage = (tempId: string) => {
@@ -146,12 +178,10 @@ const usePhotoEditorWeb = () => {
 	};
 
 	const rotateImg = (r: number) => {
-		const img = imagesUploaded.find((i) => i.tempId == fileInView);
-
-		if (!img || !canvasRef.current) return;
+		if (!canvasRef.current) return;
 
 		setImagesUploaded((prev) => {
-			const a = prev.map((i) => {
+			const newList = prev.map((i) => {
 				if (!i.isSelected) return i;
 
 				const newangle = i.rotation + r;
@@ -167,11 +197,9 @@ const usePhotoEditorWeb = () => {
 				};
 			});
 
-			const img = a.find((i) => i.isSelected);
+			drawCanvas({ img: newList.find((i) => i.isSelected) });
 
-			if (img) drawCanvas(img);
-
-			return a;
+			return newList;
 		});
 	};
 
@@ -207,6 +235,8 @@ const usePhotoEditorWeb = () => {
 		canvasRef,
 		currentAdjustments,
 		handleAdjustmentsChange,
+		currentCrop,
+		handleCropChange,
 		imagesUploaded,
 		uploadFiles,
 		changeSelectMark,
@@ -216,7 +246,7 @@ const usePhotoEditorWeb = () => {
 		rotateImg,
 		generateExport,
 		isExporting,
-		zoom,
+		zoom: currentZoom,
 		applyZoom,
 	};
 };
