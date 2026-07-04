@@ -1,4 +1,6 @@
+import { ICIVenezuelan } from "../interfaces/CIVenezuelan.interface";
 import { IMovilnetBalance } from "../interfaces/SaldoMovilnet.interface";
+import { VenezuelanQueryDto } from "../interfaces/venezuelan-query.dto";
 import useRequest from "./useRequest";
 
 const useUtils = () => {
@@ -19,7 +21,23 @@ const useUtils = () => {
 		}
 	};
 
-	return { getSaldoMovilnet };
+	const getVenezuelan = async ({
+		CI,
+		nationality,
+	}: VenezuelanQueryDto): Promise<ICIVenezuelan> => {
+		try {
+			const { data } = await jeangerApp_API.get<ICIVenezuelan>(
+				`/utils/venezuelan-data?nationality=${nationality}V&CI=${CI}`
+			);
+
+			return data;
+		} catch (error) {
+			console.log(error);
+			throw new Error(error.message || "error al obtener Datos");
+		}
+	};
+
+	return { getSaldoMovilnet, getVenezuelan };
 };
 
 export default useUtils;
