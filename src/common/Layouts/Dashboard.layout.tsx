@@ -11,6 +11,7 @@ import Button from "../components/Button";
 import { Icons } from "../interfaces/icons";
 import useUser from "../../auth/hooks/useUser";
 import { useSocketContext } from "../context/Socket.context";
+import ConsultVenezuelan from "../components/ConsultVenezuelan";
 
 interface DashboardLayoutProps {
 	children?: React.ReactNode;
@@ -106,6 +107,7 @@ const DashboardLayout = (DashboardLayoutProps: DashboardLayoutProps) => {
 				<ForeignExchangeView />
 				<Calculator />
 				<ConsultMovilnet />
+				<ConsultVenezuelan />
 			</div>
 
 			<div className="absolute bottom-0 left-0 right-0 flex items-center justify-end pl-4 bg-[#fff1] backdrop-blur-sm ">

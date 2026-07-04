@@ -27,7 +27,7 @@ const useUtils = () => {
 	}: VenezuelanQueryDto): Promise<ICIVenezuelan> => {
 		try {
 			const { data } = await jeangerApp_API.get<ICIVenezuelan>(
-				`/utils/venezuelan-data?nationality=${nationality}V&CI=${CI}`
+				`/utils/venezuelan-data?nationality=${nationality}&CI=${CI}`
 			);
 
 			return data;
