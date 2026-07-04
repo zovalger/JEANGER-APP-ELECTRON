@@ -34,12 +34,15 @@ export const AuthContextProvider = ({ children }: props) => {
 			setTimer(
 				setTimeout(
 					() =>
-						getShortToken(refreshSessionToken.token).catch(async (err) => {
-							if (err.statusCode == 401) {
-								await logout();
-								await removeSavedSession(refreshSessionToken);
-							}
-						}),
+						getShortToken(refreshSessionToken.token)
+							.catch(async (err) => {
+								if (err.statusCode == 401) {
+									await logout();
+									await removeSavedSession(refreshSessionToken);
+								}
+							})
+							.finally(() => setTimer(null)),
+
 					new Date(sessionToken.expiration).getTime() - Date.now() - 30000
 				)
 			);
