@@ -33,7 +33,6 @@ export default function SavedBillsItem({ data }: props) {
 
 	const [popoverOpen, setPopoverOpen] = useState(false);
 
-	// todo: crear el form para renombrar
 
 	const [isSubmit, setIsSubmit] = useState(false);
 
@@ -88,15 +87,15 @@ export default function SavedBillsItem({ data }: props) {
 		reset({ name: data.name });
 	}, [data, reset]);
 
-	useEffect(() => {
-		if (
-			currentBill &&
-			currentBill.tempId != tempId &&
-			!data.name &&
-			data.createdBy == userLogged?._id
-		)
-			setModeRename(true);
-	}, [currentBill]);
+	// useEffect(() => {
+	// 	if (
+	// 		currentBill &&
+	// 		currentBill.tempId != tempId &&
+	// 		!data.name &&
+	// 		data.createdBy == userLogged?._id
+	// 	)
+	// 		setModeRename(true);
+	// }, [currentBill]);
 
 	return (
 		<div
