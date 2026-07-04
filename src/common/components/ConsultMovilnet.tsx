@@ -9,6 +9,7 @@ import useUtils from "../hooks/useUtils";
 import { IMovilnetBalance } from "../interfaces/SaldoMovilnet.interface";
 
 export default function ConsultMovilnet() {
+	// todo: guardar estado en zustand
 	const { getSaldoMovilnet } = useUtils();
 
 	const [id] = useState(uuid());
@@ -20,27 +21,39 @@ export default function ConsultMovilnet() {
 
 	const handdleChange = (v: string) => setValue(v);
 
-	const handdleSubmit = async () => {
+	const startRequest = async () => {
 		try {
-			setError(null);
-
-			if (!value) return;
-			setLoading(true);
-
 			const result = await getSaldoMovilnet(value);
 
 			setSaldoMovilnet(result);
 		} catch (error) {
 			console.log(error);
-			setError("Error al obtener saldo");
+
+			setError("Error al obtener saldo, reintentando.......");
+
+			await startRequest();
 		}
+	};
+
+	const handdleSubmit = async () => {
+		setError(null);
+
+		if (loading) return;
+		if (!value) return;
+
+		setLoading(true);
+
+		await startRequest();
 
 		setLoading(false);
+		setError(null);
 	};
 
 	const handdleClear = () => {
 		setValue("");
 		setSaldoMovilnet(null);
+		setLoading(false);
+		setError(null);
 	};
 
 	return (
@@ -76,27 +89,28 @@ export default function ConsultMovilnet() {
 					<IconButton
 						icon={isCopy ? "ClipboardCheck" : "ClipboardCopy"}
 						size="small"
-						onClick={() => copyToClipboard(value.trim().replace(/^0/, ""))}
+						onClick={() => copyToClipboard(value.trim())}
 					/>
 
 					<IconButton icon="Search" size="small" onClick={handdleSubmit} />
 				</div>
-				{error ? (
-					<Text>{error}</Text>
-				) : loading ? (
+
+				{error && <Text>{error}</Text>}
+
+				{loading && (
 					<div className="space-y-1">
 						<Skeleton />
 						<Skeleton />
 						<Skeleton />
 					</div>
-				) : (
-					saldoMovilnet && (
-						<div>
-							<Text>{saldoMovilnet.saldo}</Text>
-							<Text>{saldoMovilnet.status}</Text>
-							<Text>{saldoMovilnet.date}</Text>
-						</div>
-					)
+				)}
+
+				{saldoMovilnet && !error && !loading && (
+					<div>
+						<Text>{saldoMovilnet.saldo}</Text>
+						<Text>{saldoMovilnet.status}</Text>
+						<Text>{saldoMovilnet.date}</Text>
+					</div>
 				)}
 			</div>
 		</label>
