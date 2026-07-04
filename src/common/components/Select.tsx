@@ -48,7 +48,7 @@ const Select = forwardRef<HTMLSelectElement, CustomSelectProps>(
 				<select
 					ref={ref}
 					{...otherPros}
-					className={`w-full px-4 py-2  ${variantClass} ${sizeClass} ${className}`}
+					className={`w-full px-2 py-2  ${variantClass} ${sizeClass} ${className}`}
 				>
 					<option value="">Seleccione una opción</option>
 
