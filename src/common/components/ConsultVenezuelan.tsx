@@ -169,9 +169,7 @@ export default function ConsultVenezuelan() {
 							<Text selectable>
 								{clientData.gender == "M" ? "Masculino" : "Femenino"}
 							</Text>
-							<Text selectable>
-								{new Date(clientData.birthdate).toLocaleDateString()}
-							</Text>
+							<Text selectable>{clientData.birthdate}</Text>
 						</>
 					)}
 				</div>
